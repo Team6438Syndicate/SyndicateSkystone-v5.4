@@ -161,7 +161,10 @@ public class elevatorThread implements Runnable {
      */
     public synchronized void doStop()
     {
-        fileWriter.write("Elevator Thread Stopped");
+        if (!userControlable)
+        {
+            fileWriter.write("Elevator Thread Stopped");
+        }
         this.doStop = true;
     }
 
@@ -188,13 +191,19 @@ public class elevatorThread implements Runnable {
     @Override
     public void run()
     {
-        while (keepRunning())
+        try
         {
-            try
+            while (keepRunning())
             {
                 if(userControlable)
                 {
                     Thread.sleep(mills);
+
+                    halfSpeed = gamepad.b;
+                    MovementDistance tempStorage = resolveUserControl();
+                    move(tempStorage);
+
+                    checkBounds();
 
                     if(!gamepad.a)
                     {
@@ -209,7 +218,6 @@ public class elevatorThread implements Runnable {
 
                     if (gamepad.y)
                     {
-
                         grabFoundation();
                     }
                     else if (gamepad.x)
@@ -226,14 +234,6 @@ public class elevatorThread implements Runnable {
                         }
                     }
 
-
-
-                    halfSpeed = gamepad.b;
-                    MovementDistance tempStorage = resolveUserControl();
-                    move(tempStorage);
-
-                    checkBounds();
-
                     telemetry.append(Integer.toBinaryString(tempStorage.ticksForLift));
                     telemetry.append(Integer.toString(tempStorage.ticksForLift));
                     telemetry.update();
@@ -244,11 +244,9 @@ public class elevatorThread implements Runnable {
 
                 }
             }
-            catch (InterruptedException ignored)
-            {
-            }
-
-
+        }
+        catch (InterruptedException ignored)
+        {
         }
     }
 

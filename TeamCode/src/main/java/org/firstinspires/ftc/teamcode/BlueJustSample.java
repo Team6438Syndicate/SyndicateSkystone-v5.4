@@ -17,7 +17,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
@@ -89,12 +91,15 @@ public class BlueJustSample extends RobotMovements {
 
         // ArmControlThread armControlThread = new ArmControlThread(robot.shoulderMotor, robot.elbowServoLeft, robot.elbowServoRight, robot.clamp, robot.wrist, robot.sensorFront, 10,10);
 
+        ElapsedTime time = new ElapsedTime();
+
         Telemetry telemetry = new Telemetry(this,robot,10, false);
 
-        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, 1, 0, 30000, 30000, 20, 20, robot.sensorFront);
+        filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
 
+        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, fileWriter);
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,elevatorAutonThread, telemetry, false,false,true,true, false);
+        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter, elevatorAutonThread, telemetry, false,false,true,true);
 
         waitForStart();
 
@@ -105,10 +110,12 @@ public class BlueJustSample extends RobotMovements {
         Thread a = new Thread(simpleDriveThread);
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
+        Thread d = new Thread(fileWriter);
 
         a.start();
         b.start();
         c.start();
+        d.start();
 
 
 
@@ -124,10 +131,12 @@ public class BlueJustSample extends RobotMovements {
             simpleDriveThread.doStop();
             elevatorAutonThread.doStop();
             telemetry.doStop();
+            fileWriter.doStop();
 
             a.interrupt();
             b.interrupt();
             c.interrupt();
+            d.interrupt();
 
             requestOpModeStop();
             stop();
@@ -135,10 +144,12 @@ public class BlueJustSample extends RobotMovements {
         simpleDriveThread.doStop();
         elevatorAutonThread.doStop();
         telemetry.doStop();
+        fileWriter.doStop();
 
         a.interrupt();
         b.interrupt();
         c.interrupt();
+        d.interrupt();
     }
 
 

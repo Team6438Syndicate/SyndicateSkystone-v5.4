@@ -253,10 +253,11 @@ public class drivingThread implements Runnable
      */
     synchronized void doStop()
     {
-        fileWriter.write("Driving Thread Stopped");
+        if (!userControllable)
+        {
+            fileWriter.write("Driving Thread Stopped");
+        }
         this.doStop = true;
-
-
     }
 
     /**
@@ -326,6 +327,32 @@ public class drivingThread implements Runnable
 
                     }
 
+                    if (gamepad.left_stick_button && gamepad.right_stick_button)
+                    {
+                        motor1.setPower(0);
+                        motor2.setPower(0);
+                        motor3.setPower(0);
+                        motor4.setPower(0);
+                        continue;
+                    }
+
+                    if (FastMath.abs(gamepad.left_trigger) > .1)
+                    {
+                        motor1.setPower(-gamepad.left_trigger/3);
+                        motor2.setPower(gamepad.left_trigger/3);
+                        motor3.setPower(-gamepad.left_trigger/3);
+                        motor4.setPower(gamepad.left_trigger/3);
+                        continue;
+                    }
+                    else if (FastMath.abs(gamepad.right_trigger) > .1)
+                    {
+                        motor1.setPower(gamepad.right_trigger/3);
+                        motor2.setPower(-gamepad.right_trigger/3);
+                        motor3.setPower(gamepad.right_trigger/3);
+                        motor4.setPower(-gamepad.right_trigger/3);
+                        continue;
+                    }
+
                     if(gamepad.dpad_left)
                     {
                         motor1.setPower(-0.55);
@@ -333,7 +360,7 @@ public class drivingThread implements Runnable
                         motor3.setPower(0.55);
                         motor4.setPower(0.55);
 
-                       continue;
+                        continue;
 
                     }
 
@@ -364,10 +391,10 @@ public class drivingThread implements Runnable
                     if(gamepad.dpad_down)
                     {
 
-                            motor1.setPower(-0.5);
-                            motor2.setPower(-0.5);
-                            motor3.setPower(-0.5);
-                            motor4.setPower(-0.5);
+                        motor1.setPower(-0.5);
+                        motor2.setPower(-0.5);
+                        motor3.setPower(-0.5);
+                        motor4.setPower(-0.5);
 
 
                         continue;
@@ -403,13 +430,7 @@ public class drivingThread implements Runnable
                         motor3.setPower(0.25);
                         motor4.setPower(0.25);
 
-
-
-
-
-
-
-                            continue;
+                        continue;
                     }
 
                     if(gamepad.b)
@@ -421,16 +442,6 @@ public class drivingThread implements Runnable
 
                         continue;
                     }
-
-                    if (gamepad.left_stick_button && gamepad.right_stick_button)
-                    {
-                        motor1.setPower(0);
-                        motor2.setPower(0);
-                        motor3.setPower(0);
-                        motor4.setPower(0);
-                        continue;
-                    }
-
 
                     boolean accurateDrive = false;
                     if(gamepad.left_bumper)
@@ -903,7 +914,7 @@ public class drivingThread implements Runnable
                 lockDrive(distanceUnit.toMm(21.9317121995), .75);
                 turn(-PI/2 + 0.81764504583,.75); //atan(distance from normal/normalising distance)
 
-                // TODO: 1/25/2020 this distance needs to be changed 
+                // TODO: 1/25/2020 this distance needs to be changed
                 lockDrive(distanceUnit.toMm(10), .75);//to skybridge*/
 
                 if(abortAfterFoundation)
@@ -926,9 +937,9 @@ public class drivingThread implements Runnable
                 lockDrive(distanceUnit.toMm(0), .75);
                 turn( 0,1.0);
                 lockDrive(distanceUnit.toMm(0), .75);
-                
-                
-                
+
+
+
                 int skystonePosition = scanSkystone();
                 telemetry.print("Position = " + skystonePosition);
 
@@ -1029,80 +1040,80 @@ public class drivingThread implements Runnable
 
             }
             case 7:
-                {
-                    // TODO: 1/25/2020 turn and drive towards foundation
-                    lockDrive(distanceUnit.toMm(0), 1.0);
-                    turn( 0,1.0);
-                    lockDrive(distanceUnit.toMm(0), 1.0);
-                    break;
-                }
-                
+            {
+                // TODO: 1/25/2020 turn and drive towards foundation
+                lockDrive(distanceUnit.toMm(0), 1.0);
+                turn( 0,1.0);
+                lockDrive(distanceUnit.toMm(0), 1.0);
+                break;
+            }
+
             case 8:
+            {
+                // TODO: 1/25/2020 Stack second block and park
+                elevatorThread.move(elevatorThread.resolveAutonMovement(450, 0));
+                lockDrive(distanceUnit.toMm(0), 1.0);
+                elevatorThread.move(elevatorThread.resolveAutonMovement(-250, 0));
+                elevatorThread.openClamp();
+                try
                 {
-                    // TODO: 1/25/2020 Stack second block and park
-                    elevatorThread.move(elevatorThread.resolveAutonMovement(450, 0));
-                    lockDrive(distanceUnit.toMm(0), 1.0);
-                    elevatorThread.move(elevatorThread.resolveAutonMovement(-250, 0));
-                    elevatorThread.openClamp();
-                    try
-                    {
-                        Thread.sleep(125);
-                    }
-                    catch (InterruptedException e)
-                    {
-
-                    }
-                    lockDrive(distanceUnit.toMm(0), 1.0);
-
-                        counter = Integer.MAX_VALUE - 100;
-
-
-                    break;
+                    Thread.sleep(125);
                 }
+                catch (InterruptedException e)
+                {
+
+                }
+                lockDrive(distanceUnit.toMm(0), 1.0);
+
+                counter = Integer.MAX_VALUE - 100;
+
+
+                break;
+            }
 
             case 12:
+            {
+                turn(PI/2, 0.8);
+                lockDrive(distanceUnit.toMm(65), 1);
+                elevatorThread.move(elevatorThread.resolveAutonMovement(1000, 0));
+                lockDrive(distanceUnit.toMm(10), .5);
+                elevatorThread.move(elevatorThread.resolveAutonMovement(-1000, 0));
+                lockDrive(distanceUnit.toMm(-25), .75);
+
+                counter = Integer.MAX_VALUE - 1000;
+
+            }
+            case 18:
+            {
+                lockDrive(distanceUnit.toMm(20), 0.8);
+
+            }
+            case 20:
+            {
+                lockDrive(distanceUnit.toMm(-30), .5);
+                grabFoundation();
+                try
                 {
-                    turn(PI/2, 0.8);
-                    lockDrive(distanceUnit.toMm(65), 1);
-                    elevatorThread.move(elevatorThread.resolveAutonMovement(1000, 0));
-                    lockDrive(distanceUnit.toMm(10), .5);
-                    elevatorThread.move(elevatorThread.resolveAutonMovement(-1000, 0));
-                    lockDrive(distanceUnit.toMm(-25), .75);
-
-                    counter = Integer.MAX_VALUE - 1000;
-
+                    Thread.sleep(3000);
                 }
-                case 18:
+                catch (InterruptedException ignored)
                 {
-                    lockDrive(distanceUnit.toMm(20), 0.8);
-
                 }
-                case 20:
+                lockDrive(distanceUnit.toMm(35), .2);
+                turn(-PI/2, 0.1);
+                releaseFoundation();
+                try
                 {
-                    lockDrive(distanceUnit.toMm(-30), .5);
-                    grabFoundation();
-                    try
-                    {
-                        Thread.sleep(3000);
-                    }
-                    catch (InterruptedException ignored)
-                    {
-                    }
-                    lockDrive(distanceUnit.toMm(35), .2);
-                    turn(-PI/2, 0.1);
-                    releaseFoundation();
-                    try
-                    {
-                        Thread.sleep(3000);
-                    }
-                    catch (InterruptedException ignored)
-                    {
-                    }
-                    lockStrafe(distanceUnit.toMm(-50), .75);
-                    doStop();
-
-                    counter = Integer.MAX_VALUE - 100;
+                    Thread.sleep(3000);
                 }
+                catch (InterruptedException ignored)
+                {
+                }
+                lockStrafe(distanceUnit.toMm(-50), .75);
+                doStop();
+
+                counter = Integer.MAX_VALUE - 100;
+            }
 
             default:
             {
@@ -1192,17 +1203,17 @@ public class drivingThread implements Runnable
                         List<Recognition> recognitions2 = robot.tfod.getUpdatedRecognitions();
                         while (recognitions2 != null)
                         {
-                              for (Recognition recognition2 : recognitions2)
-                              {
-                                  if (recognition2.getLabel().equals(robot.LABEL_SKYSTONE))
-                                  {
-                                      return 1; //Skystone is the center stone
-                                  }
-                                  else
-                                  {
-                                      return 2; //Skystone is the last(farthest) stone
-                                  }
-                              }
+                            for (Recognition recognition2 : recognitions2)
+                            {
+                                if (recognition2.getLabel().equals(robot.LABEL_SKYSTONE))
+                                {
+                                    return 1; //Skystone is the center stone
+                                }
+                                else
+                                {
+                                    return 2; //Skystone is the last(farthest) stone
+                                }
+                            }
                         }
                     }
                 }
@@ -1228,7 +1239,7 @@ public class drivingThread implements Runnable
 
 
         //Activate Tensor Flow Object Detection.
-      if(robot.tfod != null){
+        if(robot.tfod != null){
 
 
             boolean stoneFound = false;
@@ -1236,7 +1247,7 @@ public class drivingThread implements Runnable
 
             while (true)//&& runtime.milliseconds() < 1500)
             {
-               //telemetry.print("no detection");
+                //telemetry.print("no detection");
                 // getUpdatedRecognitions() will return null if no new information is available since the last time that call was made.
                 List<Recognition> updatedRecognitions = robot.tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null)
@@ -1402,10 +1413,10 @@ public class drivingThread implements Runnable
         robot.tfod.getUpdatedRecognitions();
         for (Recognition recog:robot.tfod.getRecognitions())
         {
-         if(recog.getLabel().equals(robot.LABEL_SKYSTONE))
-         {
-             objectDetected = true;
-         }
+            if(recog.getLabel().equals(robot.LABEL_SKYSTONE))
+            {
+                objectDetected = true;
+            }
         }
         robot.tfod.deactivate();
     }
@@ -1812,6 +1823,3 @@ public class drivingThread implements Runnable
      */
     private enum DirectAccel {accel, decel}
 }
-
-
-
