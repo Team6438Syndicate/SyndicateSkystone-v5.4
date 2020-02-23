@@ -6,3 +6,6 @@ syossetsyndicate@gmail.com about any programming questions you may have. Our pro
 Our programmers:  Matt K, Brad A, David S, Matt B
 
 Hello you have been hacked by crazy Russian Hacker
+
+
+This is the 5.4 Git, currently you are in the NoOPENCV Branch meaning tensorflow is the computer vision version.
