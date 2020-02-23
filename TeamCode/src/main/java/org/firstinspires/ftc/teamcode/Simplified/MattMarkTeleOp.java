@@ -1,14 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Simplified;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 @TeleOp(name = "Mark and Matt TeleOp", group = "test")
-public class ServoTestChassis extends OpMode {
+public class MattMarkTeleOp extends OpMode {
     Servo clampL, clampR;
     DcMotor liftMotor, FL,FR,BL,BR;
     int positionToMoveUpBy;
