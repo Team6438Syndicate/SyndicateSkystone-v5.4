@@ -21,7 +21,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.odometry.Telemetry;
 
-@TeleOp(name = "2 Player TeleOp", group = "Team 6438 Driver Controlled")
+@TeleOp(name = "2 Player TeleOp", group = "!Team 6438 Driver Controlled")
 public class TwoPlayerTeleOp extends RobotMovements {
     /**
      * Override this method and place your code here.
