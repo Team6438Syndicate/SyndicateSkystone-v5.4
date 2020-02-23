@@ -16,12 +16,13 @@
 
 package org.firstinspires.ftc.teamcode.prototypes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 @TeleOp(name = "Only Intake", group = "gayer")
 public class IntakeOnly extends OpMode {
     DcMotor intakeLeft, intakeRight;
