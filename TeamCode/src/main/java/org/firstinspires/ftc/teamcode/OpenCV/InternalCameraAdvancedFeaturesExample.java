@@ -39,6 +39,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * In this sample, we demonstrate how to use the advanced features provided
  * by the {@link OpenCvInternalCamera} interface
  */
+/*
+* NOTE THE S5 Internal Camera Does NOT seem to cooperate with this code, Webcam, through initial testing, appears to ne functioning perfec
+ */
 @Disabled
 @TeleOp(name = "InternalCameraAdvancedFeaturesExample", group = "zOpenCV")
 public class InternalCameraAdvancedFeaturesExample extends LinearOpMode
