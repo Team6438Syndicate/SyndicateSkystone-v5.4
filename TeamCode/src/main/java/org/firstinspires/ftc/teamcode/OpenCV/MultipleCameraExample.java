@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.OpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -40,7 +41,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * method in order to concurrently display the preview of two cameras, using
  * OpenCV on both.
  */
-@TeleOp
+@Disabled
+@TeleOp(name = "MultiCameraExample", group = "zOpenCV")
 public class MultipleCameraExample extends LinearOpMode
 {
     OpenCvCamera phoneCam;

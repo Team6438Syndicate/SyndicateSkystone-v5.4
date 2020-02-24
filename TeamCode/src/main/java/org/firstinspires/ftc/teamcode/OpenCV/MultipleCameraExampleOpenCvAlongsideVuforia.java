@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.OpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -49,7 +50,8 @@ import java.util.List;
  * method in order to concurrently display the preview of two cameras, using
  * OpenCV on an internal camera, and Vuforia on a webcam
  */
-@TeleOp
+@Disabled
+@TeleOp(name = "Multicamera w Vuforia Example", group = "zOpenCV")
 public class MultipleCameraExampleOpenCvAlongsideVuforia extends LinearOpMode
 {
     OpenCvCamera phoneCam;
