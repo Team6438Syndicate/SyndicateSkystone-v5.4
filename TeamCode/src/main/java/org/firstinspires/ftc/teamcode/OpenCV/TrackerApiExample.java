@@ -19,12 +19,14 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.ComputerVision.OpenCV;
+package org.firstinspires.ftc.teamcode.OpenCV;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -33,20 +35,22 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
+import org.openftc.easyopencv.OpenCvTracker;
+import org.openftc.easyopencv.OpenCvTrackerApiPipeline;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * In this sample, we demonstrate how to use the advanced features provided
- * by the {@link OpenCvInternalCamera} interface
+ * In this sample, we demonstrate how to use the {@link OpenCvTrackerApiPipeline()}
+ * class to run multiple {@link OpenCvTracker} instances on each frame from the camera.
  */
 @TeleOp
-public class InternalCameraAdvancedFeaturesExample extends LinearOpMode
+public class TrackerApiExample extends LinearOpMode
 {
-    /**
-     * NB: we declare our camera as the {@link OpenCvInternalCamera} type,
-     * as opposed to simply {@link OpenCvCamera}. This allows us to access
-     * the advanced features supported only by the internal camera.
-     */
-    OpenCvInternalCamera phoneCam;
+    OpenCvCamera phoneCam;
+    OpenCvTrackerApiPipeline trackerApiPipeline;
+    UselessColorBoxDrawingTracker tracker1, tracker2, tracker3;
 
     @Override
     public void runOpMode()
@@ -61,57 +65,54 @@ public class InternalCameraAdvancedFeaturesExample extends LinearOpMode
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
-        phoneCam.setPipeline(new UselessColorBoxDrawingPipeline(new Scalar(255, 0, 0)));
+
+        /**
+         * Create an instance of the {@link OpenCvTrackerApiPipeline}
+         * pipeline (included with EasyOpenCV), and tell the camera
+         * to use it.
+         */
+        trackerApiPipeline = new OpenCvTrackerApiPipeline();
+        phoneCam.setPipeline(trackerApiPipeline);
+
+        phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
 
         /*
-         * We use the most verbose version of #startStreaming(), which allows us to specify whether we want to use double
-         * (default) or single buffering. See the JavaDoc for this method for more details
+         * Create some trackers we want to run
          */
-        phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
+        tracker1 = new UselessColorBoxDrawingTracker(new Scalar(255, 0, 0));
+        tracker2 = new UselessColorBoxDrawingTracker(new Scalar(0, 255, 0));
+        tracker3 = new UselessColorBoxDrawingTracker(new Scalar(0, 0, 255));
 
         /*
-         * Demonstrate how to turn on the flashlight
+         * Add those trackers to the pipeline. All trackers added to the
+         * trackerApiPipeline will be run upon receipt of a frame from the
+         * camera. Note: the trackerApiPipeline will handle switching
+         * the viewport view on tap between the output of each of the trackers
+         * for you.
          */
-        phoneCam.setFlashlightEnabled(true);
-
-        /*
-         * Demonstrate how to use the zoom. Here we zoom
-         * in as much as is supported.
-         */
-        phoneCam.setZoom(phoneCam.getMaxSupportedZoom());
-
-        /*
-         * Demonstrate how to set the recording hint on the
-         * camera hardware. See the JavDoc for this method
-         * for more details.
-         */
-        phoneCam.setRecordingHint(true);
-
-        /*
-         * Demonstrate how to lock the camera hardware to sending frames at 30FPS, if it supports that
-         */
-        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware())
-        {
-            if(r.max == 30 && r.min == 30)
-            {
-                phoneCam.setHardwareFrameTimingRange(r);
-                break;
-            }
-        }
+        trackerApiPipeline.addTracker(tracker1);
+        trackerApiPipeline.addTracker(tracker2);
+        trackerApiPipeline.addTracker(tracker3);
 
         waitForStart();
 
         while (opModeIsActive())
         {
+            /*
+             * If you later want to stop running a tracker on each frame,
+             * you can remove it from the trackerApiPipeline like so:
+             */
+            //trackerApiPipeline.removeTracker(tracker1);
+
             sleep(100);
         }
     }
 
-    class UselessColorBoxDrawingPipeline extends OpenCvPipeline
+    class UselessColorBoxDrawingTracker extends OpenCvTracker
     {
         Scalar color;
 
-        UselessColorBoxDrawingPipeline(Scalar color)
+        UselessColorBoxDrawingTracker(Scalar color)
         {
             this.color = color;
         }
