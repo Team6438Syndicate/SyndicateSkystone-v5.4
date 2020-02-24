@@ -52,9 +52,10 @@ import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.r
 /**
  * Thread for driving
  */
-public class drivingThread implements Runnable
-{
+public class drivingThread implements Runnable {
 
+    boolean objectDetected = false;
+    double scanDistance = 0;
     private DistanceSensor frontSensor;
     private DcMotor motor1;
     private DcMotor motor2;
@@ -68,28 +69,32 @@ public class drivingThread implements Runnable
     private filewriterThread fileWriter;
     private org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry;
     private boolean abortAfterFoundation;
+    private boolean doubleSample;
     private boolean userControllable;
     private HardwareMap hardwareMap;
     private Team6438ChassisHardwareMapCurrent robot = null;
     private boolean doStop = false;
     private int counter = 0;
-    private boolean firstLoop=true;     //Holds the value of whether or not the foundation is in the spot where it should be
+    private boolean firstLoop = true;     //Holds the value of whether or not the foundation is in the spot where it should be
     private boolean isRed = false;
     private boolean foundationMoveRequest;
     private boolean onlyFoundation;
-
+    private DistanceUnit distanceUnit = DistanceUnit.INCH;
+    private double oldHeadingIMU;
+    private double newHeadingIMU;
+    private double gain;
 
     /**
      * Teleop control constructor
      *
-     * @param motor1      first motor
-     * @param motor2      second motor
-     * @param motor3      third motor
-     * @param motor4      fourth motor
-     * @param mills       millisecond delay for the thread
-     * @param gamepad     gamepad to control robot
-     * @param scaleUp     speedup factor
-     * @param scaleDown   slowdown factor
+     * @param motor1    first motor
+     * @param motor2    second motor
+     * @param motor3    third motor
+     * @param motor4    fourth motor
+     * @param mills     millisecond delay for the thread
+     * @param gamepad   gamepad to control robot
+     * @param scaleUp   speedup factor
+     * @param scaleDown slowdown factor
      */
     drivingThread(@NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, Gamepad gamepad, double scaleUp, double scaleDown)
     {
@@ -104,7 +109,6 @@ public class drivingThread implements Runnable
         userControllable = true;
         this.gamepad = gamepad;
     }
-
 
     drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample)
     {
@@ -129,6 +133,7 @@ public class drivingThread implements Runnable
 
         this.telemetry = telemetry;
         this.abortAfterFoundation = abortAfterFoundation;
+        this.doubleSample = doubleSample;
         this.onlyFoundation = onlyFoundation;
 
         this.userControllable = false;
@@ -143,7 +148,7 @@ public class drivingThread implements Runnable
 
             if (robot.tfod != null)
             {
-                robot.tfod.setClippingMargins(10,10,10,10);
+                robot.tfod.setClippingMargins(10, 10, 10, 10);
                 //Activates the tfod engine
                 robot.tfod.activate();
                 robot.tfod.deactivate();
@@ -247,17 +252,22 @@ public class drivingThread implements Runnable
         return power;
     }
 
-
     /**
      * Stops the thread
      */
     synchronized void doStop()
     {
-        if (!userControllable)
-        {
-            fileWriter.write("Driving Thread Stopped");
-        }
+        fileWriter.write("Driving Thread Stopped");
         this.doStop = true;
+        motor1.setTargetPosition(motor1.getCurrentPosition());
+        motor1.setPower(0);
+        motor2.setTargetPosition(motor2.getCurrentPosition());
+        motor2.setPower(0);
+        motor3.setTargetPosition(motor3.getCurrentPosition());
+        motor3.setPower(0);
+        motor4.setTargetPosition(motor4.getCurrentPosition());
+        motor4.setPower(0);
+
     }
 
     /**
@@ -327,36 +337,10 @@ public class drivingThread implements Runnable
 
                     }
 
-                    if (gamepad.left_stick_button && gamepad.right_stick_button)
+                    if (gamepad.dpad_left)
                     {
-                        motor1.setPower(0);
-                        motor2.setPower(0);
-                        motor3.setPower(0);
-                        motor4.setPower(0);
-                        continue;
-                    }
-
-                    if (FastMath.abs(gamepad.left_trigger) > .1)
-                    {
-                        motor1.setPower(-gamepad.left_trigger/3);
-                        motor2.setPower(gamepad.left_trigger/3);
-                        motor3.setPower(-gamepad.left_trigger/3);
-                        motor4.setPower(gamepad.left_trigger/3);
-                        continue;
-                    }
-                    else if (FastMath.abs(gamepad.right_trigger) > .1)
-                    {
-                        motor1.setPower(gamepad.right_trigger/3);
-                        motor2.setPower(-gamepad.right_trigger/3);
-                        motor3.setPower(gamepad.right_trigger/3);
-                        motor4.setPower(-gamepad.right_trigger/3);
-                        continue;
-                    }
-
-                    if(gamepad.dpad_left)
-                    {
-                        motor1.setPower(-0.55);
-                        motor2.setPower(-0.55);
+                        motor1.setPower(- 0.55);
+                        motor2.setPower(- 0.55);
                         motor3.setPower(0.55);
                         motor4.setPower(0.55);
 
@@ -365,19 +349,19 @@ public class drivingThread implements Runnable
                     }
 
 
-                    if(gamepad.dpad_right)
+                    if (gamepad.dpad_right)
                     {
                         motor1.setPower(0.5);
                         motor2.setPower(0.5);
-                        motor3.setPower(-0.5);
-                        motor4.setPower(-0.5);
+                        motor3.setPower(- 0.5);
+                        motor4.setPower(- 0.5);
 
 
                         continue;
 
                     }
 
-                    if(gamepad.dpad_up)
+                    if (gamepad.dpad_up)
                     {
                         motor1.setPower(0.5);
                         motor2.setPower(0.5);
@@ -388,18 +372,18 @@ public class drivingThread implements Runnable
 
                     }
 
-                    if(gamepad.dpad_down)
+                    if (gamepad.dpad_down)
                     {
 
-                        motor1.setPower(-0.5);
-                        motor2.setPower(-0.5);
-                        motor3.setPower(-0.5);
-                        motor4.setPower(-0.5);
+                        motor1.setPower(- 0.5);
+                        motor2.setPower(- 0.5);
+                        motor3.setPower(- 0.5);
+                        motor4.setPower(- 0.5);
 
 
                         continue;
                     }
-                    if(gamepad.y)
+                    if (gamepad.y)
                     {
                         motor1.setPower(0.25);
                         motor2.setPower(0.25);
@@ -409,42 +393,53 @@ public class drivingThread implements Runnable
 
                     }
 
-                    if(gamepad.a)
+                    if (gamepad.a)
                     {
-                        motor1.setPower(-0.25);
-                        motor2.setPower(-0.25);
-                        motor3.setPower(-0.25);
-                        motor4.setPower(-0.25);
+                        motor1.setPower(- 0.25);
+                        motor2.setPower(- 0.25);
+                        motor3.setPower(- 0.25);
+                        motor4.setPower(- 0.25);
 
                         continue;
                     }
 
-                    if(gamepad.x)
+                    if (gamepad.x)
                     {
 
                         //motor1.setTargetPosition((int) target);
 
 
-                        motor1.setPower(-0.25);
-                        motor2.setPower(-0.25);
+                        motor1.setPower(- 0.25);
+                        motor2.setPower(- 0.25);
                         motor3.setPower(0.25);
                         motor4.setPower(0.25);
 
+
                         continue;
                     }
 
-                    if(gamepad.b)
+                    if (gamepad.b)
                     {
                         motor1.setPower(0.25);
                         motor2.setPower(0.25);
-                        motor3.setPower(-0.25);
-                        motor4.setPower(-0.25);
+                        motor3.setPower(- 0.25);
+                        motor4.setPower(- 0.25);
 
                         continue;
                     }
 
+                    if (gamepad.left_stick_button && gamepad.right_stick_button)
+                    {
+                        motor1.setPower(0);
+                        motor2.setPower(0);
+                        motor3.setPower(0);
+                        motor4.setPower(0);
+                        continue;
+                    }
+
+
                     boolean accurateDrive = false;
-                    if(gamepad.left_bumper)
+                    if (gamepad.left_bumper)
                     {
                         accurateDrive = true;
                     }
@@ -453,7 +448,7 @@ public class drivingThread implements Runnable
                         accurateDrive = false;
                     }
 
-                    if(accurateDrive)
+                    if (accurateDrive)
                     {
                         factorSpeedUp /= 3;
                         factorSpeedDown /= 3;
@@ -461,9 +456,9 @@ public class drivingThread implements Runnable
 
                     currentSpeedLeft = motor1.getPower();
 
-                    gamepadLY = -gamepad.left_stick_y;
+                    gamepadLY = - gamepad.left_stick_y;
                     gamepadRX = gamepad.right_stick_x;
-                    gamepadLX = -gamepad.left_stick_x;
+                    gamepadLX = - gamepad.left_stick_x;
 
 
                     //Forward and Backwards
@@ -493,7 +488,7 @@ public class drivingThread implements Runnable
                         else if (gamepadLY < 0) //for negative values
                         {
 
-                            if (gamepadLY - currentSpeedLeft < -MIN_Value)
+                            if (gamepadLY - currentSpeedLeft < - MIN_Value)
                             {
                                 factor = factorSpeedUp;
                                 direction = DirectAccel.accel;
@@ -530,7 +525,7 @@ public class drivingThread implements Runnable
                         else if (gamepadLX < 0) //for negative values
                         {
 
-                            if (gamepadLX - currentSpeedLeft < -MIN_Value)
+                            if (gamepadLX - currentSpeedLeft < - MIN_Value)
                             {
                                 factor = factorSpeedUp;
                                 direction = DirectAccel.accel;
@@ -540,8 +535,8 @@ public class drivingThread implements Runnable
                         }
                         if (gamepadLX != 0)
                         {
-                            newMotorPower1 += speedChange(motor1, -gamepadLX, direction, factor);
-                            newMotorPower2 += speedChange(motor2, -gamepadLX, direction, factor);
+                            newMotorPower1 += speedChange(motor1, - gamepadLX, direction, factor);
+                            newMotorPower2 += speedChange(motor2, - gamepadLX, direction, factor);
                             newMotorPower3 += speedChange(motor3, gamepadLX, direction, factor);
                             newMotorPower4 += speedChange(motor4, gamepadLX, direction, factor);
                         }
@@ -566,7 +561,7 @@ public class drivingThread implements Runnable
                         else if (gamepadRX < 0) //for negative values
                         {
 
-                            if (gamepadRX - currentSpeedLeft < -MIN_Value)
+                            if (gamepadRX - currentSpeedLeft < - MIN_Value)
                             {
                                 factor = factorSpeedUp;
                                 direction = DirectAccel.accel;
@@ -577,9 +572,9 @@ public class drivingThread implements Runnable
                         if (gamepadRX != 0)
                         {
                             newMotorPower1 += speedChange(motor1, gamepadRX, direction, factor);
-                            newMotorPower2 += speedChange(motor2, -gamepadRX, direction, factor);
+                            newMotorPower2 += speedChange(motor2, - gamepadRX, direction, factor);
                             newMotorPower3 += speedChange(motor3, gamepadRX, direction, factor);
-                            newMotorPower4 += speedChange(motor4, -gamepadRX, direction, factor);
+                            newMotorPower4 += speedChange(motor4, - gamepadRX, direction, factor);
                         }
                     }
 
@@ -602,10 +597,10 @@ public class drivingThread implements Runnable
                     }
 
 
-                    newMotorPower1 = Range.clip(newMotorPower1, -1.0, 1.0);
-                    newMotorPower2 = Range.clip(newMotorPower2, -1.0, 1.0);
-                    newMotorPower3 = Range.clip(newMotorPower3, -1.0, 1.0);
-                    newMotorPower4 = Range.clip(newMotorPower4, -1.0, 1.0);
+                    newMotorPower1 = Range.clip(newMotorPower1, - 1.0, 1.0);
+                    newMotorPower2 = Range.clip(newMotorPower2, - 1.0, 1.0);
+                    newMotorPower3 = Range.clip(newMotorPower3, - 1.0, 1.0);
+                    newMotorPower4 = Range.clip(newMotorPower4, - 1.0, 1.0);
 
 
                     motor1.setPower(newMotorPower1);
@@ -613,7 +608,7 @@ public class drivingThread implements Runnable
                     motor3.setPower(newMotorPower3);
                     motor4.setPower(newMotorPower4);
 
-                    if(accurateDrive)
+                    if (accurateDrive)
                     {
                         factorSpeedUp *= 2;
                         factorSpeedDown *= 2;
@@ -629,13 +624,13 @@ public class drivingThread implements Runnable
 
                     telemetry.update();
 
-                    if(onlyFoundation)
+                    if (onlyFoundation)
                     {
                         counter = 20;
                     }
 
 
-                    if (!motor1.isBusy() && !motor2.isBusy() && !motor3.isBusy() && !motor4.isBusy())
+                    if (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy())
                     {
                         telemetry.append("In execute loop");
                         telemetry.update();
@@ -654,9 +649,8 @@ public class drivingThread implements Runnable
                     }
 
 
-
                     telemetry.print("Action " + (counter - 1) + " complete");
-                    fileWriter.write("Action " + (counter-1) + " complete");
+                    fileWriter.write("Action " + (counter - 1) + " complete");
                 }
             }
         }
@@ -666,8 +660,6 @@ public class drivingThread implements Runnable
             telemetry.print(Arrays.toString(e.getStackTrace()));
         }
     }
-
-    private DistanceUnit distanceUnit = DistanceUnit.INCH;
 
     /**
      * Execute actions at a given position
@@ -711,7 +703,7 @@ public class drivingThread implements Runnable
                         {
                         }
                         //turn(PI/18,.75);
-                        lockStrafe(distanceUnit.toMm(-11),1.0);
+                        lockStrafe(distanceUnit.toMm(- 11), 1.0);
 
                         lockDrive(distanceUnit.toMm(27), .75);
                         elevatorThread.closeClamp();
@@ -725,8 +717,8 @@ public class drivingThread implements Runnable
                         fileWriter.write("Grabbed Skystone");
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(-23), .75);
-                        lockStrafe(distanceUnit.toMm(11),1.0);
+                        lockDrive(distanceUnit.toMm(- 23), .75);
+                        lockStrafe(distanceUnit.toMm(11), 1.0);
                         //turn(-PI/18, .75);
 
                         break;
@@ -742,7 +734,7 @@ public class drivingThread implements Runnable
                         }
                         //turn(-PI/6, .75);
 
-                        lockStrafe(distanceUnit.toMm(-26),1.0);
+                        lockStrafe(distanceUnit.toMm(- 26), 1.0);
 
 
                         lockDrive(distanceUnit.toMm(27), .75);
@@ -757,15 +749,15 @@ public class drivingThread implements Runnable
 
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(-27), .75);
+                        lockDrive(distanceUnit.toMm(- 27), .75);
 
-                        if(!foundationMoveRequest)
+                        if (! foundationMoveRequest)
                         {
-                            counter= 12;
+                            counter = 12;
                         }
 
                         //turn(PI/6, .75);
-                        lockStrafe(distanceUnit.toMm(26),1.0);
+                        lockStrafe(distanceUnit.toMm(26), 1.0);
 
                         break;
 
@@ -791,12 +783,12 @@ public class drivingThread implements Runnable
                         }
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(-27), .75);
+                        lockDrive(distanceUnit.toMm(- 27), .75);
 
                         break;
                 }
 
-                if (!foundationMoveRequest)
+                if (! foundationMoveRequest)
                 {
                     counter = 11;
                 }
@@ -806,7 +798,7 @@ public class drivingThread implements Runnable
             }
             case 2:
             {
-                elevatorThread.move(elevatorThread.resolveAutonMovement(200  , 0));
+                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
                 try
                 {
                     Thread.sleep(750);
@@ -834,7 +826,7 @@ public class drivingThread implements Runnable
             }
             case 4:
             {
-                elevatorThread.move(elevatorThread.resolveAutonMovement(-750, 0));
+                elevatorThread.move(elevatorThread.resolveAutonMovement(- 750, 0));
                 try
                 {
                     Thread.sleep(1000);
@@ -852,12 +844,12 @@ public class drivingThread implements Runnable
                 {
                 }
                 //elevatorThread.move(elevatorThread.resolveAutonMovement(-150, 0));
-                lockDrive(distanceUnit.toMm(-6), .75);
+                lockDrive(distanceUnit.toMm(- 6), .75);
                 if (foundationMoveRequest)
                 {
                     turn(PI, .75);
-                    lockStrafe(distanceUnit.toMm(-20), .75);
-                    lockDrive(distanceUnit.toMm(-12), 0.5);
+                    lockStrafe(distanceUnit.toMm(- 20), .75);
+                    lockDrive(distanceUnit.toMm(- 12), 0.5);
                     grabFoundation();
                     try
                     {
@@ -874,7 +866,7 @@ public class drivingThread implements Runnable
                     {
                     }
                     lockDrive(distanceUnit.toMm(35), .2);
-                    turn(-PI/2, 0.75);
+                    turn(- PI / 2, 0.75);
                     releaseFoundation();
                     try
                     {
@@ -883,13 +875,13 @@ public class drivingThread implements Runnable
                     catch (InterruptedException ignored)
                     {
                     }
-                    lockStrafe(distanceUnit.toMm(-50), .75);
+                    lockStrafe(distanceUnit.toMm(- 50), .75);
                     doStop();
                 }
                 else
                 {
-                    turn(-PI/2,1.0);
-                    lockDrive(distanceUnit.toMm(13),.15);
+                    turn(- PI / 2, 1.0);
+                    lockDrive(distanceUnit.toMm(13), .15);
                     counter = 5;
                 }
 
@@ -897,9 +889,9 @@ public class drivingThread implements Runnable
             }
             case 5:     //Actions from 5 to *tbd* are for when the foundation is in the right place
             {
-                lockDrive(distanceUnit.toMm(30),0.25);
+                lockDrive(distanceUnit.toMm(30), 0.25);
 
-                turn(PI/2, 1.0);
+                turn(PI / 2, 1.0);
 
                 releaseFoundation();
                 try
@@ -917,15 +909,15 @@ public class drivingThread implements Runnable
                 // TODO: 1/25/2020 this distance needs to be changed
                 lockDrive(distanceUnit.toMm(10), .75);//to skybridge*/
 
-                if(abortAfterFoundation)
+                if (abortAfterFoundation)
                 {
                     counter = Integer.MAX_VALUE - 100;
 
                     break;
                 }
                 lockStrafe(distanceUnit.toMm(12), .75);
-                lockDrive(distanceUnit.toMm(-10), .75);
-                turn(2*PI/3,1.0);
+                lockDrive(distanceUnit.toMm(- 10), .75);
+                turn(2 * PI / 3, 1.0);
                 lockStrafe(distanceUnit.toMm(40), .75);
 
                 break;
@@ -935,9 +927,8 @@ public class drivingThread implements Runnable
             {
                 // TODO: 1/25/2020 change drive and turn distances to allow for double sampling position
                 lockDrive(distanceUnit.toMm(0), .75);
-                turn( 0,1.0);
+                turn(0, 1.0);
                 lockDrive(distanceUnit.toMm(0), .75);
-
 
 
                 int skystonePosition = scanSkystone();
@@ -971,7 +962,7 @@ public class drivingThread implements Runnable
 
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(-20), .85);
+                        lockDrive(distanceUnit.toMm(- 20), .85);
 
                         //turn(-PI/18, .85);
 
@@ -1002,7 +993,7 @@ public class drivingThread implements Runnable
 
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(-20), .85);
+                        lockDrive(distanceUnit.toMm(- 20), .85);
 
                         //turn(PI/6, .85);
 
@@ -1031,7 +1022,7 @@ public class drivingThread implements Runnable
 
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(-20), .85);
+                        lockDrive(distanceUnit.toMm(- 20), .85);
 
                         break;
                 }
@@ -1043,7 +1034,7 @@ public class drivingThread implements Runnable
             {
                 // TODO: 1/25/2020 turn and drive towards foundation
                 lockDrive(distanceUnit.toMm(0), 1.0);
-                turn( 0,1.0);
+                turn(0, 1.0);
                 lockDrive(distanceUnit.toMm(0), 1.0);
                 break;
             }
@@ -1053,7 +1044,7 @@ public class drivingThread implements Runnable
                 // TODO: 1/25/2020 Stack second block and park
                 elevatorThread.move(elevatorThread.resolveAutonMovement(450, 0));
                 lockDrive(distanceUnit.toMm(0), 1.0);
-                elevatorThread.move(elevatorThread.resolveAutonMovement(-250, 0));
+                elevatorThread.move(elevatorThread.resolveAutonMovement(- 250, 0));
                 elevatorThread.openClamp();
                 try
                 {
@@ -1073,12 +1064,12 @@ public class drivingThread implements Runnable
 
             case 12:
             {
-                turn(PI/2, 0.8);
+                turn(PI / 2, 0.8);
                 lockDrive(distanceUnit.toMm(65), 1);
                 elevatorThread.move(elevatorThread.resolveAutonMovement(1000, 0));
                 lockDrive(distanceUnit.toMm(10), .5);
-                elevatorThread.move(elevatorThread.resolveAutonMovement(-1000, 0));
-                lockDrive(distanceUnit.toMm(-25), .75);
+                elevatorThread.move(elevatorThread.resolveAutonMovement(- 1000, 0));
+                lockDrive(distanceUnit.toMm(- 25), .75);
 
                 counter = Integer.MAX_VALUE - 1000;
 
@@ -1090,7 +1081,7 @@ public class drivingThread implements Runnable
             }
             case 20:
             {
-                lockDrive(distanceUnit.toMm(-30), .5);
+                lockDrive(distanceUnit.toMm(- 30), .5);
                 grabFoundation();
                 try
                 {
@@ -1100,7 +1091,7 @@ public class drivingThread implements Runnable
                 {
                 }
                 lockDrive(distanceUnit.toMm(35), .2);
-                turn(-PI/2, 0.1);
+                turn(- PI / 2, 0.1);
                 releaseFoundation();
                 try
                 {
@@ -1109,7 +1100,7 @@ public class drivingThread implements Runnable
                 catch (InterruptedException ignored)
                 {
                 }
-                lockStrafe(distanceUnit.toMm(-50), .75);
+                lockStrafe(distanceUnit.toMm(- 50), .75);
                 doStop();
 
                 counter = Integer.MAX_VALUE - 100;
@@ -1128,7 +1119,6 @@ public class drivingThread implements Runnable
     {
 
     }
-
 
     /*
      * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -1183,7 +1173,7 @@ public class drivingThread implements Runnable
 
     private int newScan()
     {
-        if(robot.tfod != null)
+        if (robot.tfod != null)
         {
             boolean stoneFound = false;
 
@@ -1221,6 +1211,7 @@ public class drivingThread implements Runnable
         }
         return 1;
     }
+
     private int scanSkystone()
     {
 
@@ -1239,7 +1230,8 @@ public class drivingThread implements Runnable
 
 
         //Activate Tensor Flow Object Detection.
-        if(robot.tfod != null){
+        if (robot.tfod != null)
+        {
 
 
             boolean stoneFound = false;
@@ -1255,9 +1247,9 @@ public class drivingThread implements Runnable
 
                     for (Recognition recognition : updatedRecognitions)
                     {
-                        if (!isRed)
+                        if (! isRed)
                         {
-                            telemetry.print(""+recognition.getLeft());
+                            telemetry.print("" + recognition.getLeft());
                             if (recognition.getLabel().equals(robot.LABEL_SKYSTONE))
                             {
                                 if (recognition.getLeft() > 100 && recognition.getLeft() < 250)    //Skystone in the center
@@ -1294,12 +1286,12 @@ public class drivingThread implements Runnable
                             }
                             else
                             {
-                                if (recognition.getLeft() > 100 && recognition.getLeft() < 200 && !rightFound)    //Skystone in the center
+                                if (recognition.getLeft() > 100 && recognition.getLeft() < 200 && ! rightFound)    //Skystone in the center
                                 {
                                     rightFound = true;
                                 }
 
-                                if (recognition.getLeft() <= 100 && !centerFound)    //Skystone in the center
+                                if (recognition.getLeft() <= 100 && ! centerFound)    //Skystone in the center
                                 {
                                     centerFound = true;
                                 }
@@ -1318,7 +1310,7 @@ public class drivingThread implements Runnable
                         {
                             if (recognition.getLabel().equals(robot.LABEL_SKYSTONE))
                             {
-                                telemetry.print(""+recognition.getLeft());
+                                telemetry.print("" + recognition.getLeft());
 
                                 if (recognition.getLeft() > 300 && recognition.getLeft() < 600)    //Skystone in the center
                                 {
@@ -1379,20 +1371,47 @@ public class drivingThread implements Runnable
         return position;
     }
 
-    private void scanning()
+    private drivingThread.ScanPosition scanning()
     {
+        ScanPosition position;
         scanningMonitor();
-        if(!scanningStrafe())
+        if (! scanningStrafe())
         {
             scanningMonitor();
-            if(!scanningStrafe())
+            if (! scanningStrafe())
             {
                 objectDetected = true;
                 scanningStrafe();
+                position = ScanPosition.left;
+            }
+            else
+            {
+                position = ScanPosition.center;
+
             }
         }
-        correctedDrive(0,0);
-        grabBlock();
+        else
+        {
+            position = ScanPosition.right;
+
+        }
+
+        if (isRed)
+        {
+            switch (position)
+            {
+                case left:
+                    position = ScanPosition.right;
+                    break;
+                case center:
+                    break;
+                case right:
+                    position = ScanPosition.left;
+                    break;
+            }
+        }
+        correctedDrive(distanceUnit.toMm(15), 1.0);
+        elevatorThread.closeClamp();
         try
         {
             Thread.sleep(500);
@@ -1401,49 +1420,142 @@ public class drivingThread implements Runnable
         {
 
         }
-        correctedDrive(0,0);
-
+        correctedDrive(distanceUnit.toMm(- 15), 1.0);
+        return position;
     }
 
+    private void autonomousControl(final int counter)
+    {
+        drivingThread.ScanPosition scanPosition = ScanPosition.center;
+        switch (counter)
+        {
+            case 0:
+            {
+                telemetry.print("Autonomous started");
+            }
+            case 1:
+            {
+                correctedDrive(distanceUnit.toMm(15), 1.0);
+                break;
+            }
+            case 2:
+            {
+                scanPosition = scanning();
+                correctedStrafe(-scanDistance, 1.0);
+                break;
 
+            }
+            case 3:
+            {
+                correctedStrafe(distanceUnit.toMm(-30), 1.0);
+                if (! doubleSample)
+                {
+                    this.counter = 16;
+                    break;
+                }
+                correctedTurn(- PI / 4, 1.0, false);
+                try
+                {
+                    elevatorThread.openClamp();
+                    Thread.sleep(500);
+
+                }
+                catch (InterruptedException ignored)
+                {
+
+                }
+                correctedTurn(PI / 4, 1.0, false);
+                correctedStrafe(distanceUnit.toMm(30), 1.0);
+
+                break;
+
+            }
+            case 4:
+            {
+
+                if (! isRed)
+                {
+                    switch (scanPosition)
+                    {
+                        case right:
+                        case center:
+                        {
+                            correctedStrafe(scanDistance, 1.0);
+
+                            break;
+                        }
+                        case left:
+                        {
+                            break;
+                        }
+                    }
+
+                }
+
+
+                break;
+
+            }
+            case 5:
+            {
+
+            }
+            case 6:
+            {
+
+            }
+            case 7:
+            {
+
+            }
+            case 8:
+            {
+
+            }
+
+
+            default:
+                telemetry.print("Autonomous has ended");
+                break;
+        }
+    }
 
     private void scanningMonitor()
     {
         activateTfod();
         robot.tfod.getUpdatedRecognitions();
-        for (Recognition recog:robot.tfod.getRecognitions())
+        for (Recognition recog : robot.tfod.getRecognitions())
         {
-            if(recog.getLabel().equals(robot.LABEL_SKYSTONE))
+            if (recog.getLabel().equals(robot.LABEL_SKYSTONE))
             {
                 objectDetected = true;
             }
         }
         robot.tfod.deactivate();
     }
+
     private void activateTfod()
     {
-        if(robot.tfod != null)
+        if (robot.tfod != null)
         {
             robot.tfod.activate();
         }
     }
-    boolean objectDetected = false;
-    double scanDistance = 0;
 
     private boolean scanningStrafe()
     {
 
-        if(objectDetected)
+        if (objectDetected)
         {
             //lockStrafe(radiusMM, 1);
-            correctedStrafe(radiusMM,1);
+            correctedStrafe(radiusMM, 1);
             scanDistance += radiusMM;
             return true;
         }
         else
         {
             //lockStrafe(radiusMM*2, 1);
-            correctedStrafe(radiusMM * 2,1);
+            correctedStrafe(radiusMM * 2, 1);
             scanDistance += radiusMM * 2;
             return false;
 
@@ -1453,11 +1565,13 @@ public class drivingThread implements Runnable
 
     /**
      * If the motor is not moving set it a position
-     *  @param motor    motor to assign position
+     *
+     * @param motor    motor to assign position
      * @param power
      * @param distance distance to traverse
      */
-    private void assignPosition(DcMotor motor, double power, double distance) {
+    private void assignPosition(DcMotor motor, double power, double distance)
+    {
 
         double target = distance;
         motor.setTargetPosition((int) target);
@@ -1475,13 +1589,7 @@ public class drivingThread implements Runnable
         robot.foundationR.setPosition(.75);
     }
 
-
-    private double oldHeadingIMU;
-
-    private double newHeadingIMU;
-    private double gain;
     /**
-     *
      * @param angle
      * @param power
      * @param includePhoneGyro
@@ -1511,15 +1619,15 @@ public class drivingThread implements Runnable
         }
         else
         {
-            oldHeadingIMU = -getHeadingIMU();
+            oldHeadingIMU = - getHeadingIMU();
 
 
             turn(angle, power);
 
-            newHeadingIMU = -getHeadingIMU();
+            newHeadingIMU = - getHeadingIMU();
             double error1;
 
-            error = (-angle - checkAngles());
+            error = (- angle - checkAngles());
 
             telemetry.append("old " + oldHeadingIMU);
             telemetry.append("new " + newHeadingIMU);
@@ -1540,7 +1648,6 @@ public class drivingThread implements Runnable
     }
 
     /**
-     *
      * @param power
      */
     private void allDrive(double power)
@@ -1558,7 +1665,6 @@ public class drivingThread implements Runnable
     }
 
     /**
-     *
      * @param angle
      * @param power
      */
@@ -1569,9 +1675,9 @@ public class drivingThread implements Runnable
         float distance = (float) (angle * Team6438ChassisHardwareMapCurrent.radiusMM);
 
 
-        assignPosition(motor1, motorMovementEncoder(-distance, motor1));
+        assignPosition(motor1, motorMovementEncoder(- distance, motor1));
         assignPosition(motor2, motorMovementEncoder(distance, motor2));
-        assignPosition(motor3, motorMovementEncoder(-distance, motor3));
+        assignPosition(motor3, motorMovementEncoder(- distance, motor3));
         assignPosition(motor4, motorMovementEncoder(distance, motor4));
 
         allDrive(power);
@@ -1594,7 +1700,6 @@ public class drivingThread implements Runnable
     }
 
     /**
-     *
      * @param motor
      * @param distance
      */
@@ -1610,9 +1715,9 @@ public class drivingThread implements Runnable
     }
 
     /**
-     *
      * @param position
      * @param motor
+     *
      * @return
      */
     private int motorMovementEncoder(double position, @NotNull DcMotor motor)
@@ -1649,7 +1754,6 @@ public class drivingThread implements Runnable
     }
 
     /**
-     *
      * @param distance
      * @param power
      */
@@ -1675,9 +1779,9 @@ public class drivingThread implements Runnable
     }
 
     /**
-     *
      * @param driveDistance
      * @param oldHeadingIMU
+     *
      * @return
      */
     private drivingThread.MovementVector calcDeviation(double driveDistance, double oldHeadingIMU)
@@ -1691,11 +1795,10 @@ public class drivingThread implements Runnable
 
         deviationDistance = 2 * driveDistance * sin(deviationAngle / 2.0);
 
-        return new drivingThread.MovementVector(deviationDistance, -deviationAngle);
+        return new drivingThread.MovementVector(deviationDistance, - deviationAngle);
     }
 
     /**
-     *
      * @param movementVector
      * @param power
      * @param driveType
@@ -1706,7 +1809,7 @@ public class drivingThread implements Runnable
         {
             correctedStrafe(movementVector.getDistance(), power);
         }
-        else if(driveType == drivingThread.DriveType.drive)
+        else if (driveType == drivingThread.DriveType.drive)
         {
             correctedDrive(movementVector.getDistance(), power);
         }
@@ -1718,17 +1821,7 @@ public class drivingThread implements Runnable
         correctedTurn(movementVector.getAngle(), power, false);
     }
 
-
     /**
-     *
-     */
-    private enum DriveType
-    {
-        strafe,drive
-    }
-
-    /**
-     *
      * @param driveDistance
      * @param oldHeadingIMU
      * @param power
@@ -1737,43 +1830,42 @@ public class drivingThread implements Runnable
     private void rectifyDeviations(double driveDistance, double oldHeadingIMU, double power, drivingThread.DriveType driveType)
     {
         drivingThread.MovementVector movementVector = calcDeviation(driveDistance, oldHeadingIMU);
-        if(FastMath.abs(movementVector.getDistance()) <= 1 && FastMath.abs(movementVector.getAngle()) <= gain)
+        if (FastMath.abs(movementVector.getDistance()) <= 1 && FastMath.abs(movementVector.getAngle()) <= gain)
         {
             return;
         }
-        deviationCorrection(movementVector,power, driveType);
+        deviationCorrection(movementVector, power, driveType);
     }
 
     /**
-     *  @param distance
+     * @param distance
      * @param power
      */
     private void correctedStrafe(final double distance, final double power)
     {
-        double power1 = Range.scale(power,0.0,1.0,0.0,.80);
+        double power1 = Range.scale(power, 0.0, 1.0, 0.0, .80);
         oldHeadingIMU = getHeadingIMU();
 
-        lockStrafe(distance,power);
+        lockStrafe(distance, power);
 
-        rectifyDeviations(distance,oldHeadingIMU,power, drivingThread.DriveType.drive);
+        rectifyDeviations(distance, oldHeadingIMU, power, drivingThread.DriveType.drive);
 
     }
 
     /**
-     *  @param distance
+     * @param distance
      * @param power
      */
     private void correctedDrive(final double distance, final double power)
     {
         oldHeadingIMU = getHeadingIMU();
 
-        lockDrive(distance,power);
+        lockDrive(distance, power);
 
-        rectifyDeviations(distance,oldHeadingIMU,power, drivingThread.DriveType.strafe);
+        rectifyDeviations(distance, oldHeadingIMU, power, drivingThread.DriveType.strafe);
     }
 
     /**
-     *
      * @return
      */
     private double getHeadingIMU()
@@ -1792,8 +1884,21 @@ public class drivingThread implements Runnable
     /**
      *
      */
-    private class MovementVector
-    {
+    private enum DriveType {
+        strafe, drive
+    }
+
+    public enum ScanPosition {left, center, right}
+
+    /**
+     * enum with which direction the acceleration is in relative to the current power
+     */
+    private enum DirectAccel {accel, decel}
+
+    /**
+     *
+     */
+    private class MovementVector {
         private final double distance;
         private final double angle;
 
@@ -1814,12 +1919,7 @@ public class drivingThread implements Runnable
             return angle;
         }
     }
-
-
-
-
-    /**
-     * enum with which direction the acceleration is in relative to the current power
-     */
-    private enum DirectAccel {accel, decel}
 }
+
+
+
