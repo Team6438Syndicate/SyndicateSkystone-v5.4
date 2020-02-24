@@ -58,18 +58,18 @@ public class elevatorThread implements Runnable {
     //Counts per Mills
     private final double hexCPMMLift =(hexCPRLift) / (WDMMLift / DGRLift * FastMath.PI) ;
     public  final double hexCPILift = hexCPMMLift / mmPerInch;
-/*
-    //Encoder Variables
-    private  final double hexCPRTension = 383.6; // TODO: 12/22/2019 change for the other motor
-    //Drive Gear Reduction
-    private  final double DGRTension = 1;
-    //Wheel Diameter Mills
-    private  final double WDMMTension = 10; // TODO: 12/22/2019 Pulley size
-    //Counts per Mills
-    private final double hexCPMMTension =(hexCPRTension) /(WDMMTension / DGRTension * FastMath.PI)  ;
-    public  final double hexCPITension = hexCPMMTension / mmPerInch;
+    /*
+        //Encoder Variables
+        private  final double hexCPRTension = 383.6; // TODO: 12/22/2019 change for the other motor
+        //Drive Gear Reduction
+        private  final double DGRTension = 1;
+        //Wheel Diameter Mills
+        private  final double WDMMTension = 10; // TODO: 12/22/2019 Pulley size
+        //Counts per Mills
+        private final double hexCPMMTension =(hexCPRTension) /(WDMMTension / DGRTension * FastMath.PI)  ;
+        public  final double hexCPITension = hexCPMMTension / mmPerInch;
 
- */
+     */
     private float range;
     private int LIFT_MAX_VALUE;
     private  DistanceSensor distanceSensor;
@@ -124,7 +124,7 @@ public class elevatorThread implements Runnable {
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-       // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         closeClamp();
@@ -152,7 +152,7 @@ public class elevatorThread implements Runnable {
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-       // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
@@ -161,10 +161,7 @@ public class elevatorThread implements Runnable {
      */
     public synchronized void doStop()
     {
-        if (!userControlable)
-        {
-            fileWriter.write("Elevator Thread Stopped");
-        }
+        fileWriter.write("Elevator Thread Stopped");
         this.doStop = true;
     }
 
@@ -191,19 +188,13 @@ public class elevatorThread implements Runnable {
     @Override
     public void run()
     {
-        try
+        while (keepRunning())
         {
-            while (keepRunning())
+            try
             {
                 if(userControlable)
                 {
                     Thread.sleep(mills);
-
-                    halfSpeed = gamepad.b;
-                    MovementDistance tempStorage = resolveUserControl();
-                    move(tempStorage);
-
-                    checkBounds();
 
                     if(!gamepad.a)
                     {
@@ -218,6 +209,7 @@ public class elevatorThread implements Runnable {
 
                     if (gamepad.y)
                     {
+
                         grabFoundation();
                     }
                     else if (gamepad.x)
@@ -234,6 +226,14 @@ public class elevatorThread implements Runnable {
                         }
                     }
 
+
+
+                    halfSpeed = gamepad.b;
+                    MovementDistance tempStorage = resolveUserControl();
+                    move(tempStorage);
+
+                    checkBounds();
+
                     telemetry.append(Integer.toBinaryString(tempStorage.ticksForLift));
                     telemetry.append(Integer.toString(tempStorage.ticksForLift));
                     telemetry.update();
@@ -244,25 +244,27 @@ public class elevatorThread implements Runnable {
 
                 }
             }
-        }
-        catch (InterruptedException ignored)
-        {
+            catch (InterruptedException ignored)
+            {
+            }
+
+
         }
     }
 
 
 
-     void move(MovementDistance movementDistance)
+    void move(MovementDistance movementDistance)
     {
         if(movementDistance.getTicksForLift() == 0 && movementDistance.getTicksForTension() == 0)
         {
             return;
         }
-       int liftHeight = movementDistance.getTicksForLift();
-      // int tensionRotation = movementDistance.getTicksForTension();
+        int liftHeight = movementDistance.getTicksForLift();
+        // int tensionRotation = movementDistance.getTicksForTension();
 
-       liftHeight = lift.getTargetPosition() + liftHeight;
-       //tensionRotation = tension.getCurrentPosition() + tensionRotation;
+        liftHeight = lift.getTargetPosition() + liftHeight;
+        //tensionRotation = tension.getCurrentPosition() + tensionRotation;
 
 
         lift.setTargetPosition(liftHeight);
@@ -288,7 +290,7 @@ public class elevatorThread implements Runnable {
         MovementDistance movementDistance = new MovementDistance(0,0);
         if(gamepad.left_trigger > 0.0 + range && gamepad.right_trigger < 0.0 + range)
         {
-          double inchDistance =  gamepad.left_trigger * LIFT_MULTIPLIER_UP;
+            double inchDistance =  gamepad.left_trigger * LIFT_MULTIPLIER_UP;
             movementDistance.setTicksForLift(convertDistanceToTicks(inchDistance,MotorType.lift));
             movementDistance.setTicksForTension(convertDistanceToTicks(inchDistance,MotorType.tension));
         }
@@ -387,10 +389,10 @@ public class elevatorThread implements Runnable {
 
 
     }
-   private enum MotorType
-   {
-       lift,tension
-   }
+    private enum MotorType
+    {
+        lift,tension
+    }
     private class MovementDistance
     {
         private int ticksForLift;
@@ -423,13 +425,13 @@ public class elevatorThread implements Runnable {
         }
     }
 
-     void openClamp()
+    synchronized void openClamp()
     {
         lclamp.setPosition(0.5);
         rclamp.setPosition(0.5);
     }
 
-    void closeClamp()
+    synchronized void closeClamp()
     {
         lclamp.setPosition(0.75);
         rclamp.setPosition(0.25);
