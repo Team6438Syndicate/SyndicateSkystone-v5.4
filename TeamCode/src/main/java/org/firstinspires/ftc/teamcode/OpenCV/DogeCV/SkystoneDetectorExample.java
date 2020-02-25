@@ -24,6 +24,10 @@ public class SkystoneDetectorExample extends LinearOpMode
     OpenCvCamera webcam;
     private SkystoneDetector skyStoneDetector;
 
+    private enum locations {Left, Center, Right}
+
+    locations position;
+
     @Override
     public void runOpMode() {
         /*
@@ -72,11 +76,25 @@ public class SkystoneDetectorExample extends LinearOpMode
 
         while (opModeIsActive())
         {
+
+            if (skyStoneDetector.getScreenPosition().x < 150)
+            {
+                position = locations.Left;
+            }
+            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+            {
+                position = locations.Center;
+            }
+            else
+            {
+                position = locations.Right;
+            }
             /*
              * Send some stats to the telemetry
              */
             telemetry.addData("Stone Position X", skyStoneDetector.getScreenPosition().x);
             telemetry.addData("Stone Position Y", skyStoneDetector.getScreenPosition().y);
+            telemetry.addData("Stone Location", position.toString());
             telemetry.addData("Frame Count", webcam.getFrameCount());
             telemetry.addData("FPS", String.format(Locale.US, "%.2f", webcam.getFps()));
             telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
