@@ -19,7 +19,6 @@ import org.openftc.easyopencv.OpenCvPipeline;
 /**
  * Created by Victo on 9/10/2018.
  */
-
 public abstract class DogeCVDetector extends OpenCvPipeline {
 
     public abstract Mat process(Mat input);
