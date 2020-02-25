@@ -216,7 +216,10 @@ public class elevatorThread implements Runnable {
                     {
                         releaseFoundation();
                     }
-
+                    else if (gamepad.b)
+                    {
+                        midFoundation();
+                    }
                     if(gamepad.right_bumper)
                     {
                         moveToZero();
@@ -452,5 +455,6 @@ public class elevatorThread implements Runnable {
     void midFoundation()
     {
         foundationL.setPosition(0.5);
+        foundationR.setPosition(0.5);
     }
 }
