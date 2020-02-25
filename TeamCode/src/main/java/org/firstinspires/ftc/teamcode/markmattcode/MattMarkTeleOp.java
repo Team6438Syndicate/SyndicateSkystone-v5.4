@@ -21,7 +21,10 @@ public class MattMarkTeleOp extends OpMode
     double strafeDec = .2;
     double slowSpeed = .2;
     double gamestickFactor = 1.75;
-    double towerSize = 0;
+    int towerSize = 0;
+    double liftUpSpeed = 1;
+    int zeroTowerPositionOfSlides = 100; // need tweaking
+    int ticksPerBlock = 100;            // need tweaking
 
     @Override
     public void init()
@@ -65,42 +68,74 @@ public class MattMarkTeleOp extends OpMode
             clampR.setPosition(.9);
         }
 
+        
+        
+        
         if(gamepad2.dpad_up)
         {
             towerSize++;
+            telemetry.speak("Tower Size Has been Increased, tower size now");
+            telemetry.speak(String.valueOf(towerSize));
+            telemetry.update();
         }
-
-
-        if(gamepad1.left_bumper)
+        else if(gamepad2.a)
         {
-            armMove(150);
+            goToTowerSize(towerSize);
         }
-        else if (gamepad1.right_bumper)
+        if(gamepad2.left_bumper)
         {
-            armMove(-150);
+            armMoveRelative(150);
         }
-        else if (gamepad1.left_trigger > .05)
+        else if (gamepad2.right_bumper)
+        {
+            armMoveRelative(-150);
+        }
+        else if (gamepad2.left_trigger > .05)
         {
             positionToMoveUpBy = (int) gamepad1.left_trigger * scaleFactor;
-            armMove(positionToMoveUpBy);
+            armMoveRelative(positionToMoveUpBy);
         }
-        else if (gamepad1.right_trigger > .05)
+        else if (gamepad2.right_trigger > .05)
         {
             positionToMoveUpBy = (int) gamepad1.right_trigger * scaleFactor;
-            armMove(-positionToMoveUpBy);
+            armMoveRelative(-positionToMoveUpBy);
         }
+        
 
         //This checks to see how we want the motors moved
         motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y);
 
     }
-    public void armMove(int position)
+    /*
+    * Moves to a position relative to current (- is lower, + is higher)
+     */
+    public void armMoveRelative(int positionRelative)
     {
-        int newPosition = liftMotor.getCurrentPosition() + position;
+        int newPosition = liftMotor.getCurrentPosition() + positionRelative;
 
-        liftMotor.setPower(1);
+        liftMotor.setPower(liftUpSpeed);
 
         liftMotor.setTargetPosition(newPosition);
+
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (liftMotor.isBusy())
+        {
+            telemetry.addData("Currently At", liftMotor.getCurrentPosition());
+            telemetry.addData("Going to", liftMotor.getTargetPosition());
+            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y);
+            telemetry.update();
+        }
+    }
+
+    /*
+    * moves to an absolute position
+     */
+    public void armMoveAbsolute(int position)
+    {
+        liftMotor.setPower(liftUpSpeed);
+
+        liftMotor.setTargetPosition(position);
 
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -179,7 +214,11 @@ public class MattMarkTeleOp extends OpMode
         BL.setPower(BLpower);
         BR.setPower(BRpower);
     }
-
+    public void goToTowerSize (int towerSize)
+    {
+        int position = zeroTowerPositionOfSlides + (ticksPerBlock * towerSize);
+        armMoveAbsolute(position);
+    }
     //This one is pretty self explanatory
     public void turnoffallMotors()
     {
