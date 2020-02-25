@@ -150,6 +150,11 @@ public class Telemetry implements Runnable
         telemetry.update();
     }
 
+    public void speak(String statement)
+    {
+        telemetry.speak(statement);
+    }
+
     public void printSpeeds(double pwr1, double pwr2, double pwr3, double pwr4)
     {
         telemetry.addData("Power FL: ", pwr1);

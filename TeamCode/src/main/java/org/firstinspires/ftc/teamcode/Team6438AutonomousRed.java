@@ -99,8 +99,12 @@ public class Team6438AutonomousRed extends RobotMovements {
 
         elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, fileWriter);
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread,telemetry,false,true,true,true);
+        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread,telemetry,false,true,true,true, true);
+        simpleDriveThread.detectSkystone();
+
         waitForStart();
+
+        simpleDriveThread.runDetect = false;
 
         /**
          * Creates and starts the drive, elevator, and telemetry threads

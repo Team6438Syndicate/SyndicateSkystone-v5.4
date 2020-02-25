@@ -94,7 +94,6 @@ public class SkystoneDetectorExample extends LinearOpMode
              */
             telemetry.addData("Stone Position X", skyStoneDetector.getScreenPosition().x);
             telemetry.addData("Stone Position Y", skyStoneDetector.getScreenPosition().y);
-            telemetry.addData("Stone Location", position.toString());
             telemetry.addData("Frame Count", webcam.getFrameCount());
             telemetry.addData("FPS", String.format(Locale.US, "%.2f", webcam.getFps()));
             telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
