@@ -65,6 +65,11 @@ public class MattMarkTeleOp extends OpMode
             clampR.setPosition(.9);
         }
 
+        if(gamepad2.dpad_up)
+        {
+            towerSize++;
+        }
+
 
         if(gamepad1.left_bumper)
         {
