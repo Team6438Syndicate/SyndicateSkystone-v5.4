@@ -16,6 +16,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+
+import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -37,6 +40,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.pathfinder.PathFinder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,15 +80,18 @@ public class drivingThread implements Runnable {
     private HardwareMap hardwareMap;
     private Team6438ChassisHardwareMapCurrent robot = null;
     private boolean doStop = false;
+    public boolean runDetect = true;
     private int counter = 0;
     private boolean firstLoop = true;     //Holds the value of whether or not the foundation is in the spot where it should be
     private boolean isRed = false;
     private boolean foundationMoveRequest;
     private boolean onlyFoundation;
+    private boolean runOpenCV;
     private DistanceUnit distanceUnit = DistanceUnit.INCH;
     private double oldHeadingIMU;
     private double newHeadingIMU;
     private double gain;
+    private Locations skystonePosition;
 
     /**
      * Teleop control constructor
@@ -110,7 +119,7 @@ public class drivingThread implements Runnable {
         this.gamepad = gamepad;
     }
 
-    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample)
+    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV)
     {
         this.foundationMoveRequest = foundationMoveRequest;
         this.hardwareMap = hardwareMap;
@@ -138,31 +147,38 @@ public class drivingThread implements Runnable {
 
         this.userControllable = false;
 
+        this.runOpenCV = runOpenCV;
 
         //createVuforia();
-        initVuforia();
 
-        if (ClassFactory.getInstance().canCreateTFObjectDetector())
+        if (!runOpenCV)
         {
-            initTfod();
+            initVuforia();
 
-            if (robot.tfod != null)
+            if (ClassFactory.getInstance().canCreateTFObjectDetector())
             {
-                robot.tfod.setClippingMargins(10, 10, 10, 10);
-                //Activates the tfod engine
-                robot.tfod.activate();
-                robot.tfod.deactivate();
-                //Waits for .1 seconds to allow processor to catch up
-                try
-                {
-                    Thread.sleep(10);
-                }
-                catch (Exception e)
-                {
+                initTfod();
 
+                if (robot.tfod != null)
+                {
+                    robot.tfod.setClippingMargins(10, 10, 10, 10);
+                    //Activates the tfod engine
+                    robot.tfod.activate();
+                    robot.tfod.deactivate();
+                    //Waits for .1 seconds to allow processor to catch up
+                    try
+                    {
+                        Thread.sleep(10);
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
                 }
             }
         }
+
+        skystonePosition = detectSkystone();
 
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
 
@@ -257,17 +273,12 @@ public class drivingThread implements Runnable {
      */
     synchronized void doStop()
     {
-        fileWriter.write("Driving Thread Stopped");
-        this.doStop = true;
-        motor1.setTargetPosition(motor1.getCurrentPosition());
-        motor1.setPower(0);
-        motor2.setTargetPosition(motor2.getCurrentPosition());
-        motor2.setPower(0);
-        motor3.setTargetPosition(motor3.getCurrentPosition());
-        motor3.setPower(0);
-        motor4.setTargetPosition(motor4.getCurrentPosition());
-        motor4.setPower(0);
+        if (!userControllable)
+        {
+            fileWriter.write("Driving Thread Stopped");
+        }
 
+        this.doStop = true;
     }
 
     /**
@@ -671,7 +682,7 @@ public class drivingThread implements Runnable {
         fileWriter.write("Action counter = " + counter);
         switch (position)
         {
-            case 0:
+            /*case 0:
             {
                 //scanned
                 //drive away x distance
@@ -681,19 +692,19 @@ public class drivingThread implements Runnable {
                 //turn(PI);
                 //telemetry.print("turned");
                 break;
-            }
+            }*/
             case 1:     //get the skystone position
             {
                 //vuforiaCamera1.killVuforia();
 
                 //Holds the position of the skystone
-                int skystonePosition = scanSkystone();
-                fileWriter.write("Position Found = " + skystonePosition);
-                telemetry.print("Position = " + skystonePosition);
+                //int skystonePosition = scanSkystone();
+                fileWriter.write("Position Found = " + skystonePosition.toString());
+                telemetry.print("Position = " + skystonePosition.toString());
 
                 switch (skystonePosition)
                 {
-                    case 0:
+                    case Left:
                         elevatorThread.openClamp();
                         try
                         {
@@ -723,7 +734,7 @@ public class drivingThread implements Runnable {
 
                         break;
 
-                    case 2:
+                    case Center:
                         elevatorThread.openClamp();
                         try
                         {
@@ -1211,6 +1222,58 @@ public class drivingThread implements Runnable {
         }
         return 1;
     }
+
+    public Locations detectSkystone()
+    {
+        SkystoneDetector skyStoneDetector;
+
+        OpenCvCamera webcam;
+
+        Locations position = Locations.Left;
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+        webcam.openCameraDevice();
+
+        skyStoneDetector = new SkystoneDetector();
+        webcam.setPipeline(skyStoneDetector);
+
+        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+
+        while (runDetect())
+        {
+            if (skyStoneDetector.getScreenPosition().x < 150)
+            {
+                position = Locations.Left;
+            }
+            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+            {
+                position = Locations.Center;
+            }
+            else
+            {
+                position = Locations.Right;
+            }
+        }
+
+        telemetry.speak(position.toString());
+
+        return position;
+    }
+
+    @Contract (pure = true)
+    private synchronized boolean runDetect()
+    {
+        return runDetect;
+    }
+
+    synchronized void endDetection()
+    {
+        this.runDetect = false;
+    }
+
+    private enum Locations {Left, Center, Right}
 
     private int scanSkystone()
     {

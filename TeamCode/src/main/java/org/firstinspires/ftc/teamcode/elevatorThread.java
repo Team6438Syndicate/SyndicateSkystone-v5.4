@@ -39,7 +39,6 @@ public class elevatorThread implements Runnable {
     private final DcMotor lift;
     private final DcMotor tension;
 
-
     private Servo lclamp;
     private Servo rclamp;
     private Servo foundationL;
@@ -161,7 +160,11 @@ public class elevatorThread implements Runnable {
      */
     public synchronized void doStop()
     {
-        fileWriter.write("Elevator Thread Stopped");
+        if (!userControlable)
+        {
+            fileWriter.write("Elevator Thread Stopped");
+        }
+
         this.doStop = true;
     }
 
