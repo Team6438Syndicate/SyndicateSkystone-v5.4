@@ -95,15 +95,13 @@ public class Team6438AutonomousRed extends RobotMovements {
 
         Telemetry telemetry = new Telemetry(this,robot,10, false);
 
-        filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
+        //filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
 
-        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, fileWriter);
+        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, null);
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread,telemetry,false,true,true,true, true);
+        Locations skystonePosition = detectSkystone();
 
-        waitForStart();
-
-        simpleDriveThread.endDetection();
+        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,null,elevatorAutonThread,telemetry,false,true,true,true, true, skystonePosition);
 
         /**
          * Creates and starts the drive, elevator, and telemetry threads
@@ -112,12 +110,12 @@ public class Team6438AutonomousRed extends RobotMovements {
         Thread a = new Thread(simpleDriveThread);
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
-        Thread d = new Thread(fileWriter);
+        //Thread d = new Thread(fileWriter);
 
         a.start();
         b.start();
         c.start();
-        d.start();
+        //d.start();
 
 
         while (!isStopRequested())
@@ -132,12 +130,12 @@ public class Team6438AutonomousRed extends RobotMovements {
             simpleDriveThread.doStop();
             elevatorAutonThread.doStop();
             telemetry.doStop();
-            fileWriter.doStop();
+            //fileWriter.doStop();
 
             a.interrupt();
             b.interrupt();
             c.interrupt();
-            d.interrupt();
+            //d.interrupt();
 
             requestOpModeStop();
             stop();
@@ -145,12 +143,12 @@ public class Team6438AutonomousRed extends RobotMovements {
         simpleDriveThread.doStop();
         elevatorAutonThread.doStop();
         telemetry.doStop();
-        fileWriter.doStop();
+        //fileWriter.doStop();
 
         a.interrupt();
         b.interrupt();
         c.interrupt();
-        d.interrupt();
+        //d.interrupt();
     }
 
 

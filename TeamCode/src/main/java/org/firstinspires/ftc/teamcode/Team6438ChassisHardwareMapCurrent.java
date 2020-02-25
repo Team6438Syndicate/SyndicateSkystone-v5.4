@@ -164,12 +164,12 @@ public class Team6438ChassisHardwareMapCurrent {
         //Hardware moves
 
         //Reverse the right motors to make code operation easier
-        FL.setDirection(DcMotor.Direction.FORWARD);
-        FR.setDirection(DcMotor.Direction.REVERSE);
-        BL.setDirection(DcMotor.Direction.FORWARD);
-        BR.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        tensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        FL.setDirection(DcMotor.Direction.REVERSE);
+        FR.setDirection(DcMotor.Direction.FORWARD);
+        BL.setDirection(DcMotor.Direction.REVERSE);
+        BR.setDirection(DcMotor.Direction.FORWARD);
+        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        tensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Set all motors to zero power to prevent unintended movement
         FL.setPower(0);
