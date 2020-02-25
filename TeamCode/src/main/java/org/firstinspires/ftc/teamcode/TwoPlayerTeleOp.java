@@ -40,6 +40,7 @@ public class TwoPlayerTeleOp extends RobotMovements {
             initRobot(hardwareMap);
             //Telemetry
             telemetry.addData("Hardware Status:", "Mapped");
+            telemetry.speak("Hardware Status: Ready To Go");
             telemetry.update();
 
             //Reversing any motors that need to be reversed
