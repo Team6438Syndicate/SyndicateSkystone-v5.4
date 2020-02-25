@@ -52,7 +52,8 @@ import org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent;
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "!Concept")
 //@Disabled
-public class ConceptTensorFlowObjectDetectionWebcam1 extends LinearOpMode {
+public class ConceptTensorFlowObjectDetectionWebcam1 extends LinearOpMode
+{
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
@@ -90,9 +91,12 @@ public class ConceptTensorFlowObjectDetectionWebcam1 extends LinearOpMode {
         // first.
         initVuforia();
 
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+        if (ClassFactory.getInstance().canCreateTFObjectDetector())
+        {
             initTfod();
-        } else {
+        }
+        else
+        {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
 

@@ -69,6 +69,7 @@ public class BlueSample extends LinearOpMode
 
     private double straightDrivePower = 1;
     private int singleStackPosition = 100;
+    private int ticksPerFullRot = 10000; //calculated
 
     @Override
     public void runOpMode()
@@ -83,18 +84,20 @@ public class BlueSample extends LinearOpMode
         robot.BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //Start our computer vision
-        initAI();
+        initCV();
 
         //start the tfod
         tfod.activate();
 
-
-        /** Wait for the game to begin */
+        //Telemetry to let user know we're ready to go
         telemetry.addData("Hardware Status:", " Mapped");
+        telemetry.speak("All Systems Go");
         telemetry.update();
+
+        //WAITING FOR STARTING THE OPMODE
         waitForStart();
 
-
+        //Loop while we're active
         while (opModeIsActive())
         {
             if (tfod != null)
@@ -116,17 +119,18 @@ public class BlueSample extends LinearOpMode
                                     recognition.getRight(), recognition.getBottom());
                     }
                     telemetry.update();
-                    }
                 }
+            }
         }
 
-        if (tfod != null) {
+        if (tfod != null)
+        {
             tfod.shutdown();
         }
     }
 
     //Start Computer Vision Protocols
-    private void initAI()
+    private void initCV()
     {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
@@ -154,11 +158,27 @@ public class BlueSample extends LinearOpMode
         robot.BL.setPower(straightDrivePower);
         robot.BR.setPower(straightDrivePower);
     }
+    //Turning Method
     private void encoderTurn(boolean left, int degrees)
     {
+        //This lets us determine how to move the wheels
+        int encoderTicksToTurn = degrees * (1 / (360 * ticksPerFullRot));  //right??
 
+        if(left)
+        {
+            robot.FL.setTargetPosition(-encoderTicksToTurn);
+            robot.FR.setTargetPosition(encoderTicksToTurn);
+            robot.BL.setTargetPosition(-encoderTicksToTurn);
+            robot.BR.setTargetPosition(encoderTicksToTurn);
+        }
+        else
+        {
+            robot.FL.setTargetPosition(encoderTicksToTurn);
+            robot.FR.setTargetPosition(-encoderTicksToTurn);
+            robot.BL.setTargetPosition(encoderTicksToTurn);
+            robot.BR.setTargetPosition(-encoderTicksToTurn);
+        }
     }
-
     //Strafe Code may need redo
     private void strafe(boolean left, int inches)
     {
@@ -176,6 +196,5 @@ public class BlueSample extends LinearOpMode
             robot.BL.setTargetPosition(-inches*robot.CPI);
             robot.BR.setTargetPosition(inches*robot.CPI);
         }
-
     }
 }

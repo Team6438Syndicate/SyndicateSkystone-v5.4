@@ -19,7 +19,8 @@ import java.util.Locale;
  * Derived Work Copyright(c) 2019 DogeDevs
  */
 @TeleOp(name = "Skystone Sample", group="DogeCV")
-public class SkystoneDetectorExample extends LinearOpMode {
+public class SkystoneDetectorExample extends LinearOpMode
+{
     OpenCvCamera webcam;
     private SkystoneDetector skyStoneDetector;
 
