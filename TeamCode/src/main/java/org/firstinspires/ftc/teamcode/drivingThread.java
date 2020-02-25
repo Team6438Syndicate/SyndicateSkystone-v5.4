@@ -91,6 +91,7 @@ public class drivingThread implements Runnable {
     private double oldHeadingIMU;
     private double newHeadingIMU;
     private double gain;
+    private Locations skystonePosition;
 
     /**
      * Teleop control constructor
@@ -150,7 +151,7 @@ public class drivingThread implements Runnable {
 
         //createVuforia();
 
-        if (runOpenCV)
+        if (!runOpenCV)
         {
             initVuforia();
 
@@ -176,6 +177,8 @@ public class drivingThread implements Runnable {
                 }
             }
         }
+
+        skystonePosition = detectSkystone();
 
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
 
@@ -679,7 +682,7 @@ public class drivingThread implements Runnable {
         fileWriter.write("Action counter = " + counter);
         switch (position)
         {
-            case 0:
+            /*case 0:
             {
                 //scanned
                 //drive away x distance
@@ -689,19 +692,19 @@ public class drivingThread implements Runnable {
                 //turn(PI);
                 //telemetry.print("turned");
                 break;
-            }
+            }*/
             case 1:     //get the skystone position
             {
                 //vuforiaCamera1.killVuforia();
 
                 //Holds the position of the skystone
-                int skystonePosition = scanSkystone();
-                fileWriter.write("Position Found = " + skystonePosition);
-                telemetry.print("Position = " + skystonePosition);
+                //int skystonePosition = scanSkystone();
+                fileWriter.write("Position Found = " + skystonePosition.toString());
+                telemetry.print("Position = " + skystonePosition.toString());
 
                 switch (skystonePosition)
                 {
-                    case 0:
+                    case Left:
                         elevatorThread.openClamp();
                         try
                         {
@@ -731,7 +734,7 @@ public class drivingThread implements Runnable {
 
                         break;
 
-                    case 2:
+                    case Center:
                         elevatorThread.openClamp();
                         try
                         {
@@ -1238,7 +1241,7 @@ public class drivingThread implements Runnable {
 
         webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
 
-        while (runDetect)
+        while (runDetect())
         {
             if (skyStoneDetector.getScreenPosition().x < 150)
             {
@@ -1259,9 +1262,15 @@ public class drivingThread implements Runnable {
         return position;
     }
 
-    public void endDetection()
+    @Contract (pure = true)
+    private synchronized boolean runDetect()
     {
-        runDetect = false;
+        return runDetect;
+    }
+
+    synchronized void endDetection()
+    {
+        this.runDetect = false;
     }
 
     private enum Locations {Left, Center, Right}
