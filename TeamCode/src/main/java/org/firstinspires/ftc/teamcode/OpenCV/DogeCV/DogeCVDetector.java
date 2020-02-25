@@ -30,7 +30,7 @@ public abstract class DogeCVDetector extends OpenCvPipeline {
 
     protected boolean found = false;
 
-    public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
+    public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.SLOW;
     protected String detectorName = "DogeCV Detector";
 
     private Size size;
