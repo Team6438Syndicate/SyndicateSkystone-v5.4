@@ -94,31 +94,30 @@ public class BlueSample extends LinearOpMode
         telemetry.update();
         waitForStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive())
+
+        while (opModeIsActive())
+        {
+            if (tfod != null)
             {
-                if (tfod != null)
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null)
                 {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null)
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    for (Recognition recognition : updatedRecognitions)
                     {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        // step through the list of recognitions and display boundary info.
-                        int i = 0;
-                        for (Recognition recognition : updatedRecognitions)
-                        {
-                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                     recognition.getLeft(), recognition.getTop());
-                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                     recognition.getRight(), recognition.getBottom());
-                        }
-                        telemetry.update();
+                    }
+                    telemetry.update();
                     }
                 }
-            }
         }
 
         if (tfod != null) {
@@ -155,13 +154,15 @@ public class BlueSample extends LinearOpMode
         robot.BL.setPower(straightDrivePower);
         robot.BR.setPower(straightDrivePower);
     }
-    private void encoderLR(boolean left, int degrees)
+    private void encoderTurn(boolean left, int degrees)
     {
 
     }
-    private void strafe(boolean forward, int inches)
+
+    //Strafe Code may need redo
+    private void strafe(boolean left, int inches)
     {
-        if(forward)
+        if(left)
         {
             robot.FL.setTargetPosition(inches*robot.CPI);
             robot.FR.setTargetPosition(-inches*robot.CPI);

@@ -1,22 +1,19 @@
 package org.firstinspires.ftc.teamcode.markmattcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
+
 @Disabled
 @TeleOp(name = "Mark and Matt TeleOp", group = "test")
 public class MattMarkTeleOp extends OpMode
 {
-    //Hardware
-    Servo clampL, clampR;
-    DcMotor liftMotor, FL,FR,BL,BR;
+    //hw map
+    SimplifiedHardwareMap robot = new SimplifiedHardwareMap();
 
     //Variables
-    int positionToMoveUpBy;
     int scaleFactor = 50;
     double strafeDec = .2;
     double slowSpeed = .2;
@@ -25,28 +22,31 @@ public class MattMarkTeleOp extends OpMode
     double liftUpSpeed = 1;
     int zeroTowerPositionOfSlides = 100; // need tweaking
     int ticksPerBlock = 100;            // need tweaking
+    int triggerStrafeFactor = 100;
 
     @Override
     public void init()
     {
+        //Init the hardware
+        robot.init(hardwareMap);
 
-     //hardware mapping
-     clampL = hardwareMap.servo.get("clampL");
-     clampR = hardwareMap.servo.get("clampR");
+        //Directions for the motors (THESE WORK)
+        robot.FL.setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.FR.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.BL.setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.BR.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-     //Motors
-     liftMotor = hardwareMap.dcMotor.get("liftMotor");
-     FL = hardwareMap.dcMotor.get("FL");
-     FR = hardwareMap.dcMotor.get("FR");
-     BL = hardwareMap.dcMotor.get("BL");
-     BR = hardwareMap.dcMotor.get("BR");
+        //Use run using encoder to help speed control be more accurate
+        robot.FL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.FR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.BL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.BR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-     //Directions for the motors (THESE WORK)
-     FL.setDirection(DcMotorSimple.Direction.FORWARD);
-     FR.setDirection(DcMotorSimple.Direction.REVERSE);
-     BL.setDirection(DcMotorSimple.Direction.FORWARD);
-     BR.setDirection(DcMotorSimple.Direction.REVERSE);
-     liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //Feedback for the user
+        telemetry.speak("All systems go");
+        telemetry.addData("Hardware Status: ","Mapped");
+        telemetry.update();
     }
 
     @Override
@@ -56,16 +56,17 @@ public class MattMarkTeleOp extends OpMode
         int positionToMoveUpBy;
 
         telemetry.addData("Current: Tower Height:", towerSize);
+        telemetry.update();
 
-        if (gamepad1.a)
+        if (gamepad2.a)
         {
-            clampL.setPosition(.25);
-            clampR.setPosition(.75);
+            robot.clampL.setPosition(.25);
+            robot.clampR.setPosition(.75);
         }
         else
         {
-            clampL.setPosition(0.1);
-            clampR.setPosition(.9);
+            robot.clampL.setPosition(0.1);
+            robot.clampR.setPosition(.9);
         }
 
 
@@ -76,7 +77,7 @@ public class MattMarkTeleOp extends OpMode
             telemetry.speak(String.valueOf(towerSize));
             telemetry.update();
         }
-        else if(gamepad2.a)
+        else if(gamepad2.b)
         {
             goToTowerSize(towerSize);
         }
@@ -101,7 +102,7 @@ public class MattMarkTeleOp extends OpMode
         
 
         //This checks to see how we want the motors moved
-        motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y);
+        motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y,gamepad1.left_trigger,gamepad1.right_trigger);
 
     }
     /*
@@ -109,19 +110,19 @@ public class MattMarkTeleOp extends OpMode
      */
     public void armMoveRelative(int positionRelative)
     {
-        int newPosition = liftMotor.getCurrentPosition() + positionRelative;
+        int newPosition = robot.liftMotor.getCurrentPosition() + positionRelative;
 
-        liftMotor.setPower(liftUpSpeed);
+        robot.liftMotor.setPower(liftUpSpeed);
 
-        liftMotor.setTargetPosition(newPosition);
+        robot.liftMotor.setTargetPosition(newPosition);
 
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (liftMotor.isBusy())
+        while (robot.liftMotor.isBusy())
         {
-            telemetry.addData("Currently At", liftMotor.getCurrentPosition());
-            telemetry.addData("Going to", liftMotor.getTargetPosition());
-            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y);
+            telemetry.addData("Currently At", robot.liftMotor.getCurrentPosition());
+            telemetry.addData("Going to", robot.liftMotor.getTargetPosition());
+            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y,gamepad1.left_trigger,gamepad1.right_trigger);
             telemetry.update();
         }
     }
@@ -131,30 +132,30 @@ public class MattMarkTeleOp extends OpMode
      */
     public void armMoveAbsolute(int position)
     {
-        liftMotor.setPower(liftUpSpeed);
+        robot.liftMotor.setPower(liftUpSpeed);
 
-        liftMotor.setTargetPosition(position);
+        robot.liftMotor.setTargetPosition(position);
 
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (liftMotor.isBusy())
+        while (robot.liftMotor.isBusy())
         {
-            telemetry.addData("Currently At", liftMotor.getCurrentPosition());
-            telemetry.addData("Going to", liftMotor.getTargetPosition());
-            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y);
+            telemetry.addData("Currently At", robot.liftMotor.getCurrentPosition());
+            telemetry.addData("Going to", robot.liftMotor.getTargetPosition());
+            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y,gamepad1.left_trigger,gamepad1.right_trigger);
             telemetry.update();
         }
     }
     /*
     * This method will control the motors, giving them power, DPAD 1 overrides the POV Power
      */
-    public void motorControl (double leftJoystick, double rightJoystick)
+    public void motorControl (double leftJoystick, double rightJoystick, double leftTrigger, double rightTrigger)
     {
         double FLpower = 0, FRpower = 0, BLpower = 0, BRpower = 0;
         double drive = -leftJoystick;
         double turn  =  -rightJoystick;
 
-        // Combine drive and turn for blended motion.
+        // Combine drive and turn for robot.BLended motion.
         double leftPower  = drive + turn;
         double rightPower = drive - turn;
 
@@ -198,6 +199,14 @@ public class MattMarkTeleOp extends OpMode
         {
             turnoffallMotors();
         }
+        else if (leftTrigger>0.05)
+        {
+            driveStrafe(-leftTrigger);
+        }
+        else if(rightTrigger>0.05)
+        {
+            driveStrafe(rightTrigger);
+        }
         else
         {
             FLpower = leftPower;
@@ -207,10 +216,10 @@ public class MattMarkTeleOp extends OpMode
         }
 
         //Send the power
-        FL.setPower(FLpower);
-        FR.setPower(FRpower);
-        BL.setPower(BLpower);
-        BR.setPower(BRpower);
+        robot.FL.setPower(FLpower);
+        robot.FR.setPower(FRpower);
+        robot.BL.setPower(BLpower);
+        robot.BR.setPower(BRpower);
     }
     public void goToTowerSize (int towerSize)
     {
@@ -220,10 +229,23 @@ public class MattMarkTeleOp extends OpMode
     //This one is pretty self explanatory
     public void turnoffallMotors()
     {
-        FL.setPower(0);
-        FR.setPower(0);
-        BL.setPower(0);
-        BR.setPower(0);
-        liftMotor.setPower(0);
+        robot.FL.setPower(0);
+        robot.FR.setPower(0);
+        robot.BL.setPower(0);
+        robot.BR.setPower(0);
+        robot.liftMotor.setPower(0);
+    }
+
+    public void driveStrafe(double trigger)
+    {
+        //Power
+        double power = trigger * triggerStrafeFactor;
+
+        //Opposite motors must have opposite power --needs tweaking
+        robot.FL.setPower(power);
+        robot.FR.setPower(-power);
+        robot.BL.setPower(-power);
+        robot.BR.setPower(power);
+
     }
 }
