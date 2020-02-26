@@ -109,12 +109,12 @@ public class Team6438AutonomousBlue extends RobotMovements {
         Thread a = new Thread(simpleDriveThread);
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
-        Thread d = new Thread(fileWriter);
+        //Thread d = new Thread(fileWriter);
 
         a.start();
         b.start();
         c.start();
-        d.start();
+        //d.start();
 
 
 
@@ -130,12 +130,12 @@ public class Team6438AutonomousBlue extends RobotMovements {
             simpleDriveThread.doStop();
             elevatorAutonThread.doStop();
             telemetry.doStop();
-            fileWriter.doStop();
+            //fileWriter.doStop();
 
             a.interrupt();
             b.interrupt();
             c.interrupt();
-            d.interrupt();
+            //d.interrupt();
 
             requestOpModeStop();
             stop();
@@ -143,12 +143,12 @@ public class Team6438AutonomousBlue extends RobotMovements {
         simpleDriveThread.doStop();
         elevatorAutonThread.doStop();
         telemetry.doStop();
-        fileWriter.doStop();
+        //fileWriter.doStop();
 
         a.interrupt();
         b.interrupt();
         c.interrupt();
-        d.interrupt();
+        //d.interrupt();
     }
 
 }
