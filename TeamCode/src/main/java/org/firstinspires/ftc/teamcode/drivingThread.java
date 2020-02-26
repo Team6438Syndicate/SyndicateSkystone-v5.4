@@ -698,16 +698,12 @@ public class drivingThread implements Runnable {
             }*/
             case 1:     //get the skystone position
             {
-                //vuforiaCamera1.killVuforia();
-
-                //Holds the position of the skystone
-                //int skystonePosition = scanSkystone();
                 //fileWriter.write("Position Found = " + skystonePosition.toString());
                 telemetry.print("Position = " + skystonePosition.toString());
 
                 switch (skystonePosition)
                 {
-                    case Left:
+                    case Close:
                         elevatorThread.openClamp();
                         try
                         {
@@ -750,8 +746,8 @@ public class drivingThread implements Runnable {
 
                         lockStrafe(distanceUnit.toMm(13), 1.0);
 
-
                         lockDrive(distanceUnit.toMm(27), .75);
+
                         elevatorThread.closeClamp();
                         try
                         {
@@ -775,7 +771,7 @@ public class drivingThread implements Runnable {
 
                         break;
 
-                    case Right:
+                    case Far:
                         elevatorThread.openClamp();
                         try
                         {
@@ -788,8 +784,8 @@ public class drivingThread implements Runnable {
 
                         lockStrafe(distanceUnit.toMm(26), 1.0);
 
-
                         lockDrive(distanceUnit.toMm(27), .75);
+
                         elevatorThread.closeClamp();
                         try
                         {
@@ -801,7 +797,7 @@ public class drivingThread implements Runnable {
 
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(- 27), .75);
+                        lockDrive(distanceUnit.toMm(-27), .75);
 
                         if (! foundationMoveRequest)
                         {
@@ -809,38 +805,16 @@ public class drivingThread implements Runnable {
                         }
 
                         //turn(PI/6, .75);
-                        lockStrafe(distanceUnit.toMm(-53), 1.0);
+                        lockStrafe(distanceUnit.toMm(-60), 1.0);
 
                         break;
 
                     default:
 
-                        elevatorThread.openClamp();
-                        try
-                        {
-                            Thread.sleep(750);
-                        }
-                        catch (InterruptedException ignored)
-                        {
-                        }
-
-                        lockDrive(distanceUnit.toMm(27), .75);
-                        elevatorThread.closeClamp();
-                        try
-                        {
-                            Thread.sleep(750);
-                        }
-                        catch (InterruptedException ignored)
-                        {
-                        }
-                        telemetry.print("drove");
-
-                        lockDrive(distanceUnit.toMm(- 27), .75);
-
                         break;
                 }
 
-                if (! foundationMoveRequest)
+                if (!foundationMoveRequest)
                 {
                     counter = 11;
                 }

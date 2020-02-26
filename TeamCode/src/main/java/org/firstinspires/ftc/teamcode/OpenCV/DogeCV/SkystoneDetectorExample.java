@@ -67,7 +67,7 @@ public class SkystoneDetectorExample extends LinearOpMode
          * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
          * away from the user.
         */
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+        webcam.startStreaming(160, 120, OpenCvCameraRotation.UPSIDE_DOWN);
 
         /*
          * Wait for the user to press start on the Driver Station
@@ -80,14 +80,20 @@ public class SkystoneDetectorExample extends LinearOpMode
             if (skyStoneDetector.getScreenPosition().x < 150)
             {
                 position = locations.Left;
+                telemetry.speak("Bruh its on the left");
+                sleep(2000);
             }
             else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
             {
                 position = locations.Center;
+                telemetry.speak("Bruh its in the center");
+                sleep(2000);
             }
             else
             {
                 position = locations.Right;
+                telemetry.speak("Bruh its on the right");
+                sleep(2000);
             }
             /*
              * Send some stats to the telemetry
@@ -151,5 +157,9 @@ public class SkystoneDetectorExample extends LinearOpMode
                 webcam.resumeViewport();
             }
         }
+        //Close the cam when the op mode stops
+        webcam.closeCameraDevice();
+        telemetry.addData("Camera"," Stopped");
+        telemetry.update();
     }
 }
