@@ -187,7 +187,7 @@ public abstract class RobotMovements extends LinearOpMode
                 {
                     position = Locations.Far;
                 }
-                else if (skyStoneDetector.getScreenPosition().x > 55 && skyStoneDetector.getScreenPosition().x < 89)
+                else if (skyStoneDetector.getScreenPosition().x > 55 && skyStoneDetector.getScreenPosition().x < 83)
                 {
                     position = Locations.Center;
                 }
