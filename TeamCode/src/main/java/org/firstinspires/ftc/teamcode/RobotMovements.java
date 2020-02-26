@@ -16,12 +16,17 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.jetbrains.annotations.NotNull;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public abstract class RobotMovements extends LinearOpMode
 {
@@ -141,9 +146,46 @@ public abstract class RobotMovements extends LinearOpMode
 
     }
 
+    public Locations detectSkystone()
+    {
+        SkystoneDetector skyStoneDetector;
 
+        OpenCvCamera webcam;
 
+        Locations position = Locations.Left;
 
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
+        webcam.openCameraDevice();
+
+        skyStoneDetector = new SkystoneDetector();
+        webcam.setPipeline(skyStoneDetector);
+
+        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+
+        while (!isStarted())
+        {
+            if (skyStoneDetector.getScreenPosition().x < 150)
+            {
+                position = Locations.Left;
+            }
+            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+            {
+                position = Locations.Center;
+            }
+            else
+            {
+                position = Locations.Right;
+            }
+        }
+
+        telemetry.speak(position.toString());
+
+        return position;
+    }
+
+    public enum Locations {Left, Center, Right}
 
     private enum conditionCode {coord, angle}
 

@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
 import org.apache.commons.math3.util.FastMath;
@@ -91,7 +92,7 @@ public class drivingThread implements Runnable {
     private double oldHeadingIMU;
     private double newHeadingIMU;
     private double gain;
-    private Locations skystonePosition;
+    private RobotMovements.Locations skystonePosition;
 
     /**
      * Teleop control constructor
@@ -119,7 +120,7 @@ public class drivingThread implements Runnable {
         this.gamepad = gamepad;
     }
 
-    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV)
+    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV, RobotMovements.Locations skystonePosition)
     {
         this.foundationMoveRequest = foundationMoveRequest;
         this.hardwareMap = hardwareMap;
@@ -177,8 +178,10 @@ public class drivingThread implements Runnable {
                 }
             }
         }
-
-        skystonePosition = detectSkystone();
+        else
+        {
+            this.skystonePosition = skystonePosition;
+        }
 
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
 
@@ -275,7 +278,7 @@ public class drivingThread implements Runnable {
     {
         if (!userControllable)
         {
-            fileWriter.write("Driving Thread Stopped");
+            //fileWriter.write("Driving Thread Stopped");
         }
 
         this.doStop = true;
@@ -630,7 +633,7 @@ public class drivingThread implements Runnable {
                 //Autonomous stuff
                 else
                 {
-                    fileWriter.write("Auton Started");
+                    //fileWriter.write("Auton Started");
                     telemetry.print("firstLoop = " + firstLoop);
 
                     telemetry.update();
@@ -661,13 +664,13 @@ public class drivingThread implements Runnable {
 
 
                     telemetry.print("Action " + (counter - 1) + " complete");
-                    fileWriter.write("Action " + (counter - 1) + " complete");
+                    //fileWriter.write("Action " + (counter - 1) + " complete");
                 }
             }
         }
         catch (Exception e)
         {
-            fileWriter.write("Error occured in DrivingThread:\n" + Arrays.toString(e.getStackTrace()));
+            //fileWriter.write("Error occured in DrivingThread:\n" + Arrays.toString(e.getStackTrace()));
             telemetry.print(Arrays.toString(e.getStackTrace()));
         }
     }
@@ -679,7 +682,7 @@ public class drivingThread implements Runnable {
      */
     private void executeAction(int position) //executes necessary actions at each point throughout the autonomous
     {
-        fileWriter.write("Action counter = " + counter);
+        //fileWriter.write("Action counter = " + counter);
         switch (position)
         {
             /*case 0:
@@ -699,7 +702,7 @@ public class drivingThread implements Runnable {
 
                 //Holds the position of the skystone
                 //int skystonePosition = scanSkystone();
-                fileWriter.write("Position Found = " + skystonePosition.toString());
+                //fileWriter.write("Position Found = " + skystonePosition.toString());
                 telemetry.print("Position = " + skystonePosition.toString());
 
                 switch (skystonePosition)
@@ -714,7 +717,7 @@ public class drivingThread implements Runnable {
                         {
                         }
                         //turn(PI/18,.75);
-                        lockStrafe(distanceUnit.toMm(- 11), 1.0);
+                        //lockStrafe(distanceUnit.toMm(- 11), 1.0);
 
                         lockDrive(distanceUnit.toMm(27), .75);
                         elevatorThread.closeClamp();
@@ -725,11 +728,11 @@ public class drivingThread implements Runnable {
                         catch (InterruptedException ignored)
                         {
                         }
-                        fileWriter.write("Grabbed Skystone");
+                        //fileWriter.write("Grabbed Skystone");
                         telemetry.print("drove");
 
-                        lockDrive(distanceUnit.toMm(- 23), .75);
-                        lockStrafe(distanceUnit.toMm(11), 1.0);
+                        lockDrive(distanceUnit.toMm(-13), .75);
+                        lockStrafe(distanceUnit.toMm(-21), 1.0);
                         //turn(-PI/18, .75);
 
                         break;
@@ -745,7 +748,7 @@ public class drivingThread implements Runnable {
                         }
                         //turn(-PI/6, .75);
 
-                        lockStrafe(distanceUnit.toMm(- 26), 1.0);
+                        lockStrafe(distanceUnit.toMm(13), 1.0);
 
 
                         lockDrive(distanceUnit.toMm(27), .75);
@@ -768,7 +771,45 @@ public class drivingThread implements Runnable {
                         }
 
                         //turn(PI/6, .75);
+                        lockStrafe(distanceUnit.toMm(-40), 1.0);
+
+                        break;
+
+                    case Right:
+                        elevatorThread.openClamp();
+                        try
+                        {
+                            Thread.sleep(750);
+                        }
+                        catch (InterruptedException ignored)
+                        {
+                        }
+                        //turn(-PI/6, .75);
+
                         lockStrafe(distanceUnit.toMm(26), 1.0);
+
+
+                        lockDrive(distanceUnit.toMm(27), .75);
+                        elevatorThread.closeClamp();
+                        try
+                        {
+                            Thread.sleep(750);
+                        }
+                        catch (InterruptedException ignored)
+                        {
+                        }
+
+                        telemetry.print("drove");
+
+                        lockDrive(distanceUnit.toMm(- 27), .75);
+
+                        if (! foundationMoveRequest)
+                        {
+                            counter = 12;
+                        }
+
+                        //turn(PI/6, .75);
+                        lockStrafe(distanceUnit.toMm(-53), 1.0);
 
                         break;
 
@@ -1147,7 +1188,7 @@ public class drivingThread implements Runnable {
         //  Instantiate the Vuforia engine
         robot.vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
-        fileWriter.write("Vuforia Started");
+        //fileWriter.write("Vuforia Started");
 
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
@@ -1172,7 +1213,7 @@ public class drivingThread implements Runnable {
         //Loads this years assets
         robot.tfod.loadModelFromAsset(robot.TFOD_MODEL_ASSET, robot.LABEL_STONE, robot.LABEL_SKYSTONE);
 
-        fileWriter.write("TFOD Initialized");
+        //fileWriter.write("TFOD Initialized");
 
     }
 
@@ -1327,7 +1368,7 @@ public class drivingThread implements Runnable {
                                         //vuforiaCamera1.killVuforia();
 
                                     }
-                                    fileWriter.write(("Block Left Bounds = " + recognition.getLeft()));
+                                    //fileWriter.write(("Block Left Bounds = " + recognition.getLeft()));
                                     return position;
                                 }
                                 else if (recognition.getLeft() <= 100)  //Skystone on the right
@@ -1343,7 +1384,7 @@ public class drivingThread implements Runnable {
                                         //vuforiaCamera1.killVuforia();
 
                                     }
-                                    fileWriter.write("Block Left Bounds = " + recognition.getLeft());
+                                    //fileWriter.write("Block Left Bounds = " + recognition.getLeft());
                                     return position;
                                 }
                             }
@@ -1362,7 +1403,7 @@ public class drivingThread implements Runnable {
                                 if (rightFound && centerFound)
                                 {
                                     robot.tfod.shutdown();
-                                    fileWriter.write("Odd-Man successful");
+                                    //fileWriter.write("Odd-Man successful");
                                     return 2;
 
 

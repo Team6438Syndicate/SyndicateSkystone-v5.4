@@ -162,7 +162,7 @@ public class elevatorThread implements Runnable {
     {
         if (!userControlable)
         {
-            fileWriter.write("Elevator Thread Stopped");
+            //fileWriter.write("Elevator Thread Stopped");
         }
 
         this.doStop = true;
