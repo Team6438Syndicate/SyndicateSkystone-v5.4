@@ -74,7 +74,7 @@ public class OnePlayerTeleOp extends RobotMovements {
 
             Telemetry telemetry = new Telemetry(this,robot,10, true);
 
-            elevatorThread elevatorThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, robot.foundationL, robot.foundationR, 1, gamepad1, .1f, 50, 20, 300000, 300000, telemetry);
+            elevatorThread elevatorThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, robot.foundationL, robot.foundationR, robot.capstone, 1, gamepad1, .1f, 50, 20, 300000, 300000, telemetry);
 
             Thread a = new Thread(simpleDriveThread);
 

@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.apache.commons.math3.util.FastMath;
 import org.firstinspires.ftc.teamcode.odometry.Telemetry;
@@ -34,6 +35,7 @@ public class elevatorThread implements Runnable {
     private boolean userControlable;
     private double height = 0;
     private boolean halfSpeed = false;
+    private int towerCount = 0;
 
     private boolean doStop = false;
     private final DcMotor lift;
@@ -43,6 +45,7 @@ public class elevatorThread implements Runnable {
     private Servo rclamp;
     private Servo foundationL;
     private Servo foundationR;
+    private Servo capstone;
     private long mills;
     private Gamepad gamepad;
 
@@ -94,7 +97,7 @@ public class elevatorThread implements Runnable {
      * @param telemetry
      */
 
-    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo clampL, Servo clampR, Servo foundationL, Servo foundationR, final long mills, Gamepad gamepad, final float range, final int lift_multiplier_up, final int lift_multiplier_down, final int lift_max_value, final int tension_max_value, @NotNull Telemetry telemetry)
+    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo clampL, Servo clampR, Servo foundationL, Servo foundationR, Servo capstone, final long mills, Gamepad gamepad, final float range, final int lift_multiplier_up, final int lift_multiplier_down, final int lift_max_value, final int tension_max_value, @NotNull Telemetry telemetry)
     {
 
         this.lift = lift;
@@ -103,6 +106,7 @@ public class elevatorThread implements Runnable {
         this.rclamp = clampR;
         this.foundationL = foundationL;
         this.foundationR = foundationR;
+        this.capstone = capstone;
         this.mills = mills;
         this.gamepad = gamepad;
         this.range = range;
@@ -126,16 +130,19 @@ public class elevatorThread implements Runnable {
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        capstone.setPosition(0.8);
+
         closeClamp();
     }
 
-    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo lclamp, Servo rclamp,  final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, DistanceSensor rev2mDistanceSensor, filewriterThread fileWriter)
+    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo lclamp, Servo rclamp, Servo capstone, final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, DistanceSensor rev2mDistanceSensor, filewriterThread fileWriter)
     {
         userControlable = false;
         this.lift = lift;
         this.tension = tension;
         this.lclamp = lclamp;
         this.rclamp = rclamp;
+        this.capstone = capstone;
         this.mills = mills;
 
         distanceSensor= rev2mDistanceSensor;
@@ -153,6 +160,8 @@ public class elevatorThread implements Runnable {
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        capstone.setPosition(0.8);
     }
 
     /**
@@ -210,14 +219,41 @@ public class elevatorThread implements Runnable {
                         openClamp();
                     }
 
-                    if (gamepad.y)
+                    if(gamepad.dpad_up)
                     {
+                        towerCount++;
+                        Thread.sleep(500);
+                    }
+                    else if (gamepad.dpad_down)
+                    {
+                        towerCount--;
+                        if (towerCount < 0)
+                        {
+                            towerCount = 0;
+                        }
+                        Thread.sleep(300);
+                    }
+                    else if (gamepad.left_stick_button)
+                    {
+                        towerCount = 0;
+                    }
 
+                    if (gamepad.b)
+                    {
                         grabFoundation();
+                    }
+                    else if (gamepad.y)
+                    {
+                        midFoundation();
                     }
                     else if (gamepad.x)
                     {
                         releaseFoundation();
+                    }
+
+                    if (gamepad.right_stick_button)
+                    {
+                        dropCapstone(0.375, 750);
                     }
 
                     if(gamepad.right_bumper)
@@ -228,7 +264,6 @@ public class elevatorThread implements Runnable {
 
                         }
                     }
-
 
 
                     halfSpeed = gamepad.b;
@@ -448,12 +483,33 @@ public class elevatorThread implements Runnable {
 
     void releaseFoundation()
     {
-        foundationL.setPosition(.25);
-        foundationR.setPosition(.75);
+        foundationL.setPosition(.5);
+        foundationR.setPosition(.5);
     }
 
     void midFoundation()
     {
-        foundationL.setPosition(0.5);
+        foundationL.setPosition(.9);
+        foundationR.setPosition(.1);
+    }
+
+    void dropCapstone(double dropPosition, int time)
+    {
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        double elapsedTime = timer.milliseconds();
+
+        while (elapsedTime < time)
+        {
+            elapsedTime = timer.milliseconds();
+            capstone.setPosition(dropPosition * elapsedTime/time);
+        }
+
+        while (elapsedTime < time + 50)
+        {
+            elapsedTime = timer.milliseconds();
+        }
+        capstone.setPosition(.8);
     }
 }

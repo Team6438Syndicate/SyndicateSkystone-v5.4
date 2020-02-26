@@ -97,9 +97,9 @@ public class BlueJustSample extends RobotMovements {
 
         filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
 
-        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, fileWriter);
+        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, fileWriter);
 
-        Locations skystonePosition = detectSkystone();
+        Locations skystonePosition = detectSkystone(false);
 
         drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter, elevatorAutonThread, telemetry, false,false,true,true,true,skystonePosition);
 

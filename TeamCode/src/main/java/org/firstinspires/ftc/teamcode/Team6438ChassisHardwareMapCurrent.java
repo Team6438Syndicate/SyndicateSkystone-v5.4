@@ -94,10 +94,11 @@ public class Team6438ChassisHardwareMapCurrent {
     public DcMotor liftMotor = null;
     public DcMotor tensionMotor = null;
     //Servo Declaration
-    public  Servo clampL = null;
-    public  Servo clampR = null;
-    public  Servo foundationL = null;
-    public  Servo foundationR = null;
+    public Servo clampL = null;
+    public Servo clampR = null;
+    public Servo foundationL = null;
+    public Servo foundationR = null;
+    public Servo capstone = null;
     //Webcam mapping
     public WebcamName camera = null;
     public static float radiusMM = 353.5f;
@@ -136,6 +137,7 @@ public class Team6438ChassisHardwareMapCurrent {
         clampR = ahwMap.get(Servo.class, "clampR");
         foundationL = ahwMap.get(Servo.class, "foundationL");
         foundationR = ahwMap.get(Servo.class, "foundationR");
+        capstone = ahwMap.get(Servo.class, "capstone");
         //Current Servo Count - 4
 
         //------------------------------------------------------------------------------------------
@@ -156,8 +158,6 @@ public class Team6438ChassisHardwareMapCurrent {
 
         imu.initialize(parameters);
 
-
-
         sensorFront = ahwMap.get(DistanceSensor.class, "sensorFront");
 
         //------------------------------------------------------------------------------------------
@@ -168,8 +168,8 @@ public class Team6438ChassisHardwareMapCurrent {
         FR.setDirection(DcMotor.Direction.FORWARD);
         BL.setDirection(DcMotor.Direction.REVERSE);
         BR.setDirection(DcMotor.Direction.FORWARD);
-        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        tensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        tensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //Set all motors to zero power to prevent unintended movement
         FL.setPower(0);

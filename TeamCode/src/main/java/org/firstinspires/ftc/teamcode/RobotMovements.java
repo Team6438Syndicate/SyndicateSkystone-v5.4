@@ -146,13 +146,13 @@ public abstract class RobotMovements extends LinearOpMode
 
     }
 
-    public Locations detectSkystone()
+    public Locations detectSkystone(boolean isRed)
     {
         SkystoneDetector skyStoneDetector;
 
         OpenCvCamera webcam;
 
-        Locations position = Locations.Left;
+        Locations position = Locations.Close;
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -162,21 +162,39 @@ public abstract class RobotMovements extends LinearOpMode
         skyStoneDetector = new SkystoneDetector();
         webcam.setPipeline(skyStoneDetector);
 
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+        webcam.startStreaming(160, 120, OpenCvCameraRotation.UPSIDE_DOWN);
 
         while (!isStarted())
         {
-            if (skyStoneDetector.getScreenPosition().x < 150)
+            if (isRed)
             {
-                position = Locations.Left;
-            }
-            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
-            {
-                position = Locations.Center;
+                if (skyStoneDetector.getScreenPosition().x < 150)
+                {
+                    position = Locations.Close;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+                {
+                    position = Locations.Center;
+                }
+                else
+                {
+                    position = Locations.Far;
+                }
             }
             else
             {
-                position = Locations.Right;
+                if (skyStoneDetector.getScreenPosition().x < 50)
+                {
+                    position = Locations.Far;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 55 && skyStoneDetector.getScreenPosition().x < 89)
+                {
+                    position = Locations.Center;
+                }
+                else
+                {
+                    position = Locations.Close;
+                }
             }
         }
 
@@ -185,7 +203,7 @@ public abstract class RobotMovements extends LinearOpMode
         return position;
     }
 
-    public enum Locations {Left, Center, Right}
+    public enum Locations {Close, Center, Far}
 
     private enum conditionCode {coord, angle}
 
