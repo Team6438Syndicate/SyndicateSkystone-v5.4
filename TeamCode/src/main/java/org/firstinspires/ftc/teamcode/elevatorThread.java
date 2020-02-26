@@ -465,14 +465,14 @@ public class elevatorThread implements Runnable {
 
     synchronized void openClamp()
     {
-        lclamp.setPosition(0.5);
-        rclamp.setPosition(0.5);
+        lclamp.setPosition(.5);
+        rclamp.setPosition(.5);
     }
 
     synchronized void closeClamp()
     {
-        lclamp.setPosition(0.75);
-        rclamp.setPosition(0.25);
+        lclamp.setPosition(0.2);
+        rclamp.setPosition(0.8);
     }
 
     void grabFoundation()

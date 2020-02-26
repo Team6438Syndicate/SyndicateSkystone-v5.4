@@ -91,8 +91,8 @@ public abstract class RobotMovements extends LinearOpMode
     protected void intakeMove(@NotNull directions direction) {
         switch (direction) {
             case intake:
-                motorSetPower(- 1, robot.intakeLeft);
-                motorSetPower(- 1, robot.intakeRight);
+                motorSetPower(-1, robot.intakeLeft);
+                motorSetPower(-1, robot.intakeRight);
 
             case output:
                 motorSetPower(1, robot.intakeLeft);

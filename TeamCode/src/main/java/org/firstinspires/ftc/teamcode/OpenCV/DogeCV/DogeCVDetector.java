@@ -70,6 +70,9 @@ public abstract class DogeCVDetector extends OpenCvPipeline {
 
     @Override
     public final Mat processFrame(Mat input) {
+
+        input.adjustROI(0,60,0,120);
+
         size = input.size();
 
         Log.d("DogeCVDetector", "Input mat size:" + input.size());
