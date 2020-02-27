@@ -19,7 +19,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 /**
  * Created by Victo on 9/10/2018.
  */
-public abstract class DogeCVDetector extends OpenCvPipeline {
+public abstract class OurDogeCVDetector extends OpenCvPipeline {
 
     public abstract Mat process(Mat input);
     public abstract void useDefaults();
@@ -30,7 +30,7 @@ public abstract class DogeCVDetector extends OpenCvPipeline {
 
     protected boolean found = false;
 
-    public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.SLOW;
+    public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
     protected String detectorName = "DogeCV Detector";
 
     private Size size;

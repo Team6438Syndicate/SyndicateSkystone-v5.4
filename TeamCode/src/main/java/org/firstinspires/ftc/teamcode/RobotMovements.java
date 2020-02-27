@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.OpenCV.DogeCV.OurSkystoneDetector;
 import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -148,7 +149,7 @@ public abstract class RobotMovements extends LinearOpMode
 
     public Locations detectSkystone(boolean isRed)
     {
-        SkystoneDetector skyStoneDetector;
+        OurSkystoneDetector skyStoneDetector;
 
         OpenCvCamera webcam;
 
@@ -159,7 +160,7 @@ public abstract class RobotMovements extends LinearOpMode
 
         webcam.openCameraDevice();
 
-        skyStoneDetector = new SkystoneDetector();
+        skyStoneDetector = new OurSkystoneDetector();
         webcam.setPipeline(skyStoneDetector);
 
         webcam.startStreaming(160, 120, OpenCvCameraRotation.UPSIDE_DOWN);

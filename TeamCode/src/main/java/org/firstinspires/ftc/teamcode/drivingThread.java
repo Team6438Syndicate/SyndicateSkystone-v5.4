@@ -652,7 +652,7 @@ public class drivingThread implements Runnable {
                         telemetry.append("" + counter);
 
 
-                        executeAction(counter);
+                        autonomousControl(counter);
                         firstLoop = false;
                         counter++;
 
@@ -680,6 +680,7 @@ public class drivingThread implements Runnable {
      *
      * @param position where the robot is
      */
+    @Deprecated
     private void executeAction(int position) //executes necessary actions at each point throughout the autonomous
     {
         //fileWriter.write("Action counter = " + counter);
@@ -1141,14 +1142,10 @@ public class drivingThread implements Runnable {
         }
     }
 
-    private void grabBlock()
-    {
-
-    }
-
     /*
      * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
      */
+    @Deprecated
     private void initVuforia()
     {
 
@@ -1170,6 +1167,7 @@ public class drivingThread implements Runnable {
     /**
      * Creates Tfod for object detection
      */
+    @Deprecated
     private void initTfod()
     {
         //creates a tfod object which is using the tfodMonitor
@@ -1196,7 +1194,7 @@ public class drivingThread implements Runnable {
      *
      * @return position of Skystone
      */
-
+    @Deprecated
     private int newScan()
     {
         if (robot.tfod != null)
@@ -1238,61 +1236,9 @@ public class drivingThread implements Runnable {
         return 1;
     }
 
-    public Locations detectSkystone()
-    {
-        SkystoneDetector skyStoneDetector;
-
-        OpenCvCamera webcam;
-
-        Locations position = Locations.Left;
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-
-        webcam.openCameraDevice();
-
-        skyStoneDetector = new SkystoneDetector();
-        webcam.setPipeline(skyStoneDetector);
-
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
-
-        while (runDetect())
-        {
-            if (skyStoneDetector.getScreenPosition().x < 150)
-            {
-                position = Locations.Left;
-            }
-            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
-            {
-                position = Locations.Center;
-            }
-            else
-            {
-                position = Locations.Right;
-            }
-        }
-
-        telemetry.speak(position.toString());
-
-        return position;
-    }
-
-    @Contract (pure = true)
-    private synchronized boolean runDetect()
-    {
-        return runDetect;
-    }
-
-    synchronized void endDetection()
-    {
-        this.runDetect = false;
-    }
-
-    private enum Locations {Left, Center, Right}
-
+    @Deprecated
     private int scanSkystone()
     {
-
         int position = - 1; //Returns -1 if the block isn't detected
         boolean rightFound = false;
         boolean centerFound = false;
@@ -1379,8 +1325,6 @@ public class drivingThread implements Runnable {
                                     robot.tfod.shutdown();
                                     //fileWriter.write("Odd-Man successful");
                                     return 2;
-
-
                                 }
                             }
                         }
@@ -1439,138 +1383,72 @@ public class drivingThread implements Runnable {
                                 }
                             }
                         }
-
-
                     }
                 }
             }
         }
 
-        return position;
-    }
-
-    private drivingThread.ScanPosition scanning()
-    {
-        ScanPosition position;
-        scanningMonitor();
-        if (! scanningStrafe())
-        {
-            scanningMonitor();
-            if (! scanningStrafe())
-            {
-                objectDetected = true;
-                scanningStrafe();
-                position = ScanPosition.left;
-            }
-            else
-            {
-                position = ScanPosition.center;
-
-            }
-        }
-        else
-        {
-            position = ScanPosition.right;
-
-        }
-
-        if (isRed)
-        {
-            switch (position)
-            {
-                case left:
-                    position = ScanPosition.right;
-                    break;
-                case center:
-                    break;
-                case right:
-                    position = ScanPosition.left;
-                    break;
-            }
-        }
-        correctedDrive(distanceUnit.toMm(15), 1.0);
-        elevatorThread.closeClamp();
-        try
-        {
-            Thread.sleep(500);
-        }
-        catch (InterruptedException ignored)
-        {
-
-        }
-        correctedDrive(distanceUnit.toMm(- 15), 1.0);
         return position;
     }
 
     private void autonomousControl(final int counter)
     {
-        drivingThread.ScanPosition scanPosition = ScanPosition.center;
         switch (counter)
         {
             case 0:
             {
-                telemetry.print("Autonomous started");
+                telemetry.speak("Autonomous started");
             }
+
             case 1:
             {
-                correctedDrive(distanceUnit.toMm(15), 1.0);
-                break;
-            }
-            case 2:
-            {
-                scanPosition = scanning();
-                correctedStrafe(-scanDistance, 1.0);
-                break;
+                double distance = 0;
+                correctedDrive(distanceUnit.toMm(4), .8);
 
-            }
-            case 3:
-            {
-                correctedStrafe(distanceUnit.toMm(-30), 1.0);
-                if (! doubleSample)
+                if (!isRed)
                 {
-                    this.counter = 16;
-                    break;
-                }
-                correctedTurn(- PI / 4, 1.0, false);
-                try
-                {
-                    elevatorThread.openClamp();
-                    Thread.sleep(500);
-
-                }
-                catch (InterruptedException ignored)
-                {
-
-                }
-                correctedTurn(PI / 4, 1.0, false);
-                correctedStrafe(distanceUnit.toMm(30), 1.0);
-
-                break;
-
-            }
-            case 4:
-            {
-
-                if (! isRed)
-                {
-                    switch (scanPosition)
+                    switch (skystonePosition)
                     {
-                        case right:
-                        case center:
+                        case Close:
                         {
-                            correctedStrafe(scanDistance, 1.0);
-
+                            // TODO: 2/27/2020 5 inches
+                            distance = 5;
                             break;
                         }
-                        case left:
+                        case Center:
                         {
+                            distance = 18;
+                            break;
+                        }
+                        case Far:
+                        {
+                            distance = 31;
                             break;
                         }
                     }
 
                 }
+                else
+                {
+                    switch (skystonePosition)
+                    {
+                        case Close:
+                        {
+                            break;
+                        }
+                        case Center:
+                        {
 
-
+                            break;
+                        }
+                        case Far:
+                        {
+                            break;
+                        }
+                    }
+                }
+                correctedStrafe(distanceUnit.toMm(distance),1);
+                correctedDrive(distanceUnit.toMm(20),1);
                 break;
 
             }
@@ -1598,6 +1476,7 @@ public class drivingThread implements Runnable {
         }
     }
 
+    @Deprecated
     private void scanningMonitor()
     {
         activateTfod();
@@ -1612,6 +1491,7 @@ public class drivingThread implements Runnable {
         robot.tfod.deactivate();
     }
 
+    @Deprecated
     private void activateTfod()
     {
         if (robot.tfod != null)
