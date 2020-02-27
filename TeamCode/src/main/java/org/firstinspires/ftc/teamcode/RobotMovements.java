@@ -211,5 +211,4 @@ public abstract class RobotMovements extends LinearOpMode
 
     protected enum directions {intake, output}
 
-
 }
