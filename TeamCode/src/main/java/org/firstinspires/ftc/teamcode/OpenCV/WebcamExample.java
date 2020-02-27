@@ -44,6 +44,8 @@ public class WebcamExample extends LinearOpMode
          */
         webcam.openCameraDevice();
 
+
+
         /*
          * Specify the image processing pipeline we wish to invoke upon receipt
          * of a frame from the camera. Note that switching pipelines on-the-fly
