@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.teamcode.odometry.Telemetry;
+import org.openftc.easyopencv.OpenCvCamera;
 
 /**
  * This 2016-2017 OpMode illustrates the basics of using the Vuforia localizer to determine
@@ -98,9 +99,9 @@ public class foundationBlue extends RobotMovements {
 
         elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront,fileWriter);
 
-        Locations skystonePosition = null;
+        OpenCvCamera webcam = startOpenCV();
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread, telemetry, false,false,true,true,true,skystonePosition);
+        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, webcam, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread, telemetry, false,false,true,true,true);
 
         waitForStart();
 

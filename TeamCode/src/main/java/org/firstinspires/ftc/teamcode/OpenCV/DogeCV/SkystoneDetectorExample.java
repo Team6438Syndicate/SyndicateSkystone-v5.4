@@ -67,7 +67,7 @@ public class SkystoneDetectorExample extends LinearOpMode
          * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
          * away from the user.
         */
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+        webcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
 
         /*
          * Wait for the user to press start on the Driver Station
@@ -77,29 +77,27 @@ public class SkystoneDetectorExample extends LinearOpMode
         while (opModeIsActive())
         {
 
-            if (skyStoneDetector.getScreenPosition().x < 150)
+            if (skyStoneDetector.getScreenPosition().x > 125)
             {
-                position = locations.Left;
-                telemetry.speak("Bruh its on the left");
-                sleep(2000);
+                position = locations.Right;
+                //telemetry.speak("Bruh its on the left");
             }
-            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+            else if (skyStoneDetector.getScreenPosition().x < 125 && skyStoneDetector.getScreenPosition().x > 80)
             {
                 position = locations.Center;
-                telemetry.speak("Bruh its in the center");
-                sleep(2000);
+                //telemetry.speak("Bruh its in the center");
             }
             else
             {
                 position = locations.Right;
-                telemetry.speak("Bruh its on the right");
-                sleep(2000);
+                //telemetry.speak("Bruh its on the right");
             }
             /*
              * Send some stats to the telemetry
              */
             telemetry.addData("Stone Position X", skyStoneDetector.getScreenPosition().x);
             telemetry.addData("Stone Position Y", skyStoneDetector.getScreenPosition().y);
+            telemetry.addData("Stone Location", position.toString());
             telemetry.addData("Frame Count", webcam.getFrameCount());
             telemetry.addData("FPS", String.format(Locale.US, "%.2f", webcam.getFps()));
             telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());

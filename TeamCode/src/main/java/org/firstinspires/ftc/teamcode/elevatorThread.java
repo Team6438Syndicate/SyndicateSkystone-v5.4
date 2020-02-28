@@ -61,7 +61,7 @@ public class elevatorThread implements Runnable {
     //Wheel Diameter Mills
     private  final double WDMMLift = 17.2; // TODO: 12/22/2019 Pulley size
     //Counts per Mills
-    private final double hexCPMMLift =(hexCPRLift) / (WDMMLift / DGRLift * FastMath.PI) ;
+    private final double hexCPMMLift = (hexCPRLift) / (WDMMLift / DGRLift * FastMath.PI) ;
     public  final double hexCPILift = hexCPMMLift / mmPerInch;
     /*
         //Encoder Variables
@@ -134,9 +134,9 @@ public class elevatorThread implements Runnable {
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        capstone.setPosition(0.8);
+        //capstone.setPosition(0.8);
 
-        closeClamp();
+        //closeClamp();
     }
 
     public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo lclamp, Servo rclamp, Servo capstone, final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, DistanceSensor rev2mDistanceSensor, filewriterThread fileWriter)
@@ -165,7 +165,8 @@ public class elevatorThread implements Runnable {
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        capstone.setPosition(0.8);
+        startLift();
+        //capstone.setPosition(0.8);
     }
 
     /**
@@ -304,6 +305,20 @@ public class elevatorThread implements Runnable {
         }
     }
 
+    void startLift()
+    {
+        move(resolveAutonMovement(15, 0));
+
+        closeClamp();
+        try
+        {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        move(resolveAutonMovement(-15, 0));
+    }
 
 
     void move(MovementDistance movementDistance)

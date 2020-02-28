@@ -38,6 +38,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.OpenCV.DogeCV.OurSkystoneDetector;
 import org.firstinspires.ftc.teamcode.pathfinder.PathFinder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -63,6 +64,7 @@ public class drivingThread implements Runnable {
 
     boolean objectDetected = false;
     double scanDistance = 0;
+    OpenCvCamera webcam;
     private DistanceSensor frontSensor;
     private DcMotor motor1;
     private DcMotor motor2;
@@ -92,7 +94,7 @@ public class drivingThread implements Runnable {
     private double oldHeadingIMU;
     private double newHeadingIMU;
     private double gain;
-    private RobotMovements.Locations skystonePosition;
+    private Locations skystonePosition;
 
     /**
      * Teleop control constructor
@@ -120,13 +122,14 @@ public class drivingThread implements Runnable {
         this.gamepad = gamepad;
     }
 
-    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV, RobotMovements.Locations skystonePosition)
+    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, OpenCvCamera webcam, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV)
     {
         this.foundationMoveRequest = foundationMoveRequest;
         this.hardwareMap = hardwareMap;
 
 
         this.robot = robot;
+        this.webcam = webcam;
         this.frontSensor = sensorFront;
         this.isRed = redCheck;
         this.motor1 = motor1;
@@ -180,7 +183,7 @@ public class drivingThread implements Runnable {
         }
         else
         {
-            this.skystonePosition = skystonePosition;
+            findSkystone(webcam);
         }
 
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
@@ -654,7 +657,7 @@ public class drivingThread implements Runnable {
                         telemetry.append("" + counter);
 
 
-                        executeAction(counter);
+                        autonomousControl(counter);
                         firstLoop = false;
                         counter++;
 
@@ -682,6 +685,7 @@ public class drivingThread implements Runnable {
      *
      * @param position where the robot is
      */
+    @Deprecated
     private void executeAction(int position) //executes necessary actions at each point throughout the autonomous
     {
         //fileWriter.write("Action counter = " + counter);
@@ -1143,14 +1147,10 @@ public class drivingThread implements Runnable {
         }
     }
 
-    private void grabBlock()
-    {
-
-    }
-
     /*
      * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
      */
+    @Deprecated
     private void initVuforia()
     {
 
@@ -1172,6 +1172,7 @@ public class drivingThread implements Runnable {
     /**
      * Creates Tfod for object detection
      */
+    @Deprecated
     private void initTfod()
     {
         //creates a tfod object which is using the tfodMonitor
@@ -1198,7 +1199,7 @@ public class drivingThread implements Runnable {
      *
      * @return position of Skystone
      */
-
+    @Deprecated
     private int newScan()
     {
         if (robot.tfod != null)
@@ -1240,61 +1241,9 @@ public class drivingThread implements Runnable {
         return 1;
     }
 
-    public Locations detectSkystone()
-    {
-        SkystoneDetector skyStoneDetector;
-
-        OpenCvCamera webcam;
-
-        Locations position = Locations.Left;
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-
-        webcam.openCameraDevice();
-
-        skyStoneDetector = new SkystoneDetector();
-        webcam.setPipeline(skyStoneDetector);
-
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
-
-        while (runDetect())
-        {
-            if (skyStoneDetector.getScreenPosition().x < 150)
-            {
-                position = Locations.Left;
-            }
-            else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
-            {
-                position = Locations.Center;
-            }
-            else
-            {
-                position = Locations.Right;
-            }
-        }
-
-        telemetry.speak(position.toString());
-
-        return position;
-    }
-
-    @Contract (pure = true)
-    private synchronized boolean runDetect()
-    {
-        return runDetect;
-    }
-
-    synchronized void endDetection()
-    {
-        this.runDetect = false;
-    }
-
-    private enum Locations {Left, Center, Right}
-
+    @Deprecated
     private int scanSkystone()
     {
-
         int position = - 1; //Returns -1 if the block isn't detected
         boolean rightFound = false;
         boolean centerFound = false;
@@ -1381,8 +1330,6 @@ public class drivingThread implements Runnable {
                                     robot.tfod.shutdown();
                                     //fileWriter.write("Odd-Man successful");
                                     return 2;
-
-
                                 }
                             }
                         }
@@ -1441,8 +1388,6 @@ public class drivingThread implements Runnable {
                                 }
                             }
                         }
-
-
                     }
                 }
             }
@@ -1451,128 +1396,113 @@ public class drivingThread implements Runnable {
         return position;
     }
 
-    private drivingThread.ScanPosition scanning()
+    private void findSkystone(OpenCvCamera webcam)
     {
-        ScanPosition position;
-        scanningMonitor();
-        if (! scanningStrafe())
+        OurSkystoneDetector skyStoneDetector;
+        Locations position = null;
+        skyStoneDetector = new OurSkystoneDetector();
+        webcam.setPipeline(skyStoneDetector);
+
+        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+        while (position == null)
         {
-            scanningMonitor();
-            if (! scanningStrafe())
+            if (isRed)
             {
-                objectDetected = true;
-                scanningStrafe();
-                position = ScanPosition.left;
+                if (skyStoneDetector.getScreenPosition().x < 150)
+                {
+                    position = Locations.Close;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+                {
+                    position = Locations.Center;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 200 && skyStoneDetector.getScreenPosition().x < 250)
+                {
+                    position = Locations.Far;
+                }
             }
             else
             {
-                position = ScanPosition.center;
-
+                if (skyStoneDetector.getScreenPosition().x < 50)
+                {
+                    position = Locations.Far;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 55 && skyStoneDetector.getScreenPosition().x < 83)
+                {
+                    position = Locations.Center;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 83 && skyStoneDetector.getScreenPosition().x < 120)
+                {
+                    position = Locations.Close;
+                }
             }
         }
-        else
-        {
-            position = ScanPosition.right;
 
-        }
+        telemetry.speak(position.toString());
 
-        if (isRed)
-        {
-            switch (position)
-            {
-                case left:
-                    position = ScanPosition.right;
-                    break;
-                case center:
-                    break;
-                case right:
-                    position = ScanPosition.left;
-                    break;
-            }
-        }
-        correctedDrive(distanceUnit.toMm(15), 1.0);
-        elevatorThread.closeClamp();
-        try
-        {
-            Thread.sleep(500);
-        }
-        catch (InterruptedException ignored)
-        {
-
-        }
-        correctedDrive(distanceUnit.toMm(- 15), 1.0);
-        return position;
+        skystonePosition = position;
     }
+
+    public enum Locations {Close, Center, Far}
 
     private void autonomousControl(final int counter)
     {
-        drivingThread.ScanPosition scanPosition = ScanPosition.center;
         switch (counter)
         {
             case 0:
             {
-                telemetry.print("Autonomous started");
+                telemetry.speak("Autonomous started");
             }
+
             case 1:
             {
-                correctedDrive(distanceUnit.toMm(15), 1.0);
-                break;
-            }
-            case 2:
-            {
-                scanPosition = scanning();
-                correctedStrafe(-scanDistance, 1.0);
-                break;
+                double distance = 0;
+                correctedDrive(distanceUnit.toMm(4), .8);
 
-            }
-            case 3:
-            {
-                correctedStrafe(distanceUnit.toMm(-30), 1.0);
-                if (! doubleSample)
+                if (!isRed)
                 {
-                    this.counter = 16;
-                    break;
-                }
-                correctedTurn(- PI / 4, 1.0, false);
-                try
-                {
-                    elevatorThread.openClamp();
-                    Thread.sleep(500);
-
-                }
-                catch (InterruptedException ignored)
-                {
-
-                }
-                correctedTurn(PI / 4, 1.0, false);
-                correctedStrafe(distanceUnit.toMm(30), 1.0);
-
-                break;
-
-            }
-            case 4:
-            {
-
-                if (! isRed)
-                {
-                    switch (scanPosition)
+                    switch (skystonePosition)
                     {
-                        case right:
-                        case center:
+                        case Close:
                         {
-                            correctedStrafe(scanDistance, 1.0);
-
+                            // TODO: 2/27/2020 5 inches
+                            distance = 5;
                             break;
                         }
-                        case left:
+                        case Center:
                         {
+                            distance = 18;
+                            break;
+                        }
+                        case Far:
+                        {
+                            distance = 31;
                             break;
                         }
                     }
 
                 }
+                else
+                {
+                    switch (skystonePosition)
+                    {
+                        case Close:
+                        {
+                            break;
+                        }
+                        case Center:
+                        {
 
-
+                            break;
+                        }
+                        case Far:
+                        {
+                            break;
+                        }
+                    }
+                }
+                correctedStrafe(distanceUnit.toMm(distance),1);
+                correctedDrive(distanceUnit.toMm(20),1);
                 break;
 
             }
@@ -1600,6 +1530,7 @@ public class drivingThread implements Runnable {
         }
     }
 
+    @Deprecated
     private void scanningMonitor()
     {
         activateTfod();
@@ -1614,6 +1545,7 @@ public class drivingThread implements Runnable {
         robot.tfod.deactivate();
     }
 
+    @Deprecated
     private void activateTfod()
     {
         if (robot.tfod != null)

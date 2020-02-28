@@ -69,7 +69,7 @@ public class WebcamExample extends LinearOpMode
          * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
          * away from the user.
          */
-        webcam.startStreaming(1280,720, OpenCvCameraRotation.UPSIDE_DOWN);
+        webcam.startStreaming(1920,1080, OpenCvCameraRotation.UPSIDE_DOWN);
 
         /*
          * Wait for the user to press start on the Driver Station

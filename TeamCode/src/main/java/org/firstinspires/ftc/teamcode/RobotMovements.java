@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.OpenCV.DogeCV.OurSkystoneDetector;
 import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -146,70 +147,24 @@ public abstract class RobotMovements extends LinearOpMode
 
     }
 
-    public Locations detectSkystone(boolean isRed)
+    public OpenCvCamera startOpenCV()
     {
-        SkystoneDetector skyStoneDetector;
-
         OpenCvCamera webcam;
-
-        Locations position = Locations.Close;
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         webcam.openCameraDevice();
 
-        skyStoneDetector = new SkystoneDetector();
-        webcam.setPipeline(skyStoneDetector);
+        webcam.pauseViewport();
 
-        webcam.startStreaming(160, 120, OpenCvCameraRotation.UPSIDE_DOWN);
-
-        while (!isStarted())
-        {
-            if (isRed)
-            {
-                if (skyStoneDetector.getScreenPosition().x < 150)
-                {
-                    position = Locations.Close;
-                }
-                else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
-                {
-                    position = Locations.Center;
-                }
-                else
-                {
-                    position = Locations.Far;
-                }
-            }
-            else
-            {
-                if (skyStoneDetector.getScreenPosition().x < 50)
-                {
-                    position = Locations.Far;
-                }
-                else if (skyStoneDetector.getScreenPosition().x > 55 && skyStoneDetector.getScreenPosition().x < 83)
-                {
-                    position = Locations.Center;
-                }
-                else
-                {
-                    position = Locations.Close;
-                }
-            }
-        }
-
-        telemetry.speak(position.toString());
-
-        return position;
+        return webcam;
     }
-
-    public enum Locations {Close, Center, Far}
 
     private enum conditionCode {coord, angle}
 
     private enum coordCondition {returnFirst, returnSecond, returnAverage, rerunError}
 
     protected enum directions {intake, output}
-
 
 }
