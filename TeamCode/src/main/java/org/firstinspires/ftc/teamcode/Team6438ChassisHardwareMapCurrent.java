@@ -93,6 +93,7 @@ public class Team6438ChassisHardwareMapCurrent {
     public DcMotor intakeRight = null;
     public DcMotor liftMotor = null;
     public DcMotor tensionMotor = null;
+    public DcMotor rulerMotor = null;
     //Servo Declaration
     public Servo clampL = null;
     public Servo clampR = null;
@@ -129,7 +130,8 @@ public class Team6438ChassisHardwareMapCurrent {
         BR = ahwMap.get(DcMotor.class, "BR");
         liftMotor = ahwMap.get(DcMotor.class, "liftMotor");
         tensionMotor = ahwMap.get(DcMotor.class, "tensionMotor");
-        //Current Motor Count - 6
+        rulerMotor = ahwMap.get(DcMotor.class, "rulerMotor");
+        //Current Motor Count - 7
 
 
         //------------------------------------------------------------------------------------------
@@ -170,6 +172,7 @@ public class Team6438ChassisHardwareMapCurrent {
         BR.setDirection(DcMotor.Direction.FORWARD);
         liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         tensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rulerMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //Set all motors to zero power to prevent unintended movement
         FL.setPower(0);
@@ -178,6 +181,7 @@ public class Team6438ChassisHardwareMapCurrent {
         BR.setPower(0);
         liftMotor.setPower(0);
         tensionMotor.setPower(0);
+        rulerMotor.setPower(0);
     }
 
 }

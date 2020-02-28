@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -40,6 +41,8 @@ public class elevatorThread implements Runnable {
     private boolean doStop = false;
     private final DcMotor lift;
     private final DcMotor tension;
+    private HardwareMap hardwareMap;
+    private Team6438ChassisHardwareMapCurrent robot = null;
 
     private Servo lclamp;
     private Servo rclamp;
@@ -126,6 +129,7 @@ public class elevatorThread implements Runnable {
         lift.setDirection(DcMotorSimple.Direction.REVERSE);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -263,6 +267,16 @@ public class elevatorThread implements Runnable {
                         {
 
                         }
+                    }
+
+                    if (gamepad.left_stick_y<0)
+                    {
+                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
+
+                    }
+                    if(gamepad.left_stick_y>0)
+                    {
+                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
                     }
 
 
