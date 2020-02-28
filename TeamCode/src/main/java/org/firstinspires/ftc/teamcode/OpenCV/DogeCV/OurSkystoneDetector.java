@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.OpenCV.DogeCV;
 
 import android.util.Log;
 import com.disnodeteam.dogecv.DogeCV;
-import com.disnodeteam.dogecv.detectors.DogeCVDetector;
 import com.disnodeteam.dogecv.filters.CbColorFilter;
 import com.disnodeteam.dogecv.filters.DogeCVColorFilter;
 import com.disnodeteam.dogecv.filters.GrayscaleFilter;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OurSkystoneDetector extends OurDogeCVDetector {
-    public DogeCV.AreaScoringMethod areaScoringMethod = DogeCV.AreaScoringMethod.COLOR_DEVIATION; // Setting to decide to use MaxAreaScorer or PerfectAreaScorer
+    public DogeCV.AreaScoringMethod areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Setting to decide to use MaxAreaScorer or PerfectAreaScorer
 
     //Create the default filters and scorers
     public DogeCVColorFilter blackFilter = new GrayscaleFilter(0, 25);
@@ -51,7 +50,6 @@ public class OurSkystoneDetector extends OurDogeCVDetector {
     public Rect foundRectangle() {
         return foundRect;
     }
-
 
     public OurSkystoneDetector() {
         detectorName = "Skystone Detector";

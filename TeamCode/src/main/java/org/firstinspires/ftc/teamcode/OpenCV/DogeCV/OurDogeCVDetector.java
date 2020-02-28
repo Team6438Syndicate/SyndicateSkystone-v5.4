@@ -16,9 +16,11 @@ import java.util.List;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+
 /**
  * Created by Victo on 9/10/2018.
  */
+
 public abstract class OurDogeCVDetector extends OpenCvPipeline {
 
     public abstract Mat process(Mat input);
@@ -30,7 +32,7 @@ public abstract class OurDogeCVDetector extends OpenCvPipeline {
 
     protected boolean found = false;
 
-    public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.BALANCED;
+    public DogeCV.DetectionSpeed speed = DogeCV.DetectionSpeed.SLOW;
     protected String detectorName = "DogeCV Detector";
 
     private Size size;
@@ -42,7 +44,7 @@ public abstract class OurDogeCVDetector extends OpenCvPipeline {
         RAW_IMAGE
     }
 
-    protected Stage stageToRenderToViewport = Stage.FINAL_DISPLAY;
+    protected Stage stageToRenderToViewport = Stage.THRESHOLD;
     private Stage[] stages = Stage.values();
 
     public void setSpeed(DogeCV.DetectionSpeed speed){
@@ -70,9 +72,6 @@ public abstract class OurDogeCVDetector extends OpenCvPipeline {
 
     @Override
     public final Mat processFrame(Mat input) {
-
-        input.adjustROI(0,60,0,120);
-
         size = input.size();
 
         Log.d("DogeCVDetector", "Input mat size:" + input.size());

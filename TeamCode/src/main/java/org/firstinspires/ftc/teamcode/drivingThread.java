@@ -38,6 +38,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.OpenCV.DogeCV.OurSkystoneDetector;
 import org.firstinspires.ftc.teamcode.pathfinder.PathFinder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -63,6 +64,7 @@ public class drivingThread implements Runnable {
 
     boolean objectDetected = false;
     double scanDistance = 0;
+    OpenCvCamera webcam;
     private DistanceSensor frontSensor;
     private DcMotor motor1;
     private DcMotor motor2;
@@ -92,7 +94,7 @@ public class drivingThread implements Runnable {
     private double oldHeadingIMU;
     private double newHeadingIMU;
     private double gain;
-    private RobotMovements.Locations skystonePosition;
+    private Locations skystonePosition;
 
     /**
      * Teleop control constructor
@@ -120,13 +122,14 @@ public class drivingThread implements Runnable {
         this.gamepad = gamepad;
     }
 
-    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV, RobotMovements.Locations skystonePosition)
+    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, OpenCvCamera webcam, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV)
     {
         this.foundationMoveRequest = foundationMoveRequest;
         this.hardwareMap = hardwareMap;
 
 
         this.robot = robot;
+        this.webcam = webcam;
         this.frontSensor = sensorFront;
         this.isRed = redCheck;
         this.motor1 = motor1;
@@ -180,7 +183,7 @@ public class drivingThread implements Runnable {
         }
         else
         {
-            this.skystonePosition = skystonePosition;
+            findSkystone(webcam);
         }
 
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
@@ -1390,6 +1393,55 @@ public class drivingThread implements Runnable {
 
         return position;
     }
+
+    private void findSkystone(OpenCvCamera webcam)
+    {
+        OurSkystoneDetector skyStoneDetector;
+        Locations position = null;
+        skyStoneDetector = new OurSkystoneDetector();
+        webcam.setPipeline(skyStoneDetector);
+
+        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+        while (position == null)
+        {
+            if (isRed)
+            {
+                if (skyStoneDetector.getScreenPosition().x < 150)
+                {
+                    position = Locations.Close;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 150 && skyStoneDetector.getScreenPosition().x < 200)
+                {
+                    position = Locations.Center;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 200 && skyStoneDetector.getScreenPosition().x < 250)
+                {
+                    position = Locations.Far;
+                }
+            }
+            else
+            {
+                if (skyStoneDetector.getScreenPosition().x < 50)
+                {
+                    position = Locations.Far;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 55 && skyStoneDetector.getScreenPosition().x < 83)
+                {
+                    position = Locations.Center;
+                }
+                else if (skyStoneDetector.getScreenPosition().x > 83 && skyStoneDetector.getScreenPosition().x < 120)
+                {
+                    position = Locations.Close;
+                }
+            }
+        }
+
+        telemetry.speak(position.toString());
+
+        skystonePosition = position;
+    }
+
+    public enum Locations {Close, Center, Far}
 
     private void autonomousControl(final int counter)
     {
