@@ -45,6 +45,8 @@ public class MattMarkTeleOp extends OpMode
         robot.BL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.BR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        robot.capstone.setPosition(.8);
+
         //Feedback for the user
         telemetry.speak("All systems go");
         telemetry.addData("Hardware Status: ","Mapped");
@@ -78,11 +80,26 @@ public class MattMarkTeleOp extends OpMode
             telemetry.speak("Tower Size Has been Increased, tower size now");
             telemetry.speak(String.valueOf(towerSize));
             telemetry.update();
-            sleep(100);
+            sleep(200);
+        }
+        else if (gamepad2.dpad_down)
+        {
+            towerSize = 0;
+            telemetry.speak("Tower Size reset");
+            telemetry.update();
+            sleep(200);
         }
         else if(gamepad2.b)
         {
             goToTowerSize(towerSize);
+        }
+        if(gamepad2.right_stick_button)
+        {
+            robot.capstone.setPosition(.2);
+        }
+        else
+        {
+            robot.capstone.setPosition(.75);
         }
         if(gamepad2.left_bumper)
         {
@@ -106,6 +123,7 @@ public class MattMarkTeleOp extends OpMode
 
         //This checks to see how we want the motors moved
         motorControl(gamepad1.left_stick_y,gamepad1.right_stick_x,gamepad1.left_trigger,gamepad1.right_trigger);
+        robot.rulerMotor.setPower(3*-gamepad2.left_stick_y/4);
 
     }
     /*

@@ -73,7 +73,7 @@ public class SimplifiedHardwareMap
     public  Servo clampR = null;
     public  Servo foundationL = null;
     public  Servo foundationR = null;
-    public  Servo capstoneServo = null;
+    public  Servo capstone = null;
 
     //Webcam mapping
     public WebcamName camera = null;
@@ -105,7 +105,7 @@ public class SimplifiedHardwareMap
         clampR = ahwMap.get(Servo.class, "clampR");
         foundationL = ahwMap.get(Servo.class, "foundationL");
         foundationR = ahwMap.get(Servo.class, "foundationR");
-        capstoneServo = ahwMap.get(Servo.class,"capstone");
+        capstone = ahwMap.get(Servo.class,"capstone");
         //Current Servo Count - 5
 
         //------------------------------------------------------------------------------------------
