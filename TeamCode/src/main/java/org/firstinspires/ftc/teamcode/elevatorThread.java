@@ -130,9 +130,9 @@ public class elevatorThread implements Runnable {
 
         }*/
         lift.setDirection(DcMotorSimple.Direction.FORWARD);
-        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -225,7 +225,7 @@ public class elevatorThread implements Runnable {
                     {
                         robot.rulerMotor.setPower(-gamepad.left_stick_y);
                     }
-             if(!gamepad.a)
+                    if(!gamepad.a)
                     {
                         //close clamp
                         closeClamp();
@@ -309,7 +309,7 @@ public class elevatorThread implements Runnable {
         }
     }
 
-    void startLift()
+    private void startLift()
     {
         move(resolveAutonMovement(15, 0));
 
@@ -358,7 +358,7 @@ public class elevatorThread implements Runnable {
     {
 
 
-        MovementDistance movementDistance = new MovementDistance(0,0);
+        MovementDistance movementDistance = new MovementDistance(0, 0);
         if(gamepad.left_trigger > 0.0 + range && gamepad.right_trigger < 0.0 + range)
         {
             double inchDistance =  gamepad.left_trigger * LIFT_MULTIPLIER_UP;
@@ -380,7 +380,7 @@ public class elevatorThread implements Runnable {
     //Simplified version of resolveUserControl for autonomous use
     MovementDistance resolveAutonMovement(int liftDistance, int tensionDistance)
     {
-        return new MovementDistance(convertDistanceToTicks(liftDistance,MotorType.lift),0);
+        return new MovementDistance(convertDistanceToTicks(liftDistance, MotorType.lift), 0);
     }
 
 
@@ -464,7 +464,7 @@ public class elevatorThread implements Runnable {
     {
         lift,tension
     }
-    private class MovementDistance
+    private static class MovementDistance
     {
         private int ticksForLift;
         private int ticksForTension;

@@ -86,6 +86,7 @@ public class Telemetry implements Runnable
                 printTelem();
             }
         }
+        telemetry.clearAll();
     }
 
     private void printTelem()

@@ -46,7 +46,7 @@ import java.util.List;
  * In this sample, we demonstrate how to use the {@link OpenCvTrackerApiPipeline()}
  * class to run multiple {@link OpenCvTracker} instances on each frame from the camera.
  */
-@Disabled
+
 @TeleOp(name = "TrackerAPIExample", group = "zOpenCV")
 public class TrackerApiExample extends LinearOpMode
 {
