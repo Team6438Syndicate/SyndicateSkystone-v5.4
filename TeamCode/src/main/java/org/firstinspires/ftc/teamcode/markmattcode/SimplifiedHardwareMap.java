@@ -65,13 +65,15 @@ public class SimplifiedHardwareMap
     public DcMotor BL = null;
     public DcMotor BR = null;
     public DcMotor liftMotor = null;
-    public DcMotor tensionMotor = null;
+    //public DcMotor tensionMotor = null;
+    public DcMotor rulerMotor = null;
 
     //Servo Declaration
     public  Servo clampL = null;
     public  Servo clampR = null;
     public  Servo foundationL = null;
     public  Servo foundationR = null;
+    public  Servo capstoneServo = null;
 
     //Webcam mapping
     public WebcamName camera = null;
@@ -93,7 +95,8 @@ public class SimplifiedHardwareMap
         BL = ahwMap.get(DcMotor.class, "BL");
         BR = ahwMap.get(DcMotor.class, "BR");
         liftMotor = ahwMap.get(DcMotor.class, "liftMotor");
-        tensionMotor = ahwMap.get(DcMotor.class, "tensionMotor");
+        //tensionMotor = ahwMap.get(DcMotor.class, "tensionMotor");
+        rulerMotor = ahwMap.get(DcMotor.class, "rulerMotor");
         //Current Motor Count - 6
 
 
@@ -102,7 +105,8 @@ public class SimplifiedHardwareMap
         clampR = ahwMap.get(Servo.class, "clampR");
         foundationL = ahwMap.get(Servo.class, "foundationL");
         foundationR = ahwMap.get(Servo.class, "foundationR");
-        //Current Servo Count - 4
+        capstoneServo = ahwMap.get(Servo.class,"capstone");
+        //Current Servo Count - 5
 
         //------------------------------------------------------------------------------------------
         // Define webcam
@@ -133,7 +137,7 @@ public class SimplifiedHardwareMap
         BL.setDirection(DcMotor.Direction.FORWARD);
         BR.setDirection(DcMotor.Direction.REVERSE);
         liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        tensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //tensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //Set all motors to zero power to prevent unintended movement
         FL.setPower(0);
@@ -141,7 +145,7 @@ public class SimplifiedHardwareMap
         BL.setPower(0);
         BR.setPower(0);
         liftMotor.setPower(0);
-        tensionMotor.setPower(0);
+        //tensionMotor.setPower(0);
     }
 
 }

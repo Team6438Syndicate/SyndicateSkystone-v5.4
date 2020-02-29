@@ -126,7 +126,7 @@ public class elevatorThread implements Runnable {
         {
 
         }*/
-        lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setDirection(DcMotorSimple.Direction.FORWARD);
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -270,12 +270,12 @@ public class elevatorThread implements Runnable {
                         }
                     }
 
-                    if (gamepad.left_stick_y<0)
+                    if (gamepad.left_stick_y<0.01)
                     {
                         robot.rulerMotor.setPower(-gamepad.left_stick_y);
 
                     }
-                    if(gamepad.left_stick_y>0)
+                    else if(gamepad.left_stick_y>0.01)
                     {
                         robot.rulerMotor.setPower(-gamepad.left_stick_y);
                     }

@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Disabled
+import static android.os.SystemClock.sleep;
+
+//@Disabled
 @TeleOp(name = "Mark and Matt TeleOp", group = "test")
 public class MattMarkTeleOp extends OpMode
 {
@@ -17,7 +19,7 @@ public class MattMarkTeleOp extends OpMode
     int scaleFactor = 50;
     double strafeDec = .2;
     double slowSpeed = .2;
-    double gamestickFactor = 1.75;
+    double gamestickFactor = 2;
     int towerSize = 0;
     double liftUpSpeed = 1;
     int zeroTowerPositionOfSlides = 100; // need tweaking
@@ -76,6 +78,7 @@ public class MattMarkTeleOp extends OpMode
             telemetry.speak("Tower Size Has been Increased, tower size now");
             telemetry.speak(String.valueOf(towerSize));
             telemetry.update();
+            sleep(100);
         }
         else if(gamepad2.b)
         {
@@ -102,7 +105,7 @@ public class MattMarkTeleOp extends OpMode
         
 
         //This checks to see how we want the motors moved
-        motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y,gamepad1.left_trigger,gamepad1.right_trigger);
+        motorControl(gamepad1.left_stick_y,gamepad1.right_stick_x,gamepad1.left_trigger,gamepad1.right_trigger);
 
     }
     /*
@@ -142,7 +145,7 @@ public class MattMarkTeleOp extends OpMode
         {
             telemetry.addData("Currently At", robot.liftMotor.getCurrentPosition());
             telemetry.addData("Going to", robot.liftMotor.getTargetPosition());
-            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_y,gamepad1.left_trigger,gamepad1.right_trigger);
+            motorControl(gamepad1.left_stick_y,gamepad1.right_stick_x,gamepad1.left_trigger,gamepad1.right_trigger);
             telemetry.update();
         }
     }
@@ -152,7 +155,7 @@ public class MattMarkTeleOp extends OpMode
     public void motorControl (double leftJoystick, double rightJoystick, double leftTrigger, double rightTrigger)
     {
         double FLpower = 0, FRpower = 0, BLpower = 0, BRpower = 0;
-        double drive = -leftJoystick;
+        double drive = leftJoystick;
         double turn  =  -rightJoystick;
 
         // Combine drive and turn for robot.BLended motion.
@@ -216,10 +219,10 @@ public class MattMarkTeleOp extends OpMode
         }
 
         //Send the power
-        robot.FL.setPower(FLpower);
-        robot.FR.setPower(FRpower);
-        robot.BL.setPower(BLpower);
-        robot.BR.setPower(BRpower);
+        robot.FL.setPower(FLpower/gamestickFactor);
+        robot.FR.setPower(FRpower/gamestickFactor);
+        robot.BL.setPower(BLpower/gamestickFactor);
+        robot.BR.setPower(BRpower/gamestickFactor);
     }
     public void goToTowerSize (int towerSize)
     {
