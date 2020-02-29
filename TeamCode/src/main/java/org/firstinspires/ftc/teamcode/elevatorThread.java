@@ -41,6 +41,7 @@ public class elevatorThread implements Runnable {
     private boolean doStop = false;
     private final DcMotor lift;
     private final DcMotor tension;
+    private final DcMotor rulerMotor;
     private HardwareMap hardwareMap;
     private Team6438ChassisHardwareMapCurrent robot = null;
 
@@ -88,6 +89,7 @@ public class elevatorThread implements Runnable {
      * constructor for the thread
      * @param lift
      * @param tension
+     * @param rulerMotor
      * @param clampL
      * @param clampR
      * @param mills
@@ -100,11 +102,12 @@ public class elevatorThread implements Runnable {
      * @param telemetry
      */
 
-    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo clampL, Servo clampR, Servo foundationL, Servo foundationR, Servo capstone, final long mills, Gamepad gamepad, final float range, final int lift_multiplier_up, final int lift_multiplier_down, final int lift_max_value, final int tension_max_value, @NotNull Telemetry telemetry)
+    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, DcMotor rulerMotor, Servo clampL, Servo clampR, Servo foundationL, Servo foundationR, Servo capstone, final long mills, Gamepad gamepad, final float range, final int lift_multiplier_up, final int lift_multiplier_down, final int lift_max_value, final int tension_max_value, @NotNull Telemetry telemetry)
     {
 
         this.lift = lift;
         this.tension = tension;
+        this.rulerMotor = rulerMotor;
         this.lclamp = clampL;
         this.rclamp = clampR;
         this.foundationL = foundationL;
@@ -139,11 +142,12 @@ public class elevatorThread implements Runnable {
         //closeClamp();
     }
 
-    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, Servo lclamp, Servo rclamp, Servo capstone, final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, DistanceSensor rev2mDistanceSensor, filewriterThread fileWriter)
+    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, DcMotor rulerMotor, Servo lclamp, Servo rclamp, Servo capstone, final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, DistanceSensor rev2mDistanceSensor, filewriterThread fileWriter)
     {
         userControlable = false;
         this.lift = lift;
         this.tension = tension;
+        this.rulerMotor = rulerMotor;
         this.lclamp = lclamp;
         this.rclamp = rclamp;
         this.capstone = capstone;
@@ -213,7 +217,15 @@ public class elevatorThread implements Runnable {
                 {
                     Thread.sleep(mills);
 
-                    if(!gamepad.a)
+                    if (gamepad.left_stick_y < 0.01)
+                    {
+                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
+                    }
+                    else if(gamepad.left_stick_y > 0.01)
+                    {
+                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
+                    }
+             if(!gamepad.a)
                     {
                         //close clamp
                         closeClamp();
@@ -270,15 +282,7 @@ public class elevatorThread implements Runnable {
                         }
                     }
 
-                    if (gamepad.left_stick_y<0.01)
-                    {
-                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
 
-                    }
-                    else if(gamepad.left_stick_y>0.01)
-                    {
-                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
-                    }
 
 
                     halfSpeed = gamepad.b;

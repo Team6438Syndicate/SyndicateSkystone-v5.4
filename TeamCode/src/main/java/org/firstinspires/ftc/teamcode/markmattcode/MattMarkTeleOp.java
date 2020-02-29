@@ -64,13 +64,13 @@ public class MattMarkTeleOp extends OpMode
 
         if (gamepad2.a)
         {
-            robot.clampL.setPosition(.25);
-            robot.clampR.setPosition(.75);
+            robot.clampL.setPosition(.5);
+            robot.clampR.setPosition(.5);
         }
         else
         {
-            robot.clampL.setPosition(0.1);
-            robot.clampR.setPosition(.9);
+            robot.clampL.setPosition(.2);
+            robot.clampR.setPosition(.8);
         }
 
 

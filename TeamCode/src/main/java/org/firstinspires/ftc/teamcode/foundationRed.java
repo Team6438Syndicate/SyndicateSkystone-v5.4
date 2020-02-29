@@ -97,7 +97,7 @@ public class foundationRed extends RobotMovements {
 
         filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
 
-        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront,fileWriter);
+        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.rulerMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront,fileWriter);
 
         OpenCvCamera webcam = startOpenCV();
 
