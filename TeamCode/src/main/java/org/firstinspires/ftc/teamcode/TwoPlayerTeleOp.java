@@ -88,7 +88,6 @@ public class TwoPlayerTeleOp extends RobotMovements {
 
             a.start();
             b.start();
-
             c.start();
 
 
@@ -97,19 +96,7 @@ public class TwoPlayerTeleOp extends RobotMovements {
 
             }
 
-            if(isStopRequested())
-            {
-                simpleDriveThread.doStop();
-                elevatorThread.doStop();
-                telemetry.doStop();
 
-                a.interrupt();
-                b.interrupt();
-                c.interrupt();
-
-                requestOpModeStop();
-                stop();
-            }
             simpleDriveThread.doStop();
             elevatorThread.doStop();
             telemetry.doStop();
@@ -117,7 +104,8 @@ public class TwoPlayerTeleOp extends RobotMovements {
             a.interrupt();
             b.interrupt();
             c.interrupt();
-
+            stop();
+            requestOpModeStop();
             this.telemetry.clear();
         }
         catch (Exception e)
