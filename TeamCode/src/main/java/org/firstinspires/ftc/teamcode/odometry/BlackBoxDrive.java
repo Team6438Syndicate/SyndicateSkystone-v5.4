@@ -16,12 +16,14 @@
 
 package org.firstinspires.ftc.teamcode.odometry;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 //👌 👌 👌 👌 👌 👌 👌 👌 👌 👌 👌 👌 👌 👌
+@Disabled
 @TeleOp(name = "EncoderDrive")
 public class BlackBoxDrive extends LinearOpMode {
     static final double threshold = 0.3;

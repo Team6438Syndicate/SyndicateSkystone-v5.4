@@ -19,6 +19,7 @@ package org.firstinspires.ftc.teamcode;
 import android.os.Environment;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -26,7 +27,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-
+@Disabled
 @Autonomous(name = "Make the locations...Stek you know", group = "Team 6438 Driver Controlled")
 public class StekIsAToolForAutonomous extends LinearOpMode {
     private CoordinateMapMaker vuforiaCamera2;

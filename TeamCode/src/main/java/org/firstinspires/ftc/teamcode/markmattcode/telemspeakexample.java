@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.markmattcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
+@Disabled
 @TeleOp(name = "BRAD PLEASE RUN THIS AND WAIT A MINUTE", group = "!!Test")
 public class telemspeakexample extends LinearOpMode {
     @Override

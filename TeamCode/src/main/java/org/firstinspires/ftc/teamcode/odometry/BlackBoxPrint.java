@@ -16,11 +16,13 @@
 
 package org.firstinspires.ftc.teamcode.odometry;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "Print POsItiOn")
+@Disabled
+@TeleOp(name = "Print Position")
 public class BlackBoxPrint extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private BlackBoxBot bb = new BlackBoxBot();

@@ -16,12 +16,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.odometry.Telemetry;
 
-@TeleOp(name = "1 Player TeleOP", group = "!Team 6438 Driver Controlled")
+@Disabled
+@TeleOp(name = "1 Player TeleOP", group = "!!!Team 6438 Driver Controlled")
 public class OnePlayerTeleOp extends RobotMovements {
     /**
      * Override this method and place your code here.
