@@ -219,11 +219,11 @@ public class elevatorThread implements Runnable {
 
                     if (gamepad.left_stick_y < 0.01)
                     {
-                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
+                        rulerMotor.setPower(-gamepad.left_stick_y);
                     }
                     else if(gamepad.left_stick_y > 0.01)
                     {
-                        robot.rulerMotor.setPower(-gamepad.left_stick_y);
+                        rulerMotor.setPower(-gamepad.left_stick_y);
                     }
                     if(!gamepad.a)
                     {
