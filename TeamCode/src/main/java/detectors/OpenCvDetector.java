@@ -2,12 +2,17 @@ package detectors;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.net.CookieHandler;
 
 import detectors.FoundationPipeline.Foundation;
 import detectors.FoundationPipeline.Pipeline;
@@ -23,23 +28,39 @@ public class OpenCvDetector extends StartStoppable
 		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 
+	private HardwareMap hardwareMap;
+
 	//This is a reference to the camera
 	private OpenCvCamera phoneCam;
 
 	//OpMode
-	com.qualcomm.robotcore.eventloop.opmode.OpMode OpMode;
+	private com.qualcomm.robotcore.eventloop.opmode.OpMode OpMode;
 
 	public OpenCvDetector (com.qualcomm.robotcore.eventloop.opmode.OpMode opMode){
-		this(opMode, true);
+		this(opMode, true,false);
 	}
 
-	public  OpenCvDetector (com.qualcomm.robotcore.eventloop.opmode.OpMode opmode, boolean showVideo) {
+	public OpenCvDetector (com.qualcomm.robotcore.eventloop.opmode.OpMode opMode, boolean webcam, HardwareMap hardwareMap){
+		this(opMode, true,webcam);
+		this.hardwareMap = hardwareMap;
+	}
+
+	private OpenCvDetector(com.qualcomm.robotcore.eventloop.opmode.OpMode opmode, boolean showVideo, boolean webcam) {
 		OpMode = opmode;
 
 		//init EOCV
 		int cameraMonitorViewId = OpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", OpMode.hardwareMap.appContext.getPackageName());
-		if(showVideo) phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-		else phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK);
+		if (!webcam)
+		{
+			if(showVideo) phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+			else phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK);
+		}
+		else
+		{
+			if(showVideo) phoneCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+			else phoneCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"));
+
+		}
 		Pipeline.doFoundations = false;
 		Pipeline.doStones = false;
 		Pipeline.doSkyStones = true;
