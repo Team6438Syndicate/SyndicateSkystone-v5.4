@@ -52,6 +52,7 @@ public class elevatorThread implements Runnable {
     private Servo capstone;
     private long mills;
     private Gamepad gamepad;
+    private double capstorePos = .845;
 
 
     // TODO: 11/23/2019 Check if hexCPMM is actually correct
@@ -112,6 +113,7 @@ public class elevatorThread implements Runnable {
         this.rclamp = clampR;
         this.foundationL = foundationL;
         this.foundationR = foundationR;
+        this.foundationR = foundationR;
         this.capstone = capstone;
         this.mills = mills;
         this.gamepad = gamepad;
@@ -133,11 +135,12 @@ public class elevatorThread implements Runnable {
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rulerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //capstone.setPosition(0.8);
+        capstone.setPosition(capstorePos);
 
         //closeClamp();
     }
@@ -170,7 +173,7 @@ public class elevatorThread implements Runnable {
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         startLift();
-        //capstone.setPosition(0.8);
+        //capstone.setPosition(capstorePos);
     }
 
     /**
@@ -217,14 +220,8 @@ public class elevatorThread implements Runnable {
                 {
                     Thread.sleep(mills);
 
-                    if (gamepad.left_stick_y < 0.01)
-                    {
-                        rulerMotor.setPower(-gamepad.left_stick_y);
-                    }
-                    else if(gamepad.left_stick_y > 0.01)
-                    {
-                        rulerMotor.setPower(-gamepad.left_stick_y);
-                    }
+                    rulerMotor.setPower(-gamepad.left_stick_y);
+
                     if(!gamepad.a)
                     {
                         //close clamp
@@ -498,14 +495,20 @@ public class elevatorThread implements Runnable {
 
     synchronized void openClamp()
     {
-        lclamp.setPosition(.5);
-        rclamp.setPosition(.5);
+        lclamp.setPosition(.45);
+        rclamp.setPosition(.55);
     }
 
     synchronized void closeClamp()
     {
-        lclamp.setPosition(0.2);
-        rclamp.setPosition(0.8);
+        lclamp.setPosition(0.25);
+        rclamp.setPosition(0.75);
+    }
+
+    synchronized void closeClampWide()
+    {
+        lclamp.setPosition(.6);
+        rclamp.setPosition(.4);
     }
 
     void grabFoundation()
@@ -543,6 +546,6 @@ public class elevatorThread implements Runnable {
         {
             elapsedTime = timer.milliseconds();
         }
-        capstone.setPosition(.8);
+        capstone.setPosition(capstorePos);
     }
 }

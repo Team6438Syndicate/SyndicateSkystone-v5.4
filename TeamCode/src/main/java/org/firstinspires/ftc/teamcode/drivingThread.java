@@ -360,9 +360,7 @@ public class drivingThread implements Runnable {
                         motor2.setPower(- 0.55);
                         motor3.setPower(0.55);
                         motor4.setPower(0.55);
-
                         continue;
-
                     }
 
 
@@ -372,10 +370,24 @@ public class drivingThread implements Runnable {
                         motor2.setPower(0.5);
                         motor3.setPower(- 0.5);
                         motor4.setPower(- 0.5);
-
-
                         continue;
+                    }
 
+                    if(gamepad.right_trigger>0.05)
+                    {
+                        motor1.setPower(.25);
+                        motor2.setPower(-.25);
+                        motor3.setPower(.25);
+                        motor4.setPower(-.25);
+                        continue;
+                    }
+                    if(gamepad.left_trigger>0.05)
+                    {
+                        motor1.setPower(-.25);
+                        motor2.setPower(.25);
+                        motor3.setPower(-.25);
+                        motor4.setPower(.25);
+                        continue;
                     }
 
                     if (gamepad.dpad_up)
@@ -384,20 +396,15 @@ public class drivingThread implements Runnable {
                         motor2.setPower(0.5);
                         motor3.setPower(0.5);
                         motor4.setPower(0.5);
-
                         continue;
-
                     }
 
                     if (gamepad.dpad_down)
                     {
-
                         motor1.setPower(- 0.5);
                         motor2.setPower(- 0.5);
                         motor3.setPower(- 0.5);
                         motor4.setPower(- 0.5);
-
-
                         continue;
                     }
                     if (gamepad.y)
@@ -407,7 +414,6 @@ public class drivingThread implements Runnable {
                         motor3.setPower(0.25);
                         motor4.setPower(0.25);
                         continue;
-
                     }
 
                     if (gamepad.a)
@@ -416,22 +422,16 @@ public class drivingThread implements Runnable {
                         motor2.setPower(- 0.25);
                         motor3.setPower(- 0.25);
                         motor4.setPower(- 0.25);
-
                         continue;
                     }
 
                     if (gamepad.x)
                     {
-
                         //motor1.setTargetPosition((int) target);
-
-
                         motor1.setPower(- 0.25);
                         motor2.setPower(- 0.25);
                         motor3.setPower(0.25);
                         motor4.setPower(0.25);
-
-
                         continue;
                     }
 
@@ -441,7 +441,6 @@ public class drivingThread implements Runnable {
                         motor2.setPower(0.25);
                         motor3.setPower(- 0.25);
                         motor4.setPower(- 0.25);
-
                         continue;
                     }
 
