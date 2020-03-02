@@ -29,36 +29,39 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
     @Override
     public void runOpMode() throws InterruptedException
     {
-        initRobot(hardwareMap,true);
-        fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
+        try
+        {
+            initRobot(hardwareMap,true);
+            fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
 
-      waitForStart();
+            waitForStart();
 
-        fieldElementDetector.start();
+            fieldElementDetector.start();
 
 		/*
 		To toggle individual element detection, use the following.
 		Note that the detector must still be enabled for any element detection to occur
 		 */
-        Pipeline.doSkyStones = true;
-        Pipeline.doStones = false;
-        Pipeline.doFoundations = false;
+            Pipeline.doSkyStones = true;
+            Pipeline.doStones = false;
+            Pipeline.doFoundations = false;
 
-        while (opModeIsActive())
-        {
-            SkyStone[] skyStones = fieldElementDetector.getSkyStones();
-            Stone[] stones = fieldElementDetector.getStones();
-            Foundation[] foundations = fieldElementDetector.getFoundations();
-            telemetry.speak(Arrays.toString(skyStones));
-            if(isStopRequested())
+            while (opModeIsActive())
             {
-                fieldElementDetector.stop();
+                SkyStone[] skyStones = fieldElementDetector.getSkyStones();
+                Stone[] stones = fieldElementDetector.getStones();
+                Foundation[] foundations = fieldElementDetector.getFoundations();
+                telemetry.speak(Arrays.toString(skyStones));
+
+
             }
 
-        }
-        if(isStopRequested())
+                fieldElementDetector.stop();
+
+        } catch (Exception e)
         {
-            fieldElementDetector.stop();
+            telemetry.addData("Error:" , Arrays.toString(e.getStackTrace()));
+            telemetry.update();
         }
 
     }

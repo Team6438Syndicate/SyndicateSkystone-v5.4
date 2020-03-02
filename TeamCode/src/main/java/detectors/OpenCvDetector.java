@@ -57,8 +57,8 @@ public class OpenCvDetector extends StartStoppable
 		}
 		else
 		{
-			if(showVideo) phoneCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-			else phoneCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"));
+			if(showVideo) phoneCam = OpenCvCameraFactory.getInstance().createWebcam(OpMode.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+			else phoneCam = OpenCvCameraFactory.getInstance().createWebcam(OpMode.hardwareMap.get(WebcamName.class, "Webcam 1"));
 
 		}
 		Pipeline.doFoundations = false;
