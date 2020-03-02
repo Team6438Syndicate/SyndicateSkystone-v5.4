@@ -51,56 +51,48 @@ public class TwoPlayerTeleOp extends RobotMovements {
             robot.FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-            //robot.intakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            //robot.intakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-
-            //robot.shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
+            //Set motor mode
             robot.FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-            //robot.intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //robot.intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            //robot.shoulderMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+            //Invoke the driving thread on controller 1(Kevin)
             drivingThread simpleDriveThread = new drivingThread(robot.FL, robot.FR, robot.BL, robot.BR, 1, gamepad1, 5.0, 1.0 + 1.0/4.0);
 
+            //Invoke the telem thread
             Telemetry telemetry = new Telemetry(this,robot,10, true);
 
+            //Invoke the elevator thread on controller 2(mark)
             elevatorThread elevatorThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.rulerMotor, robot.clampL, robot.clampR, robot.foundationL, robot.foundationR, robot.capstone, 1, gamepad2, .1f, 50, 20, 300000, 300000, telemetry);
 
+            //Form the threads
             Thread a = new Thread(simpleDriveThread);
-
             Thread b = new Thread(telemetry);
-
             Thread c = new Thread(elevatorThread);
 
-
+            //Wait for player to press start
             waitForStart();
 
+            //Start the threads
             a.start();
             b.start();
             c.start();
 
-
+            //While opmode
             while (!isStopRequested())
             {
 
             }
 
-
+            //After stop is requested
             simpleDriveThread.doStop();
             elevatorThread.doStop();
             telemetry.doStop();
 
+            //Intterupt the threads
             a.interrupt();
             b.interrupt();
             c.interrupt();
