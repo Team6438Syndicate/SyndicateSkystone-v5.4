@@ -29,7 +29,7 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
     @Override
     public void runOpMode() throws InterruptedException
     {
-        initRobot(hardwareMap);
+        initRobot(hardwareMap,true);
         fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
 
       waitForStart();

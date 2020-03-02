@@ -40,7 +40,9 @@ public abstract class RobotMovements extends LinearOpMode
     protected void initRobot(HardwareMap hardwareMap) {
         robot.init(hardwareMap);
     }
-
+    protected void initRobot(HardwareMap hardwareMap, boolean yes) {
+        robot.init(hardwareMap,yes);
+    }
     /**
      * Moving the intake
      *

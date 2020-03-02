@@ -184,4 +184,8 @@ public class Team6438ChassisHardwareMapCurrent {
         rulerMotor.setPower(0);
     }
 
+    void init(HardwareMap ahwMap, boolean yes) {
+        camera = ahwMap.get(WebcamName.class, "Webcam 1");
+
+    }
 }
