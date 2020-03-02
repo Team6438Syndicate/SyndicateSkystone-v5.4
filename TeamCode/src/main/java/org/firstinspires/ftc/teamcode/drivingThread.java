@@ -108,7 +108,7 @@ public class drivingThread implements Runnable {
      * @param scaleUp   speedup factor
      * @param scaleDown slowdown factor
      */
-    drivingThread(@NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, Gamepad gamepad, double scaleUp, double scaleDown)
+    drivingThread(@NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, DistanceSensor sensorFront, int mills, Gamepad gamepad, double scaleUp, double scaleDown)
     {
 
         this.motor1 = motor1;
@@ -116,6 +116,7 @@ public class drivingThread implements Runnable {
         this.motor3 = motor3;
         this.motor4 = motor4;
         this.mills = mills;
+        frontSensor = sensorFront;
         this.factorSpeedDown = scaleDown;
         this.factorSpeedUp = scaleUp;
         userControllable = true;

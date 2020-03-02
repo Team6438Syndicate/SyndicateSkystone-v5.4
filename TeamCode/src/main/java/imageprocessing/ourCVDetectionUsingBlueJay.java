@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RobotMovements;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -33,10 +34,9 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
         {
             initRobot(hardwareMap,true);
             fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
+            fieldElementDetector.start();
 
             waitForStart();
-
-            fieldElementDetector.start();
 
 		/*
 		To toggle individual element detection, use the following.
@@ -46,22 +46,34 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
             Pipeline.doStones = false;
             Pipeline.doFoundations = false;
 
+            SkyStone[] skyStones;
+            //Stone[] stones = fieldElementDetector.getStones();
+            //Foundation[] foundations = fieldElementDetector.getFoundations();
+
             while (opModeIsActive())
             {
-                SkyStone[] skyStones = fieldElementDetector.getSkyStones();
-                Stone[] stones = fieldElementDetector.getStones();
-                Foundation[] foundations = fieldElementDetector.getFoundations();
-                telemetry.speak(Arrays.toString(skyStones));
+                skyStones = fieldElementDetector.getSkyStones();
 
+                for (SkyStone detection : skyStones)
+                {
+                    if (detection.y < 111)
+                    {
+                        telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
+                    }
+                }
 
+                telemetry.update();
+
+                //telemetry.speak(Arrays.toString(skyStones));
             }
 
-                fieldElementDetector.stop();
+            fieldElementDetector.stop();
 
         } catch (Exception e)
         {
             telemetry.addData("Error:" , Arrays.toString(e.getStackTrace()));
             telemetry.update();
+            sleep(100000);
         }
 
     }

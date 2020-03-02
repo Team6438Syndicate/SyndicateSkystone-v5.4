@@ -60,7 +60,7 @@ public class TwoPlayerTeleOp extends RobotMovements {
 
 
             //Invoke the driving thread on controller 1(Kevin)
-            drivingThread simpleDriveThread = new drivingThread(robot.FL, robot.FR, robot.BL, robot.BR, 1, gamepad1, 5.0, 1.0 + 1.0/4.0);
+            drivingThread simpleDriveThread = new drivingThread(robot.FL, robot.FR, robot.BL, robot.BR, robot.sensorFront, 1, gamepad1, 5.0, 1.0 + 1.0/4.0);
 
             //Invoke the telem thread
             Telemetry telemetry = new Telemetry(this,robot,10, true);
