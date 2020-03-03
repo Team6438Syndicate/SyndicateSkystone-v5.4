@@ -108,6 +108,9 @@ public class Team6438ChassisHardwareMapCurrent {
     //Sensor Mapping
     public Rev2mDistanceSensor sensorFront;
     public BNO055IMU imu = null;
+    public final double rulerMotorCPR = 145.6;
+    public final double rulerWheelDiamInch = 2;
+    private final double rulerCPIInches = rulerMotorCPR / (rulerWheelDiamInch/FastMath.PI);
 
     Rev2mDistanceSensor distanceSensorFront;
 
