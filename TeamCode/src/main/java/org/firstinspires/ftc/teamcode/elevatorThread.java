@@ -63,7 +63,7 @@ public class elevatorThread implements Runnable
     private  final double WDMMLift = 17.2; // TODO: 12/22/2019 Pulley size
     //Counts per Mills
     private final double hexCPMMLift = (hexCPRLift) / (WDMMLift / DGRLift * FastMath.PI) ;
-    public  final double hexCPILift = hexCPMMLift / mmPerInch;
+    public  final double hexCPILift =   hexCPMMLift / mmPerInch;
     /*
         //Encoder Variables
         private  final double hexCPRTension = 383.6; // TODO: 12/22/2019 change for the other motor
@@ -246,6 +246,7 @@ public class elevatorThread implements Runnable
                         }
                         Thread.sleep(300);
                     }
+
                     else if (gamepad.left_stick_button)
                     {
                         towerCount = 0;
@@ -315,6 +316,7 @@ public class elevatorThread implements Runnable
     double pollDistanceSensor(Rev2mDistanceSensor sensor)
     {
         double distance = 4172;
+
 
         return distance;
     }
