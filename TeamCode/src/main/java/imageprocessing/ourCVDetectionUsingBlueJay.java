@@ -52,16 +52,34 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
 
                 for (SkyStone detection : skyStones)
                 {
-                    if (detection.y < 111)
+                    if (detection != null)
                     {
-                        telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
+                        if (detection.y < 65)
+                        {
+                            telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
+                            if (detection.x < 260)
+                            {
+                                telemetry.addData("Stone is on the left", "");
+                            }
+                            if (detection.x > 260 && detection.x < 320)
+                            {
+                                telemetry.addData("Stone is in the center", "");
+                                //Stone[] stones = fieldElementDetector.getStones();
+                                //Foundation[] foundations = fieldElementDetector.getFoundations();
 
+                            }
+                            if (detection.x > 320)
+                            {
+                                telemetry.addData("Stone is on the right", "");
+                            }
+                        }
                     }
 
-                    // TODO: 3/2/2020 Integrate into the detection algo 
-                    if(detection.x < fieldElementDetector.getWidth()/3.0)
+                    // TODO: 3/2/2020 Integrate into the detection algo
+                    /*if(detection.x < fieldElementDetector.getWidth()/3.0)
                     {
                         telemetry.speak("Left");
+
                     }
                     else if(detection.x > 2 * fieldElementDetector.getWidth()/3.0)
                     {
@@ -71,9 +89,7 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
                     else
                     {
                         telemetry.speak("Center");
-                    }
-
-
+                    }*/
 
                 }
 
