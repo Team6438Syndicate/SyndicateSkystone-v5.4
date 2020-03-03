@@ -312,7 +312,7 @@ public class elevatorThread implements Runnable
     }
 
     //TODO : JISHAN ALAM THIS IS UR METHOD
-    double pollDistanceSensor(Rev2mDistanceSensor frontSensor)
+    double pollDistanceSensor(Rev2mDistanceSensor sensor)
     {
         double distance = 4172;
 
