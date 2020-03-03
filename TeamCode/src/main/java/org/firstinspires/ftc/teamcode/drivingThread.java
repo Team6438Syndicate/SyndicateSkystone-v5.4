@@ -54,6 +54,7 @@ import static org.apache.commons.math3.util.FastMath.abs;
 import static org.apache.commons.math3.util.FastMath.round;
 import static org.apache.commons.math3.util.FastMath.sin;
 import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.VUFORIA_KEY;
+import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.mmPerInch;
 import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.radiusMM;
 
 //import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -97,6 +98,7 @@ public class drivingThread implements Runnable {
     private double gain;
     private Locations skystonePosition;
     private OpenCvDetector fieldElementDetector = null;
+    private double distanceTo;
     private SkyStone[] skyStones;
 
     /**
@@ -806,6 +808,7 @@ public class drivingThread implements Runnable {
             case 5:
             {
 
+
             }
             case 6:
             {
@@ -817,7 +820,14 @@ public class drivingThread implements Runnable {
             }
             case 8:
             {
-
+                //foundation movement
+                while(distanceTo()>50)
+                {
+                    motor1.setPower(0.5);
+                    motor2.setPower(0.5);
+                    motor3.setPower(0.5);
+                    motor4.setPower(0.5);
+                }
             }
 
 
@@ -1926,6 +1936,11 @@ public class drivingThread implements Runnable {
 
         rectifyDeviations(distance, oldHeadingIMU, power, drivingThread.DriveType.drive);
 
+    }
+
+    private double distanceTo()
+    {
+       return frontSensor.getDistance(DistanceUnit.MM);
     }
 
     /**
