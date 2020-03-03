@@ -36,6 +36,14 @@ public class OpenCvDetector extends StartStoppable
 	//OpMode
 	private com.qualcomm.robotcore.eventloop.opmode.OpMode OpMode;
 
+	public int getWidth()
+	{
+		return width;
+	}
+
+	private int width;
+	private int height;
+
 	public OpenCvDetector (com.qualcomm.robotcore.eventloop.opmode.OpMode opMode){
 		this(opMode, true,false);
 	}
@@ -87,6 +95,8 @@ public class OpenCvDetector extends StartStoppable
 	public void begin() {
 		Log.d("ROBOT","BEGIN_________________");
 		phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+		width = 640;
+		height = 480;
 	}
 
 	//will be called when detector is ended
@@ -118,5 +128,10 @@ public class OpenCvDetector extends StartStoppable
 		if (!activated) throw new IllegalStateException("Not activated");
 
 		return Pipeline.skyStones.toArray(new SkyStone[0]);
+	}
+
+	public int getHeight()
+	{
+		return height;
 	}
 }

@@ -60,6 +60,10 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
                     {
                         telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
                     }
+
+
+
+
                 }
 
                 telemetry.update();
