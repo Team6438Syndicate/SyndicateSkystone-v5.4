@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 //Imports
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -105,7 +106,7 @@ public class Team6438ChassisHardwareMapCurrent {
     public static float radiusMM = 353.5f;
     public static float radiusIN = 12.728f;
     //Sensor Mapping
-    public DistanceSensor sensorFront;
+    public Rev2mDistanceSensor sensorFront;
    public BNO055IMU imu = null;
 
     DistanceSensor distanceSensorFront;
@@ -160,7 +161,7 @@ public class Team6438ChassisHardwareMapCurrent {
 
         imu.initialize(parameters);
 
-        sensorFront = ahwMap.get(DistanceSensor.class, "sensorFront");
+        sensorFront = ahwMap.get(Rev2mDistanceSensor.class, "sensorFront");
 
         //------------------------------------------------------------------------------------------
         //Hardware moves
