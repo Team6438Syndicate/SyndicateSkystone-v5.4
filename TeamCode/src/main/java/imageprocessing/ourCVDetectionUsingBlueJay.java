@@ -58,6 +58,7 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
 
                     }
 
+                    // TODO: 3/2/2020 Integrate into the detection algo 
                     if(detection.x < fieldElementDetector.getWidth()/3.0)
                     {
                         telemetry.speak("Left");
@@ -70,7 +71,6 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
                     else
                     {
                         telemetry.speak("Center");
-
                     }
 
 
