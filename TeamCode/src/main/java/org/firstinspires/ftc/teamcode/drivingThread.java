@@ -19,8 +19,9 @@ package org.firstinspires.ftc.teamcode;
 import android.content.Context;
 
 import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
+//import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.robot.Robot;
@@ -65,7 +66,7 @@ public class drivingThread implements Runnable {
     boolean objectDetected = false;
     double scanDistance = 0;
     OpenCvCamera webcam;
-    private DistanceSensor frontSensor;
+    private Rev2mDistanceSensor frontSensor;
     private DcMotor motor1;
     private DcMotor motor2;
     private DcMotor motor3;
@@ -108,7 +109,7 @@ public class drivingThread implements Runnable {
      * @param scaleUp   speedup factor
      * @param scaleDown slowdown factor
      */
-    drivingThread(@NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, DistanceSensor sensorFront, int mills, Gamepad gamepad, double scaleUp, double scaleDown)
+    drivingThread(@NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, Rev2mDistanceSensor sensorFront, int mills, Gamepad gamepad, double scaleUp, double scaleDown)
     {
 
         this.motor1 = motor1;
@@ -123,7 +124,7 @@ public class drivingThread implements Runnable {
         this.gamepad = gamepad;
     }
 
-    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, OpenCvCamera webcam, DistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV)
+    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, OpenCvCamera webcam, Rev2mDistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV)
     {
         this.foundationMoveRequest = foundationMoveRequest;
         this.hardwareMap = hardwareMap;

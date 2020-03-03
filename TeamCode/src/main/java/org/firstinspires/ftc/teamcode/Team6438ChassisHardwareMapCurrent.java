@@ -107,9 +107,9 @@ public class Team6438ChassisHardwareMapCurrent {
     public static float radiusIN = 12.728f;
     //Sensor Mapping
     public Rev2mDistanceSensor sensorFront;
-   public BNO055IMU imu = null;
+    public BNO055IMU imu = null;
 
-    DistanceSensor distanceSensorFront;
+    Rev2mDistanceSensor distanceSensorFront;
 
     VuforiaLocalizer vuforia;
     TFObjectDetector tfod;
