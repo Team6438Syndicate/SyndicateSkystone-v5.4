@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import static android.os.SystemClock.sleep;
 
-//@Disabled
+@Disabled
 @TeleOp(name = "Mark and Matt TeleOp", group = "test")
 public class MattMarkTeleOp extends OpMode
 {
