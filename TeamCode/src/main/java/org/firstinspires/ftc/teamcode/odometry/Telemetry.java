@@ -91,7 +91,7 @@ public class Telemetry implements Runnable
 
     private void printTelem()
     {
-        telemetry.addData("Front Distance: ", robot.sensorFront.getDistance(DistanceUnit.MM)-19);
+        telemetry.addData("Front Distance: ", robot.sensorFront.getDistance(DistanceUnit.MM));
 
         telemetry.addData("G1: left stick Y", gamepad1.left_stick_y);
         telemetry.addData("G1: left stick X", gamepad1.left_stick_x);

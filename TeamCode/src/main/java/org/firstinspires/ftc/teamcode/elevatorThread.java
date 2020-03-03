@@ -282,7 +282,7 @@ public class elevatorThread implements Runnable
                     //If the foundation is in ready to clamp mode poll the distance sensor
                     if(foundationL.getPosition() == .9)
                     {
-                        //telemetry.append(pollDistanceSensor(frontSensor));
+
                     }
 
 
@@ -312,14 +312,7 @@ public class elevatorThread implements Runnable
         }
     }
 
-    //TODO : JISHAN ALAM THIS IS UR METHOD
-    double pollDistanceSensor(Rev2mDistanceSensor sensor)
-    {
-        double distance = 4172;
 
-
-        return distance;
-    }
 
     private void startLift()
     {
