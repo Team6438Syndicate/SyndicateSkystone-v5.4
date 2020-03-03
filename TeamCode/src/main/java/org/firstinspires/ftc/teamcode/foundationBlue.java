@@ -95,13 +95,13 @@ public class foundationBlue extends RobotMovements {
 
         Telemetry telemetry = new Telemetry(this,robot,10, false);
 
-        filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
+        //filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
 
-        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.rulerMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront,fileWriter);
+        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.rulerMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront,null);
 
-        RobotMovements.Locations skystonePosition = detectUsingBlueJay(false);
+        //RobotMovements.Locations skystonePosition = detectUsingBlueJay(false);
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread, telemetry, false,false,true,true,true,skystonePosition);
+        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,null,elevatorAutonThread, telemetry, false,false,true,true,true,null);
 
         waitForStart();
 
@@ -112,12 +112,12 @@ public class foundationBlue extends RobotMovements {
         Thread a = new Thread(simpleDriveThread);
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
-        Thread d = new Thread(fileWriter);
+        //Thread d = new Thread(fileWriter);
 
         a.start();
         b.start();
         c.start();
-        d.start();
+        //d.start();
 
 
 
@@ -133,12 +133,12 @@ public class foundationBlue extends RobotMovements {
             simpleDriveThread.doStop();
             elevatorAutonThread.doStop();
             telemetry.doStop();
-            fileWriter.doStop();
+            //fileWriter.doStop();
 
             a.interrupt();
             b.interrupt();
             c.interrupt();
-            d.interrupt();
+            //d.interrupt();
 
             requestOpModeStop();
             stop();
@@ -146,12 +146,12 @@ public class foundationBlue extends RobotMovements {
         simpleDriveThread.doStop();
         elevatorAutonThread.doStop();
         telemetry.doStop();
-        fileWriter.doStop();
+        //fileWriter.doStop();
 
         a.interrupt();
         b.interrupt();
         c.interrupt();
-        d.interrupt();
+        //d.interrupt();
     }
 
 

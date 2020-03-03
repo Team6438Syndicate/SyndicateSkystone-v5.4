@@ -156,7 +156,7 @@ public class drivingThread implements Runnable {
         this.telemetry = telemetry;
         this.abortAfterFoundation = abortAfterFoundation;
         this.doubleSample = doubleSample;
-        this.onlyFoundation = onlyFoundation;
+        this.foundationMoveRequest = foundationMoveRequest;
 
         this.userControllable = false;
 
@@ -669,9 +669,9 @@ public class drivingThread implements Runnable {
 
                     telemetry.update();
 
-                    if (onlyFoundation)
+                    if (foundationMoveRequest)
                     {
-                        counter = 20;
+                        counter = 8;
                     }
 
 
