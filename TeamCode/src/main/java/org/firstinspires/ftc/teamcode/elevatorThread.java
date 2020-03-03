@@ -64,6 +64,11 @@ public class elevatorThread implements Runnable
     //Counts per Mills
     private final double hexCPMMLift = (hexCPRLift) / (WDMMLift / DGRLift * FastMath.PI) ;
     public  final double hexCPILift =   hexCPMMLift / mmPerInch;
+
+    public final double rulerMotorCPR = 145.6;
+    public final double rulerWheelDiamInch = 2;
+    private final double rulerCPIInches = rulerMotorCPR / (rulerWheelDiamInch/FastMath.PI);
+
     /*
         //Encoder Variables
         private  final double hexCPRTension = 383.6; // TODO: 12/22/2019 change for the other motor
@@ -284,9 +289,6 @@ public class elevatorThread implements Runnable
                     {
 
                     }
-
-
-
 
                     halfSpeed = gamepad.b;
                     MovementDistance tempStorage = resolveUserControl();
