@@ -16,15 +16,10 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.content.Context;
-
-import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-//import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
 import org.apache.commons.math3.util.FastMath;
@@ -44,12 +39,15 @@ import org.firstinspires.ftc.teamcode.pathfinder.PathFinder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import detectors.FoundationPipeline.Pipeline;
+import detectors.FoundationPipeline.SkyStone;
+import detectors.OpenCvDetector;
 
 import static org.apache.commons.math3.util.FastMath.PI;
 import static org.apache.commons.math3.util.FastMath.abs;
@@ -57,6 +55,8 @@ import static org.apache.commons.math3.util.FastMath.round;
 import static org.apache.commons.math3.util.FastMath.sin;
 import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.VUFORIA_KEY;
 import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.radiusMM;
+
+//import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 /**
  * Thread for driving
@@ -96,6 +96,8 @@ public class drivingThread implements Runnable {
     private double newHeadingIMU;
     private double gain;
     private Locations skystonePosition;
+    private OpenCvDetector fieldElementDetector = null;
+    private SkyStone[] skyStones;
 
     /**
      * Teleop control constructor
@@ -185,7 +187,12 @@ public class drivingThread implements Runnable {
         }
         else
         {
-            findSkystone(webcam);
+            //findSkystone(webcam);
+
+            // TODO: 3/2/2020 integration in progress
+            fieldElementDetector = new OpenCvDetector(telemetry.getOpmode(),true,hardwareMap);
+            fieldElementDetector.start();
+
         }
 
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
@@ -316,6 +323,14 @@ public class drivingThread implements Runnable {
     {
         try
         {
+            if (fieldElementDetector != null)
+            {
+                Pipeline.doSkyStones = true;
+                Pipeline.doStones = false;
+                Pipeline.doFoundations = false;
+            }
+
+
             double currentSpeedLeft;
 
             double gamepadLY;
@@ -640,6 +655,7 @@ public class drivingThread implements Runnable {
                 //Autonomous stuff
                 else
                 {
+
                     //fileWriter.write("Auton Started");
                     telemetry.print("firstLoop = " + firstLoop);
 
@@ -679,6 +695,135 @@ public class drivingThread implements Runnable {
         {
             //fileWriter.write("Error occured in DrivingThread:\n" + Arrays.toString(e.getStackTrace()));
             telemetry.print(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    private void scanningWithBlueJay()
+    {
+        skyStones = fieldElementDetector.getSkyStones();
+
+        for (SkyStone detection : skyStones)
+        {
+            if (detection.y < 111)
+            {
+                telemetry.append("Skystone Data: X=" + detection.x + ", Y= " + detection.y);
+
+            }
+
+            // TODO: 3/2/2020 Integrate into the detection algo
+            if(detection.x < fieldElementDetector.getWidth()/3.0)
+            {
+                telemetry.speak("Left");
+                skystonePosition = Locations.Far;
+            }
+            else if(detection.x > 2 * fieldElementDetector.getWidth()/3.0)
+            {
+                telemetry.speak("Right");
+                skystonePosition = Locations.Close;
+
+            }
+            else
+            {
+                telemetry.speak("Center");
+                skystonePosition = Locations.Center;
+            }
+
+        }
+
+        telemetry.update();
+
+        //telemetry.speak(Arrays.toString(skyStones));
+
+
+        fieldElementDetector.stop();
+    }
+
+    private void autonomousControl(final int counter)
+    {
+        switch (counter)
+        {
+            case 0:
+            {
+                telemetry.speak("Autonomous started");
+            }
+
+            case 1:
+            {
+                scanningWithBlueJay();
+                double distance = 0;
+
+                //correctedDrive(distanceUnit.toMm(4), .8);
+
+                if (!isRed)
+                {
+                    switch (skystonePosition)
+                    {
+                        case Close:
+                        {
+                            // TODO: 2/27/2020 5 inches
+                            distance = 5;
+                            break;
+                        }
+                        case Center:
+                        {
+                            distance = 18;
+                            break;
+                        }
+                        case Far:
+                        {
+                            distance = 31;
+                            break;
+                        }
+                    }
+
+                }
+                else
+                {
+                    switch (skystonePosition)
+                    {
+                        case Close:
+                        {
+                            break;
+                        }
+                        case Center:
+                        {
+
+                            break;
+                        }
+                        case Far:
+                        {
+                            break;
+                        }
+                    }
+                }
+
+
+                correctedStrafe(distanceUnit.toMm(distance),1);
+                correctedDrive(distanceUnit.toMm(20),1);
+                break;
+
+            }
+            case 5:
+            {
+
+            }
+            case 6:
+            {
+
+            }
+            case 7:
+            {
+
+            }
+            case 8:
+            {
+
+            }
+
+
+            default:
+                telemetry.print("Autonomous has ended");
+                break;
         }
     }
 
@@ -1447,90 +1592,7 @@ public class drivingThread implements Runnable {
 
     public enum Locations {Close, Center, Far}
 
-    private void autonomousControl(final int counter)
-    {
-        switch (counter)
-        {
-            case 0:
-            {
-                telemetry.speak("Autonomous started");
-            }
 
-            case 1:
-            {
-                double distance = 0;
-                correctedDrive(distanceUnit.toMm(4), .8);
-
-                if (!isRed)
-                {
-                    switch (skystonePosition)
-                    {
-                        case Close:
-                        {
-                            // TODO: 2/27/2020 5 inches
-                            distance = 5;
-                            break;
-                        }
-                        case Center:
-                        {
-                            distance = 18;
-                            break;
-                        }
-                        case Far:
-                        {
-                            distance = 31;
-                            break;
-                        }
-                    }
-
-                }
-                else
-                {
-                    switch (skystonePosition)
-                    {
-                        case Close:
-                        {
-                            break;
-                        }
-                        case Center:
-                        {
-
-                            break;
-                        }
-                        case Far:
-                        {
-                            break;
-                        }
-                    }
-                }
-                correctedStrafe(distanceUnit.toMm(distance),1);
-                correctedDrive(distanceUnit.toMm(20),1);
-                break;
-
-            }
-            case 5:
-            {
-
-            }
-            case 6:
-            {
-
-            }
-            case 7:
-            {
-
-            }
-            case 8:
-            {
-
-            }
-
-
-            default:
-                telemetry.print("Autonomous has ended");
-                break;
-        }
-    }
 
     @Deprecated
     private void scanningMonitor()

@@ -33,10 +33,10 @@ public class Telemetry implements Runnable
     private Gamepad gamepad2;
     private int mills;
     private boolean teleOp = false;
-
+    private final OpMode opMode;
     public Telemetry(OpMode opMode, Team6438ChassisHardwareMapCurrent robot, int mills, boolean teleOp)
     {
-
+        this.opMode = opMode;
         this.robot = robot;
         this.telemetry = opMode.telemetry;
         this.gamepad1 = opMode.gamepad1;
@@ -172,5 +172,10 @@ public class Telemetry implements Runnable
         telemetry.addData("Target BL: ", tar3);
         telemetry.addData("Target BR: ", tar4);
         telemetry.update();
+    }
+
+    public OpMode getOpmode()
+    {
+        return  opMode;
     }
 }
