@@ -54,24 +54,24 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
                 {
                     if (detection != null)
                     {
-                        if (detection.y < 65)
+                        if (detection.x < 115)
                         {
                             telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
-                            if (detection.x < 260)
+                            if (detection.y < 260)
                             {
                                 telemetry.addData("Stone is on the left", "");
                             }
-                            if (detection.x > 260 && detection.x < 320)
+                            if (detection.y > 260 && detection.y < 320)
                             {
                                 telemetry.addData("Stone is in the center", "");
                                 //Stone[] stones = fieldElementDetector.getStones();
                                 //Foundation[] foundations = fieldElementDetector.getFoundations();
-
                             }
-                            if (detection.x > 320)
+                            if (detection.y > 320)
                             {
                                 telemetry.addData("Stone is on the right", "");
                             }
+                            telemetry.update();
                         }
                     }
 

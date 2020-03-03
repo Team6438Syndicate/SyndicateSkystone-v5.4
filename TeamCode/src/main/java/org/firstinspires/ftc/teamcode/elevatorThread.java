@@ -388,6 +388,18 @@ public class elevatorThread implements Runnable
         return new MovementDistance(convertDistanceToTicks(liftDistance, MotorType.lift), 0);
     }
 
+    public void elevatorStart()
+    {
+        resolveAutonMovement(300, 0);
+        openClamp();
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        resolveAutonMovement(-300, 0);
+    }
+
 
     //sets the elevator to the base position
     private void moveToZero()

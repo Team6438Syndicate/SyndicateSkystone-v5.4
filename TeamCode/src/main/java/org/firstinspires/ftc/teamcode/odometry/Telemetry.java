@@ -151,6 +151,12 @@ public class Telemetry implements Runnable
         telemetry.update();
     }
 
+    public void print(String title, String statement)
+    {
+        telemetry.addData(title, statement);
+        telemetry.update();
+    }
+
     public void speak(String statement)
     {
         telemetry.speak(statement);

@@ -18,6 +18,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -29,9 +30,15 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.Arrays;
+
+import detectors.FoundationPipeline.Pipeline;
+import detectors.FoundationPipeline.SkyStone;
+import detectors.OpenCvDetector;
+
 public abstract class RobotMovements extends LinearOpMode
 {
-    protected Team6438ChassisHardwareMapCurrent robot = new Team6438ChassisHardwareMapCurrent();
+    protected static Team6438ChassisHardwareMapCurrent robot = new Team6438ChassisHardwareMapCurrent();
 
 
     /**
@@ -40,7 +47,7 @@ public abstract class RobotMovements extends LinearOpMode
     protected void initRobot(HardwareMap hardwareMap) {
         robot.init(hardwareMap);
     }
-    protected void initRobot(HardwareMap hardwareMap, boolean yes) {
+    protected static void initRobot(HardwareMap hardwareMap, boolean yes) {
         robot.init(hardwareMap,yes);
     }
     /**
@@ -100,6 +107,88 @@ public abstract class RobotMovements extends LinearOpMode
 
         return webcam;
     }
+
+    public Locations detectUsingBlueJay(boolean isRed)
+    {
+        try
+        {
+            initRobot(hardwareMap,true);
+            OpenCvDetector fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
+            fieldElementDetector.start();
+
+            Pipeline.doSkyStones = true;
+            Pipeline.doStones = false;
+            Pipeline.doFoundations = false;
+
+            SkyStone[] skyStones;
+
+            Locations skystoneLocation = Locations.Close;
+            //Stone[] stones = fieldElementDetector.getStones();
+            //Foundation[] foundations = fieldElementDetector.getFoundations();
+
+            while (!isStarted())
+            {
+                skyStones = fieldElementDetector.getSkyStones();
+
+                for (SkyStone detection : skyStones)
+                {
+                    if (detection != null)
+                    {
+                        if (detection.x < 115)
+                        {
+                            if (isRed)
+                            {
+
+                            }
+                            else
+                            {
+                                telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
+                                if (detection.y < 260)
+                                {
+                                    telemetry.addData("Stone is in the Far position", "");
+                                    skystoneLocation = Locations.Far;
+                                }
+                                if (detection.y > 260 && detection.y < 320)
+                                {
+                                    telemetry.addData("Stone is in the Center position", "");
+                                    //Stone[] stones = fieldElementDetector.getStones();
+                                    //Foundation[] foundations = fieldElementDetector.getFoundations();
+                                }
+                                if (detection.y > 320)
+                                {
+                                    telemetry.addData("Stone is in the Close position", "");
+                                }
+                                telemetry.update();
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            fieldElementDetector.stop();
+
+            return skystoneLocation;
+
+        } catch (Exception e)
+        {
+            telemetry.addData("Error:" , Arrays.toString(e.getStackTrace()));
+            telemetry.update();
+            return Locations.Close;
+        }
+
+    }
+
+    public OpenCvDetector initBlueJay()
+    {
+        initRobot(hardwareMap,true);
+        OpenCvDetector fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
+
+        return fieldElementDetector;
+    }
+
+
+    public enum Locations {Close, Center, Far}
 
     protected enum directions {intake, output}
 
