@@ -1,17 +1,13 @@
 package imageprocessing;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RobotMovements;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-import detectors.FoundationPipeline.Foundation;
 import detectors.FoundationPipeline.Pipeline;
 import detectors.FoundationPipeline.SkyStone;
-import detectors.FoundationPipeline.Stone;
 import detectors.OpenCvDetector;
 
 @TeleOp(name = "OpenCv avec le geai bleu", group="BlueJayAdditions")
@@ -59,7 +55,26 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
                     if (detection.y < 111)
                     {
                         telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
+
                     }
+
+                    if(detection.x < fieldElementDetector.getWidth()/3.0)
+                    {
+                        telemetry.speak("Left");
+                    }
+                    else if(detection.x > 2 * fieldElementDetector.getWidth()/3.0)
+                    {
+                        telemetry.speak("Right");
+
+                    }
+                    else
+                    {
+                        telemetry.speak("Center");
+
+                    }
+
+
+
                 }
 
                 telemetry.update();
