@@ -376,18 +376,18 @@ public class drivingThread implements Runnable {
 
                     if(gamepad.right_trigger>0.05)
                     {
-                        motor1.setPower(.25);
-                        motor2.setPower(-.25);
-                        motor3.setPower(.25);
-                        motor4.setPower(-.25);
+                        motor1.setPower(.25 * gamepad.right_trigger);
+                        motor2.setPower(-.25 * gamepad.right_trigger);
+                        motor3.setPower(.25 * gamepad.right_trigger);
+                        motor4.setPower(-.25 * gamepad.right_trigger);
                         continue;
                     }
                     if(gamepad.left_trigger>0.05)
                     {
-                        motor1.setPower(-.25);
-                        motor2.setPower(.25);
-                        motor3.setPower(-.25);
-                        motor4.setPower(.25);
+                        motor1.setPower(-.25 * gamepad.left_trigger);
+                        motor2.setPower(.25 * gamepad.left_trigger);
+                        motor3.setPower(-.25 * gamepad.left_trigger);
+                        motor4.setPower(.25 * gamepad.left_trigger);
                         continue;
                     }
 
@@ -453,6 +453,7 @@ public class drivingThread implements Runnable {
                         motor4.setPower(0);
                         continue;
                     }
+
 
 
 

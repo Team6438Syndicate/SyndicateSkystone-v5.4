@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.firstinspires.ftc.teamcode;
-
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
+//import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -31,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
 
-public class elevatorThread implements Runnable {
-
+public class elevatorThread implements Runnable
+{
     private boolean userControlable;
     private double height = 0;
     private boolean halfSpeed = false;
@@ -79,7 +78,7 @@ public class elevatorThread implements Runnable {
      */
     private float range;
     private int LIFT_MAX_VALUE;
-    private  DistanceSensor distanceSensor;
+    private  Rev2mDistanceSensor frontSensor;
     private int LIFT_MULTIPLIER_UP;
     private int LIFT_MULTIPLIER_DOWN;
     private filewriterThread fileWriter;
@@ -145,7 +144,7 @@ public class elevatorThread implements Runnable {
         //closeClamp();
     }
 
-    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, DcMotor rulerMotor, Servo lclamp, Servo rclamp, Servo capstone, final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, DistanceSensor rev2mDistanceSensor, filewriterThread fileWriter)
+    public elevatorThread(@NotNull DcMotor lift, DcMotor tension, DcMotor rulerMotor, Servo lclamp, Servo rclamp, Servo capstone, final long mills, double height, final int lift_max_value, final int tension_max_value, final int lift_multiplier_up, final int lift_multiplier_down, Rev2mDistanceSensor Rev2mDistanceSensor, filewriterThread fileWriter)
     {
         userControlable = false;
         this.lift = lift;
@@ -156,7 +155,7 @@ public class elevatorThread implements Runnable {
         this.capstone = capstone;
         this.mills = mills;
 
-        distanceSensor= rev2mDistanceSensor;
+        frontSensor= Rev2mDistanceSensor;
         this.height = height;
         LIFT_MAX_VALUE = lift_max_value;
 
@@ -279,6 +278,12 @@ public class elevatorThread implements Runnable {
                         }
                     }
 
+                    //If the foundation is in ready to clamp mode poll the distance sensor
+                    if(foundationL.getPosition() == .9)
+                    {
+                        //telemetry.append(pollDistanceSensor(frontSensor));
+                    }
+
 
 
 
@@ -304,6 +309,13 @@ public class elevatorThread implements Runnable {
 
 
         }
+    }
+
+    double pollDistanceSensor(Rev2mDistanceSensor frontSensor)
+    {
+        double distance = 4172;
+
+        return distance;
     }
 
     private void startLift()
