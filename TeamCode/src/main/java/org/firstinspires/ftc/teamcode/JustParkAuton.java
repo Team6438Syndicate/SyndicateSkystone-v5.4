@@ -199,7 +199,7 @@ public class JustParkAuton extends LinearOpMode {
     {
         int positionToMove;
 
-        positionToMove = (int) (distance * robot.rulerMotorCPR);
+        positionToMove = (int) (distance * robot.rulerCPI);
 
         robot.rulerMotor.setTargetPosition(positionToMove);
 
