@@ -495,6 +495,7 @@ public class elevatorThread implements Runnable
     {
         lift,tension
     }
+
     private static class MovementDistance
     {
         private int ticksForLift;
