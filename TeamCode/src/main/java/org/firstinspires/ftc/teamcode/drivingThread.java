@@ -878,18 +878,12 @@ public class drivingThread implements Runnable {
             case 8:
             {
                 //foundation movement
-                while(distanceTo()>50)
-                {
-                    motor1.setPower(0.5);
-                    motor2.setPower(0.5);
-                    motor3.setPower(0.5);
-                    motor4.setPower(0.5);
-                }
 
-                correctedDrive(distanceUnit.toMm(- 6), .75);
+
+                correctedDrive(distanceUnit.toMm(- 6), 0.5);
                 if (foundationMoveRequest)
                 {
-                    correctedTurn(PI,1.0,false);
+                    correctedTurn(PI,0.5,false);
                     correctedDrive(distanceUnit.toMm(- 12), 0.5);
                     grabFoundation();
                     try
@@ -899,8 +893,8 @@ public class drivingThread implements Runnable {
                     {
                         e.printStackTrace();
                     }
-                    correctedDrive(distanceUnit.toMm(35), .2);
-                    turn(- PI / 2, 0.75);
+                    correctedDrive(distanceUnit.toMm(35), 0.5);
+                    turn(- PI / 2, 0.5);
                     releaseFoundation();
                     try
                     {
@@ -909,7 +903,7 @@ public class drivingThread implements Runnable {
                     catch (InterruptedException ignored)
                     {
                     }
-                    correctedStrafe(distanceUnit.toMm(-50), .75);
+                    correctedStrafe(distanceUnit.toMm(-50), 0.5);
 
 
 
