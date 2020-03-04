@@ -935,10 +935,13 @@ public class drivingThread implements Runnable {
                     motor4.setPower(0.5);
                 }
 
-                motor1.setPower(0);
-                motor2.setPower(0);
-                motor3.setPower(0);
-                motor4.setPower(0);
+                if(distanceTo()<50)
+                {
+                    motor1.setPower(0);
+                    motor2.setPower(0);
+                    motor3.setPower(0);
+                    motor4.setPower(0);
+                }
 
                 grabFoundation();
             }
