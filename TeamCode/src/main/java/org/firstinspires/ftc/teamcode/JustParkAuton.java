@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.apache.commons.math3.util.FastMath;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -82,7 +83,8 @@ public class JustParkAuton extends LinearOpMode {
 
         while(opModeIsActive())
         {
-            move(20, 20, .5);
+            //move(20, 20, .5);
+            EXTEND(41);
             stop();
         }
     }
@@ -97,11 +99,13 @@ public class JustParkAuton extends LinearOpMode {
 
         robot.FR.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.BR.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         //Set zero power behavior
         robot.FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rulerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         robot.liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.tensionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -111,6 +115,7 @@ public class JustParkAuton extends LinearOpMode {
         robot.FR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.BL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.BR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rulerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         robot.liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.tensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -127,7 +132,7 @@ public class JustParkAuton extends LinearOpMode {
 
     public void setTargetPosition(DcMotor motor, double dist)
     {
-        motor.setTargetPosition(motor.getCurrentPosition() + (int)(dist * robot.hexCPI));
+        motor.setTargetPosition(motor.getCurrentPosition() + (int)(dist));
     }
 
     public void setRunToPosition(DcMotor motor)
@@ -147,6 +152,8 @@ public class JustParkAuton extends LinearOpMode {
 
     public void move(double inchesL, double inchesR, double power)
     {
+        inchesL *= robot.hexCPI;
+        inchesR *= robot.hexCPI;
 
         setTargetPosition(robot.FL, inchesL);
         setTargetPosition(robot.FR, inchesR);
@@ -198,6 +205,29 @@ public class JustParkAuton extends LinearOpMode {
         int movementDist = FastMath.round((float)FastMath.toRadians(deg) * Team6438ChassisHardwareMapCurrent.radiusIN) * direction;
 
         move(movementDist, -movementDist, power);
+    }
+
+    public void EXTEND(double distance)
+    {
+        ElapsedTime time = new ElapsedTime();
+        double waitTime = distance / .07543;
+
+        setPower(robot.rulerMotor, 1);
+
+        time.reset();
+        while(time.milliseconds() < waitTime) //FastMath.abs(robot.rulerMotor.getCurrentPosition() - robot.rulerMotor.getTargetPosition()) > 5
+        {
+            telemetry.addData("Distance", distance);
+            telemetry.addData("Remaining time", waitTime - time.milliseconds());
+            telemetry.update();
+        }
+
+        setRunUsingEncoder(robot.rulerMotor);
+
+        setPower(robot.rulerMotor, 0);
+
+        telemetry.addData("Current Position ", robot.rulerMotor.getCurrentPosition());
+        telemetry.update();
     }
 
 }

@@ -399,14 +399,19 @@ public class elevatorThread implements Runnable
 
     public void elevatorStart()
     {
-        resolveAutonMovement(300, 0);
-        openClamp();
-        try {
-            Thread.sleep(250);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        move(resolveAutonMovement(-2500, 0));
+        while (FastMath.abs(lift.getCurrentPosition() + 2500) > 50)
+        {
+
         }
-        resolveAutonMovement(-300, 0);
+        openClamp();
+        while (FastMath.abs(lift.getCurrentPosition()) > 50)
+        {
+
+        }
+        move(resolveAutonMovement(2500, 0));
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        move(resolveAutonMovement(0, 0));
     }
 
 

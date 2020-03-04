@@ -110,7 +110,7 @@ public class Team6438ChassisHardwareMapCurrent {
     public BNO055IMU imu = null;
     public final double rulerMotorCPR = 145.6;
     public final double rulerWheelDiamInch = 2;
-    private final double rulerCPIInches = rulerMotorCPR / (rulerWheelDiamInch/FastMath.PI);
+    public final double rulerCPI = rulerMotorCPR / (rulerWheelDiamInch * FastMath.PI);
 
     Rev2mDistanceSensor distanceSensorFront;
 

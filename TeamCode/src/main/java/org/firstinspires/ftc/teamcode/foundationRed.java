@@ -101,7 +101,7 @@ public class foundationRed extends RobotMovements {
 
         //RobotMovements.Locations skystonePosition = detectUsingBlueJay(false);
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,null,elevatorAutonThread, telemetry, true,false,true,true,true,null);
+        drivingThread simpleDriveThread = new drivingThread(hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,null,elevatorAutonThread, telemetry, true,true,true,true,true,null);
 
         waitForStart();
 

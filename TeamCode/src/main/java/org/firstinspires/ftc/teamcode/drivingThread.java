@@ -158,6 +158,11 @@ public class drivingThread implements Runnable {
 
         this.runOpenCV = runOpenCV;
 
+        if (foundationMoveRequest)
+        {
+            counter = 8;
+        }
+
         //RobotMovements.initBlueJay();
 
         //createVuforia();
@@ -663,6 +668,8 @@ public class drivingThread implements Runnable {
                     //fileWriter.write("Auton Started");
                     telemetry.print("firstLoop = " + firstLoop);
 
+                    Thread.sleep(100000);
+
                     telemetry.update();
 
 
@@ -852,19 +859,20 @@ public class drivingThread implements Runnable {
             }
             case 6:
             {
-                elevatorThread.move(elevatorThread.resolveAutonMovement(- 750, 0));
-                try
+                elevatorThread.move(elevatorThread.resolveAutonMovement(-750, 0));
+                while (FastMath.abs(robot.liftMotor.getCurrentPosition() + 750) > 50)
                 {
-                    Thread.sleep(1000);
-                }
-                catch (InterruptedException e)
-                {
+
                 }
                 elevatorThread.openClamp();
                 elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
+                while (FastMath.abs(robot.liftMotor.getCurrentPosition() - 200) > 50)
+                {
+
+                }
                 try
                 {
-                    Thread.sleep(750);
+                    Thread.sleep(500);
                 }
                 catch (InterruptedException ignored)
                 {
@@ -873,41 +881,40 @@ public class drivingThread implements Runnable {
             }
             case 7:
             {
+                if (!foundationMoveRequest)
+                {
+                    this.counter = 100000;
+                }
                 break;
             }
             case 8:
             {
                 //foundation movement
-
-
                 correctedDrive(distanceUnit.toMm(- 6), 0.5);
-                if (foundationMoveRequest)
+                elevatorThread.elevatorStart();
+
+                correctedTurn(PI,0.5,false);
+                correctedDrive(distanceUnit.toMm(- 12), 0.5);
+                grabFoundation();
+                try
                 {
-                    correctedTurn(PI,0.5,false);
-                    correctedDrive(distanceUnit.toMm(- 12), 0.5);
-                    grabFoundation();
-                    try
-                    {
-                        Thread.sleep(225);
-                    } catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    correctedDrive(distanceUnit.toMm(35), 0.5);
-                    turn(- PI / 2, 0.5);
-                    releaseFoundation();
-                    try
-                    {
-                        Thread.sleep(225);
-                    }
-                    catch (InterruptedException ignored)
-                    {
-                    }
-                    correctedStrafe(distanceUnit.toMm(-50), 0.5);
-
-
-
+                    Thread.sleep(225);
+                } catch (InterruptedException e)
+                {
+                    e.printStackTrace();
                 }
+                correctedDrive(distanceUnit.toMm(35), 0.5);
+                turn(- PI / 2, 0.5);
+                releaseFoundation();
+                try
+                {
+                    Thread.sleep(225);
+                }
+                catch (InterruptedException ignored)
+                {
+                }
+                correctedStrafe(distanceUnit.toMm(-50), 0.5);
+
             }
             case 9:
             {
