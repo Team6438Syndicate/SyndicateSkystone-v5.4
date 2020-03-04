@@ -911,7 +911,7 @@ public class drivingThread implements Runnable {
             }
             case 9:
             {
-
+                elevatorThread.rulerPark();
             }
 
 

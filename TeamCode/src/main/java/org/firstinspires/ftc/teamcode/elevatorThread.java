@@ -522,9 +522,10 @@ public class elevatorThread implements Runnable
         }
     }
 
-    private void rulerPark()
+    void rulerPark()
     {
         rulerMotor.setTargetPosition(41*(int)rulerCPIInches);
+        rulerMotor.setPower(1);
     }
 
     synchronized void openClamp()
