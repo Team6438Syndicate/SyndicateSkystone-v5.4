@@ -191,6 +191,10 @@ public class JustParkAuton extends LinearOpMode {
         telemetry.update();
     }
 
+    /**
+     * Method to extend the tape measure using encoders
+     * @param distance
+     */
     public void tapeExtendByEncoder(double distance)
     {
         int positionToMove;
