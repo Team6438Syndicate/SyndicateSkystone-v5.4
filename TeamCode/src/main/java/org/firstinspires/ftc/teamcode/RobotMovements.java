@@ -16,19 +16,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.disnodeteam.dogecv.detectors.skystone.SkystoneDetector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.OpenCV.DogeCV.OurSkystoneDetector;
 import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.Arrays;
 
@@ -112,7 +107,7 @@ public abstract class RobotMovements extends LinearOpMode
     {
         try
         {
-            initRobot(hardwareMap,true);
+            //initRobot(hardwareMap,true);
             OpenCvDetector fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
             fieldElementDetector.start();
 
@@ -182,9 +177,8 @@ public abstract class RobotMovements extends LinearOpMode
     public OpenCvDetector initBlueJay()
     {
         initRobot(hardwareMap,true);
-        OpenCvDetector fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
 
-        return fieldElementDetector;
+        return new OpenCvDetector(this,true,hardwareMap);
     }
 
 

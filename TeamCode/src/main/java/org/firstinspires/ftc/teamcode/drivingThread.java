@@ -17,7 +17,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -35,12 +34,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.OpenCV.DogeCV.OurSkystoneDetector;
 import org.firstinspires.ftc.teamcode.pathfinder.PathFinder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +52,6 @@ import static org.apache.commons.math3.util.FastMath.abs;
 import static org.apache.commons.math3.util.FastMath.round;
 import static org.apache.commons.math3.util.FastMath.sin;
 import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.VUFORIA_KEY;
-import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.mmPerInch;
 import static org.firstinspires.ftc.teamcode.Team6438ChassisHardwareMapCurrent.radiusMM;
 
 //import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -669,10 +665,7 @@ public class drivingThread implements Runnable {
 
                     telemetry.update();
 
-                    if (foundationMoveRequest)
-                    {
-                        counter = 8;
-                    }
+
 
 
                     if (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy())
@@ -683,7 +676,8 @@ public class drivingThread implements Runnable {
                         telemetry.append("" + counter);
 
 
-                        executeAction(counter);
+                        //executeAction(counter);
+                        autonomousControl(counter);
                         firstLoop = false;
                         counter++;
 
@@ -808,21 +802,78 @@ public class drivingThread implements Runnable {
 
                 correctedStrafe(distanceUnit.toMm(distance),1);
                 correctedDrive(distanceUnit.toMm(20),1);
+                elevatorThread.closeClamp();
+                try
+                {
+                    Thread.sleep(750);
+                } catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+                correctedDrive(distanceUnit.toMm(-10),1);
+                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
+                try
+                {
+                    Thread.sleep(750);
+                }
+                catch (InterruptedException e)
+                {
+                }
+                if (!isRed)
+                {
+                    correctedStrafe(distanceUnit.toMm(-distance - 68 ),1);
+                }
+                else
+                {
+                    correctedStrafe(distanceUnit.toMm(-distance + 68 ),1);
+                }
                 break;
 
             }
             case 5:
             {
-
-
+                elevatorThread.move(elevatorThread.resolveAutonMovement(600, 0));
+                try
+                {
+                    Thread.sleep(750);
+                }
+                catch (InterruptedException e)
+                {
+                }
+                if (!isRed)
+                {
+                    correctedStrafe(distanceUnit.toMm(  -12 ),1);
+                }
+                else
+                {
+                    correctedStrafe(distanceUnit.toMm(12 ),1);
+                }
+                break;
             }
             case 6:
             {
-
+                elevatorThread.move(elevatorThread.resolveAutonMovement(- 750, 0));
+                try
+                {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e)
+                {
+                }
+                elevatorThread.openClamp();
+                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
+                try
+                {
+                    Thread.sleep(750);
+                }
+                catch (InterruptedException ignored)
+                {
+                }
+                break;
             }
             case 7:
             {
-
+                break;
             }
             case 8:
             {
@@ -834,6 +885,39 @@ public class drivingThread implements Runnable {
                     motor3.setPower(0.5);
                     motor4.setPower(0.5);
                 }
+
+                correctedDrive(distanceUnit.toMm(- 6), .75);
+                if (foundationMoveRequest)
+                {
+                    correctedTurn(PI,1.0,false);
+                    correctedDrive(distanceUnit.toMm(- 12), 0.5);
+                    grabFoundation();
+                    try
+                    {
+                        Thread.sleep(225);
+                    } catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    correctedDrive(distanceUnit.toMm(35), .2);
+                    turn(- PI / 2, 0.75);
+                    releaseFoundation();
+                    try
+                    {
+                        Thread.sleep(225);
+                    }
+                    catch (InterruptedException ignored)
+                    {
+                    }
+                    correctedStrafe(distanceUnit.toMm(-50), .75);
+
+
+
+                }
+            }
+            case 9:
+            {
+
             }
 
 
@@ -1593,7 +1677,7 @@ public class drivingThread implements Runnable {
 
     private double distanceTo()
     {
-       return frontSensor.getDistance(DistanceUnit.MM);
+        return frontSensor.getDistance(DistanceUnit.MM);
     }
 
     /**

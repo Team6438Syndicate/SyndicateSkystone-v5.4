@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-//import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
+
+//import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 public class elevatorThread implements Runnable
 {
@@ -176,7 +178,6 @@ public class elevatorThread implements Runnable
         // tension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //tension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        startLift();
         //capstone.setPosition(capstorePos);
     }
 
@@ -216,6 +217,10 @@ public class elevatorThread implements Runnable
     @Override
     public void run()
     {
+        if(!userControlable)
+        {
+            startLift();
+        }
         while (keepRunning())
         {
             try
@@ -329,6 +334,8 @@ public class elevatorThread implements Runnable
         }
 
         move(resolveAutonMovement(-15, 0));
+
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
 

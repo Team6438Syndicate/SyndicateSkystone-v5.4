@@ -12,8 +12,6 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-import java.net.CookieHandler;
-
 import detectors.FoundationPipeline.Foundation;
 import detectors.FoundationPipeline.Pipeline;
 import detectors.FoundationPipeline.SkyStone;
@@ -59,7 +57,7 @@ public class OpenCvDetector extends StartStoppable
 	}
 
 
-	private OpenCvDetector(com.qualcomm.robotcore.eventloop.opmode.OpMode opmode, boolean showVideo, boolean webcam) {
+	private OpenCvDetector(final com.qualcomm.robotcore.eventloop.opmode.OpMode opmode, boolean showVideo, boolean webcam) {
 		OpMode = opmode;
 
 		//init EOCV
@@ -83,7 +81,10 @@ public class OpenCvDetector extends StartStoppable
 			@Override
 			public Mat processFrame(Mat input) {
 				Log.d("ROBOT","RUN_________________");
-				return Pipeline.process(input);
+
+
+                return Pipeline.process(input);
+
 			}
 		});
 

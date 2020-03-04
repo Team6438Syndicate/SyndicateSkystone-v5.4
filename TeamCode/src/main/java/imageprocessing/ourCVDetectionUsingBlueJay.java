@@ -13,6 +13,7 @@ import detectors.OpenCvDetector;
 @TeleOp(name = "OpenCv avec le geai bleu", group="BlueJayAdditions")
 public class ourCVDetectionUsingBlueJay extends RobotMovements
 {
+
     private OpenCvDetector fieldElementDetector;
 
     /**
@@ -97,9 +98,10 @@ public class ourCVDetectionUsingBlueJay extends RobotMovements
 
                 //telemetry.speak(Arrays.toString(skyStones));
             }
-
-            fieldElementDetector.stop();
-
+            if (isStopRequested())
+            {
+                fieldElementDetector.stop();
+            }
         } catch (Exception e)
         {
             telemetry.addData("Error:" , Arrays.toString(e.getStackTrace()));
