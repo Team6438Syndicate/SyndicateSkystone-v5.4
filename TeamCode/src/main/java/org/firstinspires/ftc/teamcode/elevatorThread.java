@@ -96,6 +96,7 @@ public class elevatorThread implements Runnable
     //Counts per inch for the ruler
     private final double rulerCPIInches = rulerMotorCPR / (rulerWDI/ DGRRuler * FastMath.PI);
 
+    //comment
     /**
      * constructor for the thread
      * @param lift
