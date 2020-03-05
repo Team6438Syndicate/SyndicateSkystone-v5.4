@@ -59,7 +59,14 @@ public class SimplifiedHardwareMap
     static final double COUNTS_PER_MOTOR_LIFT = 753.2;
     static final double DGR_LIFT = 1.0;
     static final double PulleyDiamIN = 1.258;
-    static final int SlideCPI = (int) ((int) (COUNTS_PER_MOTOR_LIFT * DGR_LIFT) / (PulleyDiamIN * FastMath.PI));
+    static final int SlideCPI = (int) ((COUNTS_PER_MOTOR_LIFT * DGR_LIFT) / (PulleyDiamIN * FastMath.PI));
+
+    //------
+    static final double countsRulerMotor = 145.6;
+    static final double DGR_Ruler = 1;
+    static final double RulerWheelDiam = 2;
+    static final int rulerCPI = (int) ((countsRulerMotor * DGR_Ruler) / (RulerWheelDiam * FastMath.PI));
+
     //Motor  Declaration
     public DcMotor FL = null;
     public DcMotor FR = null;
