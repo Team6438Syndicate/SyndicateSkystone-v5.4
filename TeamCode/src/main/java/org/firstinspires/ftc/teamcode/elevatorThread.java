@@ -34,63 +34,67 @@ import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.m
 
 public class elevatorThread implements Runnable
 {
+    //Variables to use
     private boolean userControlable;
     private double height = 0;
     private boolean halfSpeed = false;
     private int towerCount = 0;
-
+    private long mills;
     private boolean doStop = false;
+    private double capstorePos = .845;
+    private float range;
+    private int LIFT_MAX_VALUE;
+    private int LIFT_MULTIPLIER_UP;
+    private int LIFT_MULTIPLIER_DOWN;
+
+    //References to threads
+    private filewriterThread fileWriter;
+    private Telemetry telemetry;
+
+    //References to hardware
     private final DcMotor lift;
     private final DcMotor tension;
     private final DcMotor rulerMotor;
-    private HardwareMap hardwareMap;
-    private Team6438ChassisHardwareMapCurrent robot = null;
-
     private Servo lclamp;
     private Servo rclamp;
     private Servo foundationL;
     private Servo foundationR;
     private Servo capstone;
-    private long mills;
+    private  Rev2mDistanceSensor frontSensor;
+
+    //References to hardware map
+    private HardwareMap hardwareMap;
+    private Team6438ChassisHardwareMapCurrent robot = null;
+
+    //Reference to gamepad
     private Gamepad gamepad;
-    private double capstorePos = .845;
 
 
-    // TODO: 11/23/2019 Check if hexCPMM is actually correct
+
+    //___________________________________________________________________
     //Encoder Variables
-    private  final double hexCPRLift = 383.6; // TODO: 12/22/2019 change for the other motor
+    private  final double elevatorMotorCPR = 753.2;   //This is set for the 223
     //Drive Gear Reduction
     private  final double DGRLift = 1;
     //Wheel Diameter Mills
-    private  final double WDMMLift = 17.2; // TODO: 12/22/2019 Pulley size
+    private  final double WDMMLift = 31.9532; // TODO: 12/22/2019 Pulley size
     //Counts per Mills
-    private final double hexCPMMLift = (hexCPRLift) / (WDMMLift / DGRLift * FastMath.PI) ;
-    public  final double hexCPILift =   hexCPMMLift / mmPerInch;
+    private final double CPMMLift = (elevatorMotorCPR)
+                      / (WDMMLift / DGRLift * FastMath.PI) ;
+    //Counts per in for slides
+    public  final double CPILift =   CPMMLift / mmPerInch;
 
+    //Counts per shaft revolution of the ruler motor
     public final double rulerMotorCPR = 145.6;
-    public final double rulerWheelDiamInch = 2;
-    private final double rulerCPIInches = rulerMotorCPR / (rulerWheelDiamInch/FastMath.PI);
 
-    /*
-        //Encoder Variables
-        private  final double hexCPRTension = 383.6; // TODO: 12/22/2019 change for the other motor
-        //Drive Gear Reduction
-        private  final double DGRTension = 1;
-        //Wheel Diameter Mills
-        private  final double WDMMTension = 10; // TODO: 12/22/2019 Pulley size
-        //Counts per Mills
-        private final double hexCPMMTension =(hexCPRTension) /(WDMMTension / DGRTension * FastMath.PI)  ;
-        public  final double hexCPITension = hexCPMMTension / mmPerInch;
+    //Wheel diam ruler
+    public final double rulerWDI = 2;
 
-     */
-    private float range;
-    private int LIFT_MAX_VALUE;
-    private  Rev2mDistanceSensor frontSensor;
-    private int LIFT_MULTIPLIER_UP;
-    private int LIFT_MULTIPLIER_DOWN;
-    private filewriterThread fileWriter;
-    private Telemetry telemetry;
-//    private int TENSION_MAX_VALUE;
+    //Drive gear reduction for the ruler
+    public final double DGRRuler = 1.0; //directDrive
+
+    //Counts per inch for the ruler
+    private final double rulerCPIInches = rulerMotorCPR / (rulerWDI/ DGRRuler * FastMath.PI);
 
     /**
      * constructor for the thread
@@ -108,7 +112,6 @@ public class elevatorThread implements Runnable
      * @param tension_max_value
      * @param telemetry
      */
-
     public elevatorThread(@NotNull DcMotor lift, DcMotor tension, DcMotor rulerMotor, Servo clampL, Servo clampR, Servo foundationL, Servo foundationR, Servo capstone, final long mills, Gamepad gamepad, final float range, final int lift_multiplier_up, final int lift_multiplier_down, final int lift_max_value, final int tension_max_value, @NotNull Telemetry telemetry)
     {
 
@@ -118,7 +121,6 @@ public class elevatorThread implements Runnable
         this.lclamp = clampL;
         this.rclamp = clampR;
         this.foundationL = foundationL;
-        this.foundationR = foundationR;
         this.foundationR = foundationR;
         this.capstone = capstone;
         this.mills = mills;
@@ -262,11 +264,11 @@ public class elevatorThread implements Runnable
                         towerCount = 0;
                     }
 
-                    if (gamepad.b)
+                    if (gamepad.y && robot.foundationR.getPosition() == .9)
                     {
                         grabFoundation();
                     }
-                    else if (gamepad.y)
+                    else if (gamepad.y && robot.foundationR.getPosition() != .9)
                     {
                         midFoundation();
                     }
@@ -289,12 +291,6 @@ public class elevatorThread implements Runnable
                         }
                     }
 
-                    //If the foundation is in ready to clamp mode poll the distance sensor
-                    if(foundationL.getPosition() == .9)
-                    {
-
-                    }
-
                     halfSpeed = gamepad.b;
                     MovementDistance tempStorage = resolveUserControl();
                     move(tempStorage);
@@ -313,14 +309,12 @@ public class elevatorThread implements Runnable
             }
             catch (InterruptedException ignored)
             {
+
             }
-
-
         }
     }
 
-
-
+    //Start the lift to get the grippers out
     private void startLift()
     {
         move(resolveAutonMovement(15, 0));
@@ -332,9 +326,9 @@ public class elevatorThread implements Runnable
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         move(resolveAutonMovement(-15, 0));
 
+        //Reset the encoder to prevent anomalies elsewhere
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
@@ -448,7 +442,7 @@ public class elevatorThread implements Runnable
             switch (motorType)
             {
                 case lift:
-                    return (int) FastMath.round(distance * hexCPILift);
+                    return (int) FastMath.round(distance * CPILift);
                 case tension:
                     return 0;
                 default:
@@ -475,7 +469,7 @@ public class elevatorThread implements Runnable
             switch (motorType)
             {
                 case lift:
-                    return (double)lift.getCurrentPosition() / hexCPILift ;
+                    return (double)lift.getCurrentPosition() / CPILift;
                 case tension:
                     //return (int) FastMath.round(distance * hexCPITension);
                     return 0;

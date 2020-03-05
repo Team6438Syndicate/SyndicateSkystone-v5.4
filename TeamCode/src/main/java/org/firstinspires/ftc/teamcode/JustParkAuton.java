@@ -45,7 +45,7 @@ public class JustParkAuton extends LinearOpMode {
         while(opModeIsActive())
         {
             //move(20, 20, .5);
-            tapeExtendByEncoder(41);
+            tapeExtendByTime(41);
             stop();
         }
     }

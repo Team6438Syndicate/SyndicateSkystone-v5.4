@@ -106,13 +106,12 @@ public class Team6438ChassisHardwareMapCurrent {
     public static float radiusMM = 353.5f;
     public static float radiusIN = 12.728f;
     //Sensor Mapping
+
     public Rev2mDistanceSensor sensorFront;
     public BNO055IMU imu = null;
     public final double rulerMotorCPR = 145.6;
     public final double rulerWheelDiamInch = 2;
     public final double rulerCPI = rulerMotorCPR / (rulerWheelDiamInch * FastMath.PI);
-
-    Rev2mDistanceSensor distanceSensorFront;
 
     VuforiaLocalizer vuforia;
     TFObjectDetector tfod;
@@ -144,7 +143,7 @@ public class Team6438ChassisHardwareMapCurrent {
         foundationL = ahwMap.get(Servo.class, "foundationL");
         foundationR = ahwMap.get(Servo.class, "foundationR");
         capstone = ahwMap.get(Servo.class, "capstone");
-        //Current Servo Count - 4
+        //Current Servo Count - 5
 
         //------------------------------------------------------------------------------------------
         // Define webcam
