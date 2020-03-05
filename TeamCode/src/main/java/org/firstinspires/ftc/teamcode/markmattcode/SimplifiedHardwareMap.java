@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.markmattcode;
 //Imports
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -48,17 +49,17 @@ public class SimplifiedHardwareMap
     //Vuforia Variables
 
     static final String VUFORIA_KEY = "ATEEWHn/////AAABmXzvuqxXZkYkr3AeTQT4Qg0P3tudpoBP/Rp2Xyw3zNlZYk+ZI5Jp/yo8TDf62o+UjdBvoe0LP5nNDqFESCtSImOG2WRuMkoESAyhSVzMU0hY53dWb4l0s7mCe+xqqT8i0r9pPdav7N7RiGHG7WYoIBXrQeyz+NEq8TLYTTCXmZMFgPeEU30Nb+t4JikoNMr0X0Ej6y1vG+7EX3O9KI8RXoPYbBmPzvX5uVvWBNg2J0g0SBiZUXa8pQOCxi0QyHyNUiwvV5WKnM2jncg+eI7im5s+k4yn6Xjaeecg6q9IT45YNvbhV4PM/LbwGQTKBf0AOCM/qL7tz7evypWw5uK15BayqAitBLy7Sr0SvIjYMjPg";
-
-
-
-    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    static final double     COUNTS_PER_MOTOR_REV_DRIVE    = 383.6 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    public final int     CPI        =         (int) ((COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-                                                            (WHEEL_DIAMETER_INCHES * 3.1415));
-    private final String vuforia = "ATEEWHn/////AAABmXzvuqxXZkYkr3AeTQT4Qg0P3tudpoBP/Rp2Xyw3zNlZYk+ZI5Jp/yo8TDf62o+UjdBvoe0LP5nNDqFESCtSImOG2WRuMkoESAyhSVzMU0hY53dWb4l0s7mCe+xqqT8i0r9pPdav7N7RiGHG7WYoIBXrQeyz+NEq8TLYTTCXmZMFgPeEU30Nb+t4JikoNMr0X0Ej6y1vG+7EX3O9KI8RXoPYbBmPzvX5uVvWBNg2J0g0SBiZUXa8pQOCxi0QyHyNUiwvV5WKnM2jncg+eI7im5s+k4yn6Xjaeecg6q9IT45YNvbhV4PM/LbwGQTKBf0AOCM/qL7tz7evypWw5uK15BayqAitBLy7Sr0SvIjYMjPg";
+    public final int        driveCPI        =         (int) ((COUNTS_PER_MOTOR_REV_DRIVE * DRIVE_GEAR_REDUCTION) /
+                                                            (WHEEL_DIAMETER_INCHES * FastMath.PI));
+    //-------------------------------
 
-
+    static final double COUNTS_PER_MOTOR_LIFT = 753.2;
+    static final double DGR_LIFT = 1.0;
+    static final double PulleyDiamIN = 1.258;
+    static final int SlideCPI = (int) ((int) (COUNTS_PER_MOTOR_LIFT * DGR_LIFT) / (PulleyDiamIN * FastMath.PI));
     //Motor  Declaration
     public DcMotor FL = null;
     public DcMotor FR = null;
@@ -79,7 +80,7 @@ public class SimplifiedHardwareMap
     public WebcamName camera = null;
 
     //Sensor Mapping
-    public DistanceSensor sensorFront;
+    public Rev2mDistanceSensor sensorFront;
     public BNO055IMU imu = null;
 
     /**
@@ -125,8 +126,7 @@ public class SimplifiedHardwareMap
         //Imu
         imu = ahwMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-
-        sensorFront = ahwMap.get(DistanceSensor.class, "sensorFront");
+        sensorFront = ahwMap.get(Rev2mDistanceSensor.class, "sensorFront");
 
         //------------------------------------------------------------------------------------------
         //Hardware moves
@@ -137,6 +137,7 @@ public class SimplifiedHardwareMap
         BL.setDirection(DcMotor.Direction.FORWARD);
         BR.setDirection(DcMotor.Direction.REVERSE);
         liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rulerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         //tensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         //Set all motors to zero power to prevent unintended movement
@@ -145,6 +146,7 @@ public class SimplifiedHardwareMap
         BL.setPower(0);
         BR.setPower(0);
         liftMotor.setPower(0);
+        rulerMotor.setPower(0);
         //tensionMotor.setPower(0);
     }
 
