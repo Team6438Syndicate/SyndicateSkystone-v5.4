@@ -33,7 +33,7 @@ import detectors.OpenCvDetector;
 
 public abstract class RobotMovements extends LinearOpMode
 {
-    protected static Team6438ChassisHardwareMapCurrent robot = new Team6438ChassisHardwareMapCurrent();
+    protected Team6438ChassisHardwareMapCurrent robot = new Team6438ChassisHardwareMapCurrent();
 
 
     /**
@@ -42,7 +42,7 @@ public abstract class RobotMovements extends LinearOpMode
     protected void initRobot(HardwareMap hardwareMap) {
         robot.init(hardwareMap);
     }
-    protected static void initRobot(HardwareMap hardwareMap, boolean yes) {
+    protected void initRobot(HardwareMap hardwareMap, boolean yes) {
         robot.init(hardwareMap,yes);
     }
     /**
@@ -127,31 +127,49 @@ public abstract class RobotMovements extends LinearOpMode
 
                 for (SkyStone detection : skyStones)
                 {
+                    if (isStarted())    //To quickly quit out of the loop if the OpMode is started
+                    {
+                        break;
+                    }
                     if (detection != null)
                     {
-                        if (detection.x < 115)
+                        if (detection.x < 525)
                         {
+                            telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
                             if (isRed)
                             {
-
+                                if (detection.y < fieldElementDetector.getHeight()/3.0)
+                                {
+                                    telemetry.addData("Stone is on the left", "");
+                                    skystoneLocation = Locations.Close;
+                                }
+                                else if (detection.y > fieldElementDetector.getHeight()*2/3.0)
+                                {
+                                    telemetry.addData("Stone is on the right", "");
+                                    skystoneLocation = Locations.Far;
+                                }
+                                else
+                                {
+                                    telemetry.addData("Stone is in the center", "");
+                                    skystoneLocation = Locations.Center;
+                                }
                             }
                             else
                             {
-                                telemetry.addData("Skystone Data: ", "X=" + detection.x + ", Y= " + detection.y);
-                                if (detection.y < 260)
+                                if (detection.y < fieldElementDetector.getHeight()/3.0)
                                 {
-                                    telemetry.addData("Stone is in the Far position", "");
+                                    telemetry.addData("Stone is on the left", "");
+                                    skystoneLocation = Locations.Close;
+                                }
+                                else if (detection.y > fieldElementDetector.getHeight()*2/3.0)
+                                {
+                                    telemetry.addData("Stone is on the right", "");
                                     skystoneLocation = Locations.Far;
                                 }
-                                if (detection.y > 260 && detection.y < 320)
+                                else
                                 {
-                                    telemetry.addData("Stone is in the Center position", "");
-                                    //Stone[] stones = fieldElementDetector.getStones();
-                                    //Foundation[] foundations = fieldElementDetector.getFoundations();
-                                }
-                                if (detection.y > 320)
-                                {
-                                    telemetry.addData("Stone is in the Close position", "");
+                                    telemetry.addData("Stone is in the center", "");
+                                    return Locations.Center;
                                 }
                                 telemetry.update();
                             }

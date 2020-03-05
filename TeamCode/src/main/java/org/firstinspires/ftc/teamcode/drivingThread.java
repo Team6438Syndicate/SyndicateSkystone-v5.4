@@ -160,7 +160,7 @@ public class drivingThread implements Runnable {
 
         if (foundationMoveRequest)
         {
-            counter = 8;
+            counter = 999;
         }
 
         //RobotMovements.initBlueJay();
@@ -664,11 +664,13 @@ public class drivingThread implements Runnable {
                 //Autonomous stuff
                 else
                 {
-                    elevatorThread.elevatorStart();
+                    if (!foundationMoveRequest)
+                    {
+                        elevatorThread.elevatorStart();
+                    }
+
                     //fileWriter.write("Auton Started");
                     telemetry.print("firstLoop = " + firstLoop);
-
-                    Thread.sleep(100000);
 
                     telemetry.update();
 
@@ -764,8 +766,6 @@ public class drivingThread implements Runnable {
 
                 //correctedDrive(distanceUnit.toMm(4), .8);
 
-                if (!isRed)
-                {
                     switch (skystonePosition)
                     {
                         case Close:
@@ -786,29 +786,8 @@ public class drivingThread implements Runnable {
                         }
                     }
 
-                }
-                else
-                {
-                    switch (skystonePosition)
-                    {
-                        case Close:
-                        {
-                            break;
-                        }
-                        case Center:
-                        {
-
-                            break;
-                        }
-                        case Far:
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                correctedStrafe(distanceUnit.toMm(distance),1);
-                correctedDrive(distanceUnit.toMm(20),1);
+                lockStrafe(distanceUnit.toMm(distance),1);  //correctedStrafe(distanceUnit.toMm(distance),1);
+                lockDrive(distanceUnit.toMm(20),1); //correctedDrive(distanceUnit.toMm(20),1);
                 elevatorThread.closeClamp();
                 try
                 {
@@ -817,7 +796,7 @@ public class drivingThread implements Runnable {
                 {
                     e.printStackTrace();
                 }
-                correctedDrive(distanceUnit.toMm(-10),1);
+                lockDrive(distanceUnit.toMm(-10),1);   //correctedDrive(distanceUnit.toMm(-10),1);
                 elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
                 try
                 {
@@ -826,20 +805,77 @@ public class drivingThread implements Runnable {
                 catch (InterruptedException e)
                 {
                 }
-                if (!isRed)
+
+                break;
+
+            }
+            case 2:
                 {
-                    correctedStrafe(distanceUnit.toMm(-distance - 68 ),1);
+                    turn(-PI/2.0,.7);   //correctedTurn(-PI/2.0,1,false);
+                    lockDrive(distanceUnit.toMm(55),1.0);  //correctedDrive(distanceUnit.toMm(55),1.0);
+                    elevatorThread.openClamp();
+
                 }
-                else
+
+            case 3:
                 {
-                    correctedStrafe(distanceUnit.toMm(-distance + 68 ),1);
+                    lockDrive(distanceUnit.toMm(-70),1.0); //correctedDrive(distanceUnit.toMm(-70),1.0);
+                    turn(PI/2.0, 0.7);    //correctedTurn(PI/2.0,1,false);
+
                 }
+            case 4:
+            {
+                //scanningWithBlueJay();
+                double distance = 0;
+
+                //correctedDrive(distanceUnit.toMm(4), .8);
+
+                switch (skystonePosition)
+                {
+                    case Close:
+                    {
+                        // TODO: 2/27/2020 5 inches
+                        distance = 0;
+                        break;
+                    }
+                    case Center:
+                    {
+                        distance = 13;
+                        break;
+                    }
+                    case Far:
+                    {
+                        distance = 26;
+                        break;
+                    }
+                }
+
+                lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
+                lockDrive(distanceUnit.toMm(20),1);    //correctedDrive(distanceUnit.toMm(20),1);
+                elevatorThread.closeClamp();
+                try
+                {
+                    Thread.sleep(750);
+                } catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+                lockDrive(distanceUnit.toMm(-10),1);    //correctedDrive(distanceUnit.toMm(-10),1);
+                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
+                try
+                {
+                    Thread.sleep(750);
+                }
+                catch (InterruptedException e)
+                {
+                }
+
                 break;
 
             }
             case 5:
             {
-                elevatorThread.move(elevatorThread.resolveAutonMovement(600, 0));
+                /*elevatorThread.move(elevatorThread.resolveAutonMovement(600, 0));
                 try
                 {
                     Thread.sleep(750);
@@ -854,31 +890,14 @@ public class drivingThread implements Runnable {
                 else
                 {
                     correctedStrafe(distanceUnit.toMm(12 ),1);
-                }
-                break;
-            }
-            case 6:
-            {
-                elevatorThread.move(elevatorThread.resolveAutonMovement(-750, 0));
-                while (FastMath.abs(robot.liftMotor.getCurrentPosition() + 750) > 50)
-                {
-
-                }
+                }*/
+                turn(-PI/2.0,.7); //correctedTurn(-PI/2.0,1,false);
+                lockDrive(distanceUnit.toMm(70),1.0);    //correctedDrive(distanceUnit.toMm(70),1.0);
                 elevatorThread.openClamp();
-                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
-                while (FastMath.abs(robot.liftMotor.getCurrentPosition() - 200) > 50)
-                {
 
-                }
-                try
-                {
-                    Thread.sleep(500);
-                }
-                catch (InterruptedException ignored)
-                {
-                }
                 break;
             }
+
             case 7:
             {
                 if (!foundationMoveRequest)
@@ -887,7 +906,7 @@ public class drivingThread implements Runnable {
                 }
                 break;
             }
-            case 8:
+            case 999:
             {
                 //foundation movement
                 correctedDrive(distanceUnit.toMm(- 6), 0.5);
@@ -904,7 +923,7 @@ public class drivingThread implements Runnable {
                     e.printStackTrace();
                 }
                 correctedDrive(distanceUnit.toMm(35), 0.5);
-                turn(- PI / 2, 0.5);
+                correctedTurn(- PI / 2, 0.5,false);
                 releaseFoundation();
                 try
                 {
@@ -914,13 +933,19 @@ public class drivingThread implements Runnable {
                 {
                 }
                 correctedStrafe(distanceUnit.toMm(-50), 0.5);
+                autonomousControl(9);
 
+            }
+            case 8:
+            {
+                correctedDrive(-50,1.0);
+                correctedTurn(PI,1.0,false);
             }
             case 9:
             {
                 elevatorThread.rulerPark();
+                this.counter = 100000;
             }
-
 
             default:
                 telemetry.print("Autonomous has ended");
@@ -1670,9 +1695,9 @@ public class drivingThread implements Runnable {
         double power1 = Range.scale(power, 0.0, 1.0, 0.0, .80);
         oldHeadingIMU = getHeadingIMU();
 
-        lockStrafe(distance, power);
+        lockStrafe(distance, power1);
 
-        rectifyDeviations(distance, oldHeadingIMU, power, drivingThread.DriveType.drive);
+        rectifyDeviations(distance, oldHeadingIMU, power1, drivingThread.DriveType.drive);
 
     }
 
