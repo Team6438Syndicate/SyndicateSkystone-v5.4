@@ -856,7 +856,6 @@ public class drivingThread implements Runnable {
                     case Close:
                     default:
                     {
-                        // TODO: 2/27/2020 5 inches
                         distance = 5;
                         break;
                     }
