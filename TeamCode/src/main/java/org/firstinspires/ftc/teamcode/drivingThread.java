@@ -862,7 +862,7 @@ public class drivingThread implements Runnable {
                     }
                     case Center:
                     {
-                        distance = -4;
+                        distance = -2;
                         break;
                     }
                     case Far:
