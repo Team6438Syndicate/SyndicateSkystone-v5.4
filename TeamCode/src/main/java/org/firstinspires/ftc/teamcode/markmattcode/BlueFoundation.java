@@ -24,24 +24,28 @@ public class BlueFoundation extends LinearOpMode
         //Start the hardware map
         robot.init(hardwareMap);
 
+
+        //release the servos to prevent unintended actions
         releaseFoundation();
 
+        //grab our heading at start
         initHeading = robot.imu.getAngularOrientation().firstAngle;
 
+        //reset the encoders
         robot.FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //Brake power
         robot.FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //midFoundation();
-
+        //Telem stuff
         telemetry.addData("Hardware Status:", " Mapped");
         telemetry.speak("All Systems Go");
         telemetry.update();
@@ -55,6 +59,8 @@ public class BlueFoundation extends LinearOpMode
             ////Strafe Left
             strafe(true, 18);
 
+            //BRAD ATTN ENCODERFB IS BROKEN STICK TO SLOW FOR NOW PLZ
+
             //Move the servos ready to engage
             midFoundation();
 
@@ -63,18 +69,23 @@ public class BlueFoundation extends LinearOpMode
 
             //checkAngle(0);
 
-            telemetry.speak("lets go");
+            //Rewarding Message
+            telemetry.speak("Let's go");
 
+            //Grab it
             grabFoundation();
 
+            //Head forward a little to ensure full engagement
             encoderFBslow(2);
 
+            //Strafe
             strafe(false, 12);
 
+            //Slow encoder
             encoderFBslow(-18);
 
+            //Turn
             encoderTurn(false, 105);
-
             strafe(true, 12);
 
             encoderFBslow(8);
