@@ -7,20 +7,25 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Autonomous(name = "Test Foundation", group = "Concept")
-public class BlueFoundation extends LinearOpMode {
+public class BlueFoundation extends LinearOpMode
+{
     SimplifiedHardwareMap robot = new SimplifiedHardwareMap();
 
-    private double straightDrivePower = .75;
-    private int ticksPerFullRot = 10000; //calculated
+    private double straightDrivePower = .25;
+    private int ticksPerFullRot = 5500; //calculated
     private int criticalDistanceFar = 100;
     private int criticalDistanceClose = 200;
     private double slowstraightDrivePower = .25;
     private float initHeading;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode()
+    {
         //Start the hardware map
         robot.init(hardwareMap);
+
+        releaseFoundation();
+
         initHeading = robot.imu.getAngularOrientation().firstAngle;
 
         robot.FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -35,7 +40,7 @@ public class BlueFoundation extends LinearOpMode {
         robot.BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        midFoundation();
+        //midFoundation();
 
         telemetry.addData("Hardware Status:", " Mapped");
         telemetry.speak("All Systems Go");
@@ -45,16 +50,17 @@ public class BlueFoundation extends LinearOpMode {
         waitForStart();
 
         //Loop while we're active
-        while (opModeIsActive()) {
+        while (opModeIsActive())
+        {
+            ////Strafe Left
+            strafe(true, 18);
 
-            //Strafe Left
-            strafe(true, 14);
+            midFoundation();
 
             //Go backward to right before foundation
             encoderFBslow(30);
-            //encoderFB(18);
 
-            checkAngle();
+            //checkAngle(0);
 
             telemetry.speak("lets go");
 
@@ -62,9 +68,27 @@ public class BlueFoundation extends LinearOpMode {
 
             encoderFBslow(2);
 
-            encoderFBslow(-25);
+            strafe(false, 12);
 
-            encoderTurn(false, 90);
+            encoderFBslow(-18);
+
+            encoderTurn(false, 105);
+
+            strafe(true, 12);
+
+            encoderFBslow(8);
+
+            elevatorStart(3);
+
+            midFoundation();
+
+            sleep(100);
+
+            encoderFBslow(-37);
+
+            //encoderTurn(true, 90);
+
+            //rulerPark(30);
 
             stop();
 
@@ -87,19 +111,16 @@ public class BlueFoundation extends LinearOpMode {
 
             //Extend tape measure to park
             rulerPark(41);
-
-            //Expand elevator to get ready of TeleOp
-            elevatorExpand(12);
         }
     }
 
     //Move forward or backwards (- is backwards, + is forwards)
     private void encoderFB(int inches) {
         //position
-        robot.FL.setTargetPosition(robot.driveCPI * inches);
-        robot.FR.setTargetPosition(robot.driveCPI * inches);
-        robot.BL.setTargetPosition(robot.driveCPI * inches);
-        robot.BR.setTargetPosition(robot.driveCPI * inches);
+        robot.FL.setTargetPosition(robot.FL.getCurrentPosition() + robot.driveCPI * inches);
+        robot.FR.setTargetPosition(robot.FL.getCurrentPosition() + robot.driveCPI * inches);
+        robot.BL.setTargetPosition(robot.FL.getCurrentPosition() + robot.driveCPI * inches);
+        robot.BR.setTargetPosition(robot.FL.getCurrentPosition() + robot.driveCPI * inches);
 
         robot.FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -152,8 +173,12 @@ public class BlueFoundation extends LinearOpMode {
         robot.BR.setPower(slowstraightDrivePower);
 
         //Loop to occupy
-        while (opModeIsActive() && (robot.FL.isBusy() || robot.FR.isBusy() || robot.BL.isBusy() || robot.BR.isBusy()))
-
+        while (opModeIsActive() && Math.abs(robot.FL.getCurrentPosition() - robot.FL.getTargetPosition()) > 50 || Math.abs(robot.FR.getCurrentPosition() - robot.FR.getTargetPosition()) > 50 || Math.abs(robot.BL.getCurrentPosition() - robot.BL.getTargetPosition()) > 50 || Math.abs(robot.BR.getCurrentPosition() - robot.BR.getTargetPosition()) > 50)//(robot.FL.isBusy() || robot.FR.isBusy() || robot.BL.isBusy() || robot.BR.isBusy()))
+        {
+            telemetry.addData("Current", robot.FL.getCurrentPosition());
+            telemetry.addData("Heading", robot.FL.getTargetPosition());
+            telemetry.update();
+        }
 
         robot.FL.setPower(0);
         robot.FR.setPower(0);
@@ -162,84 +187,89 @@ public class BlueFoundation extends LinearOpMode {
     }
 
     /*
-    *Check if were normal to starting agnle
+    *Check if were normal to starting angle
      */
-    private void checkAngle()
+    private void checkAngle(double degrees)
     {
-        while( robot.imu.getAngularOrientation().firstAngle > (initHeading) )
+        while (Math.abs(robot.imu.getAngularOrientation().firstAngle - initHeading + degrees) > 3)
         {
+            encoderTurn(false, robot.imu.getAngularOrientation().firstAngle - initHeading);
+        }
+        /*{
             robot.FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             robot.FR.setPower(.25);
             robot.BR.setPower(.25);
             telemetry.speak("im moving");
-        }
+        }*/
     }
 
     //Turning Method
-    private void encoderTurn(boolean left, int degrees)
+    private void encoderTurn(boolean left, double degrees)
     {
         //This lets us determine how to move the wheels
-        int encoderTicksToTurn = degrees * (1 / (360 * ticksPerFullRot));  //right??
+        int encoderTicksToTurn = (int) ( (degrees / 360.0) * ticksPerFullRot);  //right??
 
-        if (left)
-        {
-            robot.FL.setTargetPosition(-encoderTicksToTurn);
-            robot.FR.setTargetPosition(encoderTicksToTurn);
-            robot.BL.setTargetPosition(-encoderTicksToTurn);
-            robot.BR.setTargetPosition(encoderTicksToTurn);
-            while (robot.FL.isBusy() && robot.FR.isBusy() && robot.BL.isBusy() && robot.BR.isBusy())
-            {
-                telemetry.addData("Moving To", robot.FL.getTargetPosition());
-                telemetry.addData("Currently At", robot.FL.getCurrentPosition());
-                telemetry.update();
-            }
-        }
-        else
-        {
-            robot.FL.setTargetPosition(encoderTicksToTurn);
-            robot.FR.setTargetPosition(-encoderTicksToTurn);
-            robot.BL.setTargetPosition(encoderTicksToTurn);
-            robot.BR.setTargetPosition(-encoderTicksToTurn);
-        }
+        encoderTicksToTurn *= (left) ? -1 : 1;
+
+        telemetry.addData("Ticks", encoderTicksToTurn);
+        telemetry.update();
+        sleep(100);
+
+        robot.FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.FL.setTargetPosition(-encoderTicksToTurn);
+        robot.FR.setTargetPosition(encoderTicksToTurn);
+        robot.BL.setTargetPosition(-encoderTicksToTurn);
+        robot.BR.setTargetPosition(encoderTicksToTurn);
+
+
         robot.FL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.FR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        robot.FL.setPower(1);
-        robot.FR.setPower(1);
-        robot.BL.setPower(1);
-        robot.BR.setPower(1);
-        while (robot.FL.isBusy())
+        robot.FL.setPower(slowstraightDrivePower);
+        robot.FR.setPower(slowstraightDrivePower);
+        robot.BL.setPower(slowstraightDrivePower);
+        robot.BR.setPower(slowstraightDrivePower);
+
+        while (Math.abs(robot.FL.getCurrentPosition()-robot.FL.getTargetPosition()) > 25)
         {
             telemetry.addData("Moving To", robot.FL.getTargetPosition());
             telemetry.addData("Currently At", robot.FL.getCurrentPosition());
             telemetry.update();
         }
-        while (opModeIsActive() && (robot.FL.isBusy() || robot.FR.isBusy() || robot.BL.isBusy() || robot.BR.isBusy())) ;
 
-            robot.FL.setPower(0);
-            robot.FR.setPower(0);
-            robot.BL.setPower(0);
-            robot.BR.setPower(0);
+        robot.FL.setPower(0);
+        robot.FR.setPower(0);
+        robot.BL.setPower(0);
+        robot.BR.setPower(0);
 
     }
     //Strafe Code may need redo
     private void strafe(boolean left, int inches)
     {
+        robot.FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         if(left)
         {
-            robot.FL.setTargetPosition(-inches*robot.driveCPI);
+            robot.FL.setTargetPosition(inches*robot.driveCPI);
             robot.FR.setTargetPosition(inches*robot.driveCPI);
-            robot.BL.setTargetPosition(inches*robot.driveCPI);
+            robot.BL.setTargetPosition(-inches*robot.driveCPI);
             robot.BR.setTargetPosition(-inches*robot.driveCPI);
         }
         else
         {
-            robot.FL.setTargetPosition(inches*robot.driveCPI);
+            robot.FL.setTargetPosition(-inches*robot.driveCPI);
             robot.FR.setTargetPosition(-inches*robot.driveCPI);
-            robot.BL.setTargetPosition(-inches*robot.driveCPI);
+            robot.BL.setTargetPosition(inches*robot.driveCPI);
             robot.BR.setTargetPosition(inches*robot.driveCPI);
         }
 
@@ -296,10 +326,35 @@ public class BlueFoundation extends LinearOpMode {
     private void rulerPark(double inches)
     {
         robot.rulerMotor.setTargetPosition((int)inches*(int)robot.rulerCPI);
+        robot.rulerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rulerMotor.setPower(1);
+        while (Math.abs(robot.rulerMotor.getCurrentPosition()-robot.rulerMotor.getTargetPosition()) > 20)
+        {
+
+        }
+        robot.rulerMotor.setPower(0);
+        robot.rulerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    private void elevatorExpand(double inches)
+    private void elevatorStart(double inches)
     {
-        robot.liftMotor.setTargetPosition((int)inches*(int)robot.SlideCPI);
+        robot.liftMotor.setTargetPosition((int)inches*robot.SlideCPI);
+        robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.liftMotor.setPower(1);
+        while(Math.abs(robot.liftMotor.getCurrentPosition() - robot.liftMotor.getTargetPosition()) > 50)
+        {}
+
+        robot.clampL.setPosition(.45);
+        robot.clampR.setPosition(.55);
+
+        sleep(500);
+
+        robot.liftMotor.setTargetPosition(0);
+        robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.liftMotor.setPower(.2);
+        while(Math.abs(robot.liftMotor.getCurrentPosition() - robot.liftMotor.getTargetPosition()) > 50)
+        {}
+
+        robot.liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 }
