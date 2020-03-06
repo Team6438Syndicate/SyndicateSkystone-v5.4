@@ -91,6 +91,7 @@ public class drivingThread implements Runnable {
     private boolean foundationMoveRequest;
     private boolean onlyFoundation;
     private boolean runOpenCV;
+    private boolean stopScan = false;
     private DistanceUnit distanceUnit = DistanceUnit.INCH;
     private double oldHeadingIMU;
     private double newHeadingIMU;
@@ -143,7 +144,7 @@ public class drivingThread implements Runnable {
         this.motor3 = motor3;
         this.motor4 = motor4;
 
-        this.skystonePosition = skystonePosition;
+
 
         this.mills = mills;
         this.factorSpeedDown = scaleDown;
@@ -211,70 +212,7 @@ public class drivingThread implements Runnable {
         Pipeline.doSkyStones = true;
         Pipeline.doStones = false;
         Pipeline.doFoundations = false;
-        boolean test = false;
-        while(!test)
-        {
-            skyStones = fieldElementDetector.getSkyStones();
 
-            for (SkyStone detection : skyStones)
-            {
-
-                if (detection != null)
-                {
-                    if (detection.x < 525)
-                    {
-                        if (!isRed)
-                        {
-                            if (detection.y < fieldElementDetector.getHeight()/3.0)
-                            {
-
-                                skystonePosition = RobotMovements.Locations.Close;
-                                test = true;
-
-                            }
-                            else if (detection.y > fieldElementDetector.getHeight()*2/3.0)
-                            {
-                                skystonePosition = RobotMovements.Locations.Far;
-                                test = true;
-
-                            }
-                            else
-                            {
-                                skystonePosition = RobotMovements.Locations.Center;
-                                test = true;
-
-                            }
-                        }
-                        else
-                        {
-                            if (detection.y < fieldElementDetector.getHeight()/3.0)
-                            {
-                                skystonePosition = RobotMovements.Locations.Close;
-                                test = true;
-
-                            }
-                            else if (detection.y > fieldElementDetector.getHeight()*2/3.0)
-                            {
-                                skystonePosition = RobotMovements.Locations.Far;
-                                test = true;
-
-                            }
-                            else
-                            {
-                                skystonePosition =  RobotMovements.Locations.Center;
-                                test = true;
-
-                            }
-                        }
-
-                    }
-                }
-
-            }
-            break;
-        }
-        this.skystonePosition = skystonePosition;
-        fieldElementDetector.end();
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
 
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -370,9 +308,19 @@ public class drivingThread implements Runnable {
     {
         if (!userControllable)
         {
+            fieldElementDetector.end();
         }
 
         this.doStop = true;
+    }
+
+    synchronized void stopScan()
+    {
+        if (!userControllable)
+        {
+        }
+
+        this.stopScan = true;
     }
 
     /**
@@ -384,6 +332,12 @@ public class drivingThread implements Runnable {
     private synchronized boolean keepRunning()
     {
         return ! this.doStop;
+    }
+
+    @Contract(pure = true)
+    private synchronized boolean keepScanning()
+    {
+        return ! this.stopScan;
     }
 
     /**
@@ -402,12 +356,75 @@ public class drivingThread implements Runnable {
     {
         try
         {
-            if (fieldElementDetector != null)
+            if (!userControllable)
             {
-                Pipeline.doSkyStones = true;
-                Pipeline.doStones = false;
-                Pipeline.doFoundations = false;
+                while(keepScanning())
+                {
+                    skyStones = fieldElementDetector.getSkyStones();
+                    telemetry.print("In scanning loop");
+
+                    for (SkyStone detection : skyStones)
+                    {
+                        if (!keepScanning())
+                        {
+                            break;
+                        }
+                        if (detection != null)
+                        {
+
+                                if (!isRed)
+                                {
+                                    if (detection.y < fieldElementDetector.getWidth()/3.0)
+                                    {
+                                        this.skystonePosition = RobotMovements.Locations.Far;
+                                        telemetry.print("Far");
+                                    }
+                                    else if (detection.y > fieldElementDetector.getWidth()*2/3.0)
+                                    {
+                                        this.skystonePosition = RobotMovements.Locations.Close;
+                                        telemetry.print("Close");
+
+                                    }
+                                    else
+                                    {
+                                        this.skystonePosition = RobotMovements.Locations.Center;
+                                        telemetry.print("Center");
+                                    }
+                                }
+                                else
+                                {
+                                    telemetry.print("In else");
+                                    if (detection.y < fieldElementDetector.getWidth()/3.0)
+                                    {
+                                        this.skystonePosition = RobotMovements.Locations.Close;
+                                        telemetry.print("Close");
+
+                                    }
+                                    else if (detection.y > fieldElementDetector.getWidth()*2/3.0)
+                                    {
+                                        this.skystonePosition = RobotMovements.Locations.Far;
+                                        telemetry.print("Far");
+                                    }
+                                    else
+                                    {
+                                        this.skystonePosition =  RobotMovements.Locations.Center;
+                                        telemetry.print("Center");
+                                    }
+                                }
+
+
+                        }
+
+                       // telemetry.print(skystonePosition.toString());
+
+                    }
+                }
+                telemetry.print(skystonePosition.toString(),"exited scanning loop");
+
+                fieldElementDetector.end();
             }
+
+
 
 
             double currentSpeedLeft;
@@ -738,8 +755,6 @@ public class drivingThread implements Runnable {
                     telemetry.append("firstLoop = " + firstLoop);
 
 
-
-
                     telemetry.append( (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy()) + "");
 
 
@@ -839,26 +854,28 @@ public class drivingThread implements Runnable {
                 switch (skystonePosition)
                 {
                     case Close:
+                    default:
                     {
                         // TODO: 2/27/2020 5 inches
-                        distance = -5;
+                        distance = 5;
                         break;
                     }
                     case Center:
                     {
-                        distance = 8;
+                        distance = -4;
                         break;
                     }
                     case Far:
                     {
-                        distance = 21;
+                        distance = -9.5;
                         break;
                     }
+
                 }
 
                 lockDrive(distanceUnit.toMm(10),1);
                 lockStrafe(distanceUnit.toMm(distance),1);  //correctedStrafe(distanceUnit.toMm(distance),1);
-                lockDrive(distanceUnit.toMm(10),1); //correctedDrive(distanceUnit.toMm(20),1);
+                lockDrive(distanceUnit.toMm(20),1); //correctedDrive(distanceUnit.toMm(20),1);
                 elevatorThread.closeClamp();
                 try
                 {
@@ -883,14 +900,14 @@ public class drivingThread implements Runnable {
             case 2:
                 {
                     turn(-PI/2.0,.7);   //correctedTurn(-PI/2.0,1,false);
-                    lockDrive(distanceUnit.toMm(55),1.0);  //correctedDrive(distanceUnit.toMm(55),1.0);
+                    lockDrive(distanceUnit.toMm(53),1.0);  //correctedDrive(distanceUnit.toMm(55),1.0);
                     elevatorThread.openClamp();
                     break;
                 }
 
             case 3:
                 {
-                    lockDrive(distanceUnit.toMm(-70),1.0); //correctedDrive(distanceUnit.toMm(-70),1.0);
+                    lockDrive(distanceUnit.toMm(-57),1.0); //correctedDrive(distanceUnit.toMm(-70),1.0);
                     turn(PI/2.0, 0.7);    //correctedTurn(PI/2.0,1,false);
                     break;
                 }
@@ -904,30 +921,31 @@ public class drivingThread implements Runnable {
                 switch (skystonePosition)
                 {
                     case Close:
+                    default:
                     {
                         // TODO: 2/27/2020 5 inches
-                        distance = 0;
+                        distance = 5;
+                        lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
+
                         break;
                     }
                     case Center:
                     {
-                        distance = 13;
+                        distance = -11.5;
+                        lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
+
                         break;
                     }
                     case Far:
                     {
-                        distance = 26;
+                        turn(PI/6.0,1);
                         break;
                     }
-                    default:
-                    {
-                        telemetry.speak("NOTHING");
-                    }
+
 
                 }
 
-                lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
-                lockDrive(distanceUnit.toMm(20),1);    //correctedDrive(distanceUnit.toMm(20),1);
+                lockDrive(distanceUnit.toMm(16),1);    //correctedDrive(distanceUnit.toMm(20),1);
                 elevatorThread.closeClamp();
                 try
                 {
@@ -937,6 +955,7 @@ public class drivingThread implements Runnable {
                     e.printStackTrace();
                 }
                 lockDrive(distanceUnit.toMm(-10),1);    //correctedDrive(distanceUnit.toMm(-10),1);
+
                 elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
                 try
                 {
@@ -967,8 +986,15 @@ public class drivingThread implements Runnable {
                 {
                     correctedStrafe(distanceUnit.toMm(12 ),1);
                 }*/
-                turn(-PI/2.0,.7); //correctedTurn(-PI/2.0,1,false);
-                lockDrive(distanceUnit.toMm(70),1.0);    //correctedDrive(distanceUnit.toMm(70),1.0);
+                if(skystonePosition.equals(RobotMovements.Locations.Far))
+                {
+                    turn(4.0 * -PI/6.0,1);
+                }
+                else
+                    {
+                        turn(-PI/2.0,.7); //correctedTurn(-PI/2.0,1,false);
+                    }
+                lockDrive(distanceUnit.toMm(65),1.0);    //correctedDrive(distanceUnit.toMm(70),1.0);
                 elevatorThread.openClamp();
 
                 break;
@@ -978,6 +1004,7 @@ public class drivingThread implements Runnable {
             {
                 if (!foundationMoveRequest)
                 {
+                    lockDrive(distanceUnit.toMm(-6),1);
                     this.counter = 100000;
                 }
                 break;

@@ -119,6 +119,7 @@ public class OpenCvDetector extends StartStoppable
 		});
 
 		phoneCam.openCameraDevice();
+
 	}
 
 	@Override

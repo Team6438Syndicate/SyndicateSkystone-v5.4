@@ -381,7 +381,7 @@ public class elevatorThread implements Runnable
 
     public void elevatorStart()
     {
-        move(resolveAutonMovement(-2500, 0));
+        move(resolveAutonMovement(-2200, 0));
         while (lift.isBusy())
         {
 
@@ -392,7 +392,7 @@ public class elevatorThread implements Runnable
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        move(resolveAutonMovement(2500, 0));
+        move(resolveAutonMovement(2200, 0));
         while (lift.isBusy())
         {
 

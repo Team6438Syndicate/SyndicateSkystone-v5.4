@@ -72,12 +72,13 @@ public class Team6438AutonomousRed extends RobotMovements {
 
         //init the hardware
         initRobot(hardwareMap);
+
+
         //Telemetry
         telemetry.addData("Hardware Status:", "Mapped");
         telemetry.update();
 
         //Reversing any motors that need to be reversed
-
 
         //Set zero power behavior
         robot.FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -90,33 +91,37 @@ public class Team6438AutonomousRed extends RobotMovements {
         robot.BL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.BR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // ArmControlThread armControlThread = new ArmControlThread(robot.shoulderMotor, robot.elbowServoLeft, robot.elbowServoRight, robot.clamp, robot.wrist, robot.sensorFront, 10,10);
-
         ElapsedTime time = new ElapsedTime();
 
         Telemetry telemetry = new Telemetry(this,robot,10, false);
 
-        //filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
+        filewriterThread fileWriter = new filewriterThread(time, this.getClass().getSimpleName());
 
-        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.rulerMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, null);
+        elevatorThread elevatorAutonThread = new elevatorThread(robot.liftMotor, robot.tensionMotor, robot.rulerMotor, robot.clampL, robot.clampR, robot.capstone, 1, 0, 30000, 30000, 20, 20, robot.sensorFront, fileWriter);
 
+        //RobotMovements.Locations skystonePosition = detectUsingBlueJay(false);
 
-        drivingThread simpleDriveThread = new drivingThread(this,hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,null,elevatorAutonThread,telemetry,false,false,true,true, true, Locations.Close);
+        drivingThread simpleDriveThread = new drivingThread(this,hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread,telemetry,true,false,true,true,true,Locations.Close);
+
+        Thread a = new Thread(simpleDriveThread);
+        a.start();
+
+        waitForStart();
+
 
         /**
          * Creates and starts the drive, elevator, and telemetry threads
          */
 
-        Thread a = new Thread(simpleDriveThread);
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
         //Thread d = new Thread(fileWriter);
 
-        a.start();
         b.start();
         c.start();
         //d.start();
 
+        simpleDriveThread.stopScan();
 
         while (!isStopRequested())
         {
@@ -139,6 +144,8 @@ public class Team6438AutonomousRed extends RobotMovements {
 
             requestOpModeStop();
             stop();
+
+
         }
         simpleDriveThread.doStop();
         elevatorAutonThread.doStop();
@@ -151,5 +158,5 @@ public class Team6438AutonomousRed extends RobotMovements {
         //d.interrupt();
     }
 
-
 }
+

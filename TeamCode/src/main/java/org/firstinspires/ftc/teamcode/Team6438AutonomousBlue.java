@@ -17,6 +17,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -105,23 +106,25 @@ public class Team6438AutonomousBlue extends RobotMovements {
 
         drivingThread simpleDriveThread = new drivingThread(this,hardwareMap,robot, robot.sensorFront,robot.FL, robot.FR, robot.BL, robot.BR,10,3.0,1.0+1.0/8.0,fileWriter,elevatorAutonThread,telemetry,false,false,true,true,true,Locations.Close);
 
+        Thread a = new Thread(simpleDriveThread);
+        a.start();
+
         waitForStart();
+
 
         /**
          * Creates and starts the drive, elevator, and telemetry threads
          */
 
-        Thread a = new Thread(simpleDriveThread);
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
         //Thread d = new Thread(fileWriter);
 
-        a.start();
         b.start();
         c.start();
         //d.start();
 
-
+        simpleDriveThread.stopScan();
 
         while (!isStopRequested())
         {
@@ -144,6 +147,7 @@ public class Team6438AutonomousBlue extends RobotMovements {
 
             requestOpModeStop();
             stop();
+
 
         }
         simpleDriveThread.doStop();
