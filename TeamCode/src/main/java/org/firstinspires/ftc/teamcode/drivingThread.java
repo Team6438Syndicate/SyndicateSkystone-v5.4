@@ -374,12 +374,12 @@ public class drivingThread implements Runnable {
 
                                 if (!isRed)
                                 {
-                                    if (detection.y < fieldElementDetector.getWidth()/3.0)
+                                    if (detection.y < fieldElementDetector.getWidth()*2/5.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Far;
                                         telemetry.print("Far");
                                     }
-                                    else if (detection.y > fieldElementDetector.getWidth()*2/3.0)
+                                    else if (detection.y > fieldElementDetector.getWidth()*4/5.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Close;
                                         telemetry.print("Close");
@@ -1142,7 +1142,7 @@ public class drivingThread implements Runnable {
             }
             case 8:
             {
-                while(distanceTo()>50)
+                while(frontSensor.getDistance(DistanceUnit.MM)>50)
                 {
                     motor1.setPower(0.5);
                     motor2.setPower(0.5);
@@ -1150,7 +1150,7 @@ public class drivingThread implements Runnable {
                     motor4.setPower(0.5);
                 }
 
-                if(distanceTo()<50)
+                if(frontSensor.getDistance(DistanceUnit.MM)<50)
                 {
                     motor1.setPower(0);
                     motor2.setPower(0);
