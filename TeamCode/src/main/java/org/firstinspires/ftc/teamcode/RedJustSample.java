@@ -102,7 +102,7 @@ public class RedJustSample extends RobotMovements {
 
         RobotMovements.Locations skystonePosition = detectUsingBlueJay(false);
 
-        drivingThread simpleDriveThread = new drivingThread(hardwareMap, robot, robot.sensorFront, robot.FL, robot.FR, robot.BL, robot.BR, 10, 3.0, 1.0 + 1.0 / 8.0, fileWriter, elevatorAutonThread, telemetry, true, false, true, true, true,skystonePosition);
+        drivingThread simpleDriveThread = new drivingThread(this,hardwareMap, robot, robot.sensorFront, robot.FL, robot.FR, robot.BL, robot.BR, 10, 3.0, 1.0 + 1.0 / 8.0, fileWriter, elevatorAutonThread, telemetry, true, false, true, true, true,skystonePosition);
 
         waitForStart();
 

@@ -17,6 +17,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -86,6 +87,7 @@ public class drivingThread implements Runnable {
     private int counter = 0;
     private boolean firstLoop = true;     //Holds the value of whether or not the foundation is in the spot where it should be
     private boolean isRed = false;
+    private OpMode opmode;
     private boolean foundationMoveRequest;
     private boolean onlyFoundation;
     private boolean runOpenCV;
@@ -125,8 +127,9 @@ public class drivingThread implements Runnable {
         this.gamepad = gamepad;
     }
 
-    drivingThread(final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, Rev2mDistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV, RobotMovements.Locations skystonePosition)
+    drivingThread(final OpMode opmode, final HardwareMap hardwareMap, @NotNull Team6438ChassisHardwareMapCurrent robot, Rev2mDistanceSensor sensorFront, @NotNull DcMotor motor1, @NotNull DcMotor motor2, @NotNull DcMotor motor3, @NotNull DcMotor motor4, int mills, double scaleUp, double scaleDown, filewriterThread fileWriter, elevatorThread elevatorThread, org.firstinspires.ftc.teamcode.odometry.Telemetry telemetry, boolean redCheck, boolean foundationMoveRequest, boolean abortAfterFoundation, boolean doubleSample, boolean runOpenCV, RobotMovements.Locations skystonePosition)
     {
+        this.opmode = opmode;
         this.foundationMoveRequest = foundationMoveRequest;
         this.hardwareMap = hardwareMap;
 
@@ -203,7 +206,75 @@ public class drivingThread implements Runnable {
             fieldElementDetector.start();
              */
         }
+        fieldElementDetector = new OpenCvDetector(opmode,true,hardwareMap);
+        fieldElementDetector.start();
+        Pipeline.doSkyStones = true;
+        Pipeline.doStones = false;
+        Pipeline.doFoundations = false;
+        boolean test = false;
+        while(!test)
+        {
+            skyStones = fieldElementDetector.getSkyStones();
 
+            for (SkyStone detection : skyStones)
+            {
+
+                if (detection != null)
+                {
+                    if (detection.x < 525)
+                    {
+                        if (!isRed)
+                        {
+                            if (detection.y < fieldElementDetector.getHeight()/3.0)
+                            {
+
+                                skystonePosition = RobotMovements.Locations.Close;
+                                test = true;
+
+                            }
+                            else if (detection.y > fieldElementDetector.getHeight()*2/3.0)
+                            {
+                                skystonePosition = RobotMovements.Locations.Far;
+                                test = true;
+
+                            }
+                            else
+                            {
+                                skystonePosition = RobotMovements.Locations.Center;
+                                test = true;
+
+                            }
+                        }
+                        else
+                        {
+                            if (detection.y < fieldElementDetector.getHeight()/3.0)
+                            {
+                                skystonePosition = RobotMovements.Locations.Close;
+                                test = true;
+
+                            }
+                            else if (detection.y > fieldElementDetector.getHeight()*2/3.0)
+                            {
+                                skystonePosition = RobotMovements.Locations.Far;
+                                test = true;
+
+                            }
+                            else
+                            {
+                                skystonePosition =  RobotMovements.Locations.Center;
+                                test = true;
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            break;
+        }
+        this.skystonePosition = skystonePosition;
+        fieldElementDetector.end();
         this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
 
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -299,7 +370,6 @@ public class drivingThread implements Runnable {
     {
         if (!userControllable)
         {
-            //fileWriter.write("Driving Thread Stopped");
         }
 
         this.doStop = true;
@@ -664,18 +734,16 @@ public class drivingThread implements Runnable {
                 //Autonomous stuff
                 else
                 {
-                    if (!foundationMoveRequest)
-                    {
-                        elevatorThread.elevatorStart();
-                    }
-
                     //fileWriter.write("Auton Started");
-                    telemetry.print("firstLoop = " + firstLoop);
+                    telemetry.append("firstLoop = " + firstLoop);
+
+
+
+
+                    telemetry.append( (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy()) + "");
+
 
                     telemetry.update();
-
-
-
 
                     if (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy())
                     {
@@ -686,9 +754,9 @@ public class drivingThread implements Runnable {
 
 
                         //executeAction(counter);
-                        autonomousControl(counter);
+                        autonomousControl(this.counter);
                         firstLoop = false;
-                        counter++;
+                        this.counter++;
 
                         distanceFrontLeft = 0;
                         distanceFrontRight = 0;
@@ -750,13 +818,15 @@ public class drivingThread implements Runnable {
     }
      */
 
-    private void autonomousControl(final int counter)
+    private void autonomousControl(int counter)
     {
         switch (counter)
         {
             case 0:
             {
-                telemetry.speak("Autonomous started");
+                elevatorThread.elevatorStart();
+                telemetry.print("Autonomous started");
+                break;
             }
 
             case 1:
@@ -766,28 +836,29 @@ public class drivingThread implements Runnable {
 
                 //correctedDrive(distanceUnit.toMm(4), .8);
 
-                    switch (skystonePosition)
+                switch (skystonePosition)
+                {
+                    case Close:
                     {
-                        case Close:
-                        {
-                            // TODO: 2/27/2020 5 inches
-                            distance = -5;
-                            break;
-                        }
-                        case Center:
-                        {
-                            distance = 8;
-                            break;
-                        }
-                        case Far:
-                        {
-                            distance = 21;
-                            break;
-                        }
+                        // TODO: 2/27/2020 5 inches
+                        distance = -5;
+                        break;
                     }
+                    case Center:
+                    {
+                        distance = 8;
+                        break;
+                    }
+                    case Far:
+                    {
+                        distance = 21;
+                        break;
+                    }
+                }
 
+                lockDrive(distanceUnit.toMm(10),1);
                 lockStrafe(distanceUnit.toMm(distance),1);  //correctedStrafe(distanceUnit.toMm(distance),1);
-                lockDrive(distanceUnit.toMm(20),1); //correctedDrive(distanceUnit.toMm(20),1);
+                lockDrive(distanceUnit.toMm(10),1); //correctedDrive(distanceUnit.toMm(20),1);
                 elevatorThread.closeClamp();
                 try
                 {
@@ -814,14 +885,14 @@ public class drivingThread implements Runnable {
                     turn(-PI/2.0,.7);   //correctedTurn(-PI/2.0,1,false);
                     lockDrive(distanceUnit.toMm(55),1.0);  //correctedDrive(distanceUnit.toMm(55),1.0);
                     elevatorThread.openClamp();
-
+                    break;
                 }
 
             case 3:
                 {
                     lockDrive(distanceUnit.toMm(-70),1.0); //correctedDrive(distanceUnit.toMm(-70),1.0);
                     turn(PI/2.0, 0.7);    //correctedTurn(PI/2.0,1,false);
-
+                    break;
                 }
             case 4:
             {
@@ -848,6 +919,11 @@ public class drivingThread implements Runnable {
                         distance = 26;
                         break;
                     }
+                    default:
+                    {
+                        telemetry.speak("NOTHING");
+                    }
+
                 }
 
                 lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
@@ -934,17 +1010,20 @@ public class drivingThread implements Runnable {
                 }
                 correctedStrafe(distanceUnit.toMm(-50), 0.5);
                 autonomousControl(9);
+                break;
 
             }
             case 8:
             {
                 correctedDrive(-50,1.0);
                 correctedTurn(PI,1.0,false);
+                break;
             }
             case 9:
             {
                 elevatorThread.rulerPark();
                 this.counter = 100000;
+                break;
             }
 
             default:
@@ -1545,6 +1624,11 @@ public class drivingThread implements Runnable {
 
         }
 
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -1600,6 +1684,12 @@ public class drivingThread implements Runnable {
             System.out.println("here");
         }
 
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -1624,7 +1714,11 @@ public class drivingThread implements Runnable {
             System.out.println("here");
         }
 
-
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

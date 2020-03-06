@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.apache.commons.math3.util.FastMath;
+import org.firstinspires.ftc.robotcore.internal.opengl.TextResourceReader;
 import org.firstinspires.ftc.teamcode.odometry.Telemetry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -318,19 +319,7 @@ public class elevatorThread implements Runnable
     //Start the lift to get the grippers out
     private void startLift()
     {
-        move(resolveAutonMovement(15, 0));
 
-        closeClamp();
-        try
-        {
-            Thread.sleep(250);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        move(resolveAutonMovement(-15, 0));
-
-        //Reset the encoder to prevent anomalies elsewhere
-        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
 
@@ -381,8 +370,6 @@ public class elevatorThread implements Runnable
             movementDistance.setTicksForTension(-convertDistanceToTicks(inchDistance,MotorType.tension));
         }
 
-
-
         return movementDistance;
     }
 
@@ -395,16 +382,21 @@ public class elevatorThread implements Runnable
     public void elevatorStart()
     {
         move(resolveAutonMovement(-2500, 0));
-        while (FastMath.abs(lift.getCurrentPosition() + 2500) > 50)
+        while (lift.isBusy())
         {
 
         }
         openClamp();
-        while (FastMath.abs(lift.getCurrentPosition()) > 50)
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        move(resolveAutonMovement(2500, 0));
+        while (lift.isBusy())
         {
 
         }
-        move(resolveAutonMovement(2500, 0));
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         move(resolveAutonMovement(0, 0));
     }

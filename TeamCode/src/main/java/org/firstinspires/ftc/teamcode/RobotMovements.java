@@ -102,13 +102,14 @@ public abstract class RobotMovements extends LinearOpMode
 
         return webcam;
     }
+    OpenCvDetector fieldElementDetector;
 
     public Locations detectUsingBlueJay(boolean isRed)
     {
         try
         {
             //initRobot(hardwareMap,true);
-            OpenCvDetector fieldElementDetector = new OpenCvDetector(this,true,hardwareMap);
+            fieldElementDetector = new OpenCvDetector(true,hardwareMap);
             fieldElementDetector.start();
 
             Pipeline.doSkyStones = true;
@@ -121,16 +122,13 @@ public abstract class RobotMovements extends LinearOpMode
             //Stone[] stones = fieldElementDetector.getStones();
             //Foundation[] foundations = fieldElementDetector.getFoundations();
 
-            while (!isStarted())
+            while (true)
             {
                 skyStones = fieldElementDetector.getSkyStones();
 
                 for (SkyStone detection : skyStones)
                 {
-                    if (isStarted())    //To quickly quit out of the loop if the OpMode is started
-                    {
-                        break;
-                    }
+
                     if (detection != null)
                     {
                         if (detection.x < 525)
@@ -169,7 +167,7 @@ public abstract class RobotMovements extends LinearOpMode
                                 else
                                 {
                                     telemetry.addData("Stone is in the center", "");
-                                    return Locations.Center;
+                                    skystoneLocation =  Locations.Center;
                                 }
                                 telemetry.update();
                             }
@@ -177,6 +175,7 @@ public abstract class RobotMovements extends LinearOpMode
                     }
 
                 }
+                break;
             }
 
             fieldElementDetector.stop();
