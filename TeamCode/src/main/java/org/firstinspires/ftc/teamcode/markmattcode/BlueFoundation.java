@@ -55,6 +55,7 @@ public class BlueFoundation extends LinearOpMode
             ////Strafe Left
             strafe(true, 18);
 
+            //Move the servos ready to engage
             midFoundation();
 
             //Go backward to right before foundation
