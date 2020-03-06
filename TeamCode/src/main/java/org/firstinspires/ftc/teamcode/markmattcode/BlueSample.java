@@ -147,10 +147,10 @@ public class BlueSample extends LinearOpMode
     private void encoderFB(int inches)
     {
         //position
-        robot.FL.setTargetPosition(robot.CPI*inches);
-        robot.FR.setTargetPosition(robot.CPI*inches);
-        robot.BL.setTargetPosition(robot.CPI*inches);
-        robot.BR.setTargetPosition(robot.CPI*inches);
+        robot.FL.setTargetPosition(robot.driveCPI*inches);
+        robot.FR.setTargetPosition(robot.driveCPI*inches);
+        robot.BL.setTargetPosition(robot.driveCPI*inches);
+        robot.BR.setTargetPosition(robot.driveCPI*inches);
 
         //power
         robot.FL.setPower(straightDrivePower);
@@ -184,17 +184,17 @@ public class BlueSample extends LinearOpMode
     {
         if(left)
         {
-            robot.FL.setTargetPosition(inches*robot.CPI);
-            robot.FR.setTargetPosition(-inches*robot.CPI);
-            robot.BL.setTargetPosition(inches*robot.CPI);
-            robot.BR.setTargetPosition(-inches*robot.CPI);
+            robot.FL.setTargetPosition(inches*robot.driveCPI);
+            robot.FR.setTargetPosition(-inches*robot.driveCPI);
+            robot.BL.setTargetPosition(inches*robot.driveCPI);
+            robot.BR.setTargetPosition(-inches*robot.driveCPI);
         }
         else
         {
-            robot.FL.setTargetPosition(-inches*robot.CPI);
-            robot.FR.setTargetPosition(inches*robot.CPI);
-            robot.BL.setTargetPosition(-inches*robot.CPI);
-            robot.BR.setTargetPosition(inches*robot.CPI);
+            robot.FL.setTargetPosition(-inches*robot.driveCPI);
+            robot.FR.setTargetPosition(inches*robot.driveCPI);
+            robot.BL.setTargetPosition(-inches*robot.driveCPI);
+            robot.BR.setTargetPosition(inches*robot.driveCPI);
         }
     }
 }

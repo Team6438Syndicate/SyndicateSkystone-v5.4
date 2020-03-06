@@ -87,7 +87,7 @@ public class SimplifiedHardwareMap
     public WebcamName camera = null;
 
     //Sensor Mapping
-    public Rev2mDistanceSensor sensorFront;
+    public Rev2mDistanceSensor frontSensor;
     public BNO055IMU imu = null;
 
     /**
@@ -121,6 +121,13 @@ public class SimplifiedHardwareMap
         //camera = ahwMap.get(WebcamName.class, "Webcam 1");
 
         //------------------------------------------------------------------------------------------
+
+
+        //Imu
+        imu = ahwMap.get(BNO055IMU.class, "imu");
+
+        frontSensor = ahwMap.get(Rev2mDistanceSensor.class, "sensorFront");
+
         // Define and initialize ALL installed sensors.
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -130,10 +137,7 @@ public class SimplifiedHardwareMap
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
 
-        //Imu
-        imu = ahwMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        sensorFront = ahwMap.get(Rev2mDistanceSensor.class, "sensorFront");
 
         //------------------------------------------------------------------------------------------
         //Hardware moves

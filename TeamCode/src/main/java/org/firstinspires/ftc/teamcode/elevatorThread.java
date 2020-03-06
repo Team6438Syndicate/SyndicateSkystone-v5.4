@@ -265,11 +265,11 @@ public class elevatorThread implements Runnable
                         towerCount = 0;
                     }
 
-                    if (gamepad.y && robot.foundationR.getPosition() == .9)
+                    if (gamepad.b)
                     {
                         grabFoundation();
                     }
-                    else if (gamepad.y && robot.foundationR.getPosition() != .9)
+                    else if (gamepad.y)
                     {
                         midFoundation();
                     }
