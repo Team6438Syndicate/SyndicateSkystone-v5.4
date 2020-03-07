@@ -17,6 +17,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -55,7 +56,7 @@ import org.openftc.easyopencv.OpenCvCamera;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-
+@Disabled
 @Autonomous(name = "Blue Foundation", group = "Autonomous")
 public class foundationBlue extends RobotMovements {
 
