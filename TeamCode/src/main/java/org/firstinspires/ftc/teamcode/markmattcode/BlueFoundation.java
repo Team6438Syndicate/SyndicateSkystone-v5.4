@@ -85,8 +85,8 @@ public class BlueFoundation extends LinearOpMode
             encoderFB(-18, .25);
 
             //Turn
-            encoderTurn(true, 105, .25);
-            strafe(false, 12,1);
+            encoderTurn(true, 103, .25);
+            strafe(false, 15,1);
 
             encoderFB(8, .25);
 
