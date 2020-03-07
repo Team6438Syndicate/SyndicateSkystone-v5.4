@@ -223,7 +223,7 @@ public class elevatorThread implements Runnable
     {
         if(!userControlable)
         {
-            startLift();
+           // startLift();
         }
         while (keepRunning())
         {
