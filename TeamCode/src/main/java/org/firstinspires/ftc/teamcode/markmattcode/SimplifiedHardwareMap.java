@@ -46,10 +46,10 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 public class SimplifiedHardwareMap
 {
     //Vuforia Variables
-    static final String VUFORIA_KEY = "ATEEWHn/////AAABmXzvuqxXZkYkr3AeTQT4Qg0P3tudpoBP/Rp2Xyw3zNlZYk+ZI5Jp/yo8TDf62o+UjdBvoe0LP5nNDqFESCtSImOG2WRuMkoESAyhSVzMU0hY53dWb4l0s7mCe+xqqT8i0r9pPdav7N7RiGHG7WYoIBXrQeyz+NEq8TLYTTCXmZMFgPeEU30Nb+t4JikoNMr0X0Ej6y1vG+7EX3O9KI8RXoPYbBmPzvX5uVvWBNg2J0g0SBiZUXa8pQOCxi0QyHyNUiwvV5WKnM2jncg+eI7im5s+k4yn6Xjaeecg6q9IT45YNvbhV4PM/LbwGQTKBf0AOCM/qL7tz7evypWw5uK15BayqAitBLy7Sr0SvIjYMjPg";
-    static final double     COUNTS_PER_MOTOR_REV_DRIVE    = 383.6 ;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    public static final String VUFORIA_KEY = "ATEEWHn/////AAABmXzvuqxXZkYkr3AeTQT4Qg0P3tudpoBP/Rp2Xyw3zNlZYk+ZI5Jp/yo8TDf62o+UjdBvoe0LP5nNDqFESCtSImOG2WRuMkoESAyhSVzMU0hY53dWb4l0s7mCe+xqqT8i0r9pPdav7N7RiGHG7WYoIBXrQeyz+NEq8TLYTTCXmZMFgPeEU30Nb+t4JikoNMr0X0Ej6y1vG+7EX3O9KI8RXoPYbBmPzvX5uVvWBNg2J0g0SBiZUXa8pQOCxi0QyHyNUiwvV5WKnM2jncg+eI7im5s+k4yn6Xjaeecg6q9IT45YNvbhV4PM/LbwGQTKBf0AOCM/qL7tz7evypWw5uK15BayqAitBLy7Sr0SvIjYMjPg";
+    public static final double     COUNTS_PER_MOTOR_REV_DRIVE    = 383.6 ;    // eg: TETRIX Motor Encoder
+    public static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
+    public static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     public final int        driveCPI        =         (int) ((COUNTS_PER_MOTOR_REV_DRIVE * DRIVE_GEAR_REDUCTION) /
                                                             (WHEEL_DIAMETER_INCHES * FastMath.PI));
     //-------------------------------
@@ -57,13 +57,13 @@ public class SimplifiedHardwareMap
     static final double COUNTS_PER_MOTOR_LIFT = 753.2;
     static final double DGR_LIFT = 1.0;
     static final double PulleyDiamIN = 1.258;
-    static final int SlideCPI = (int) ((COUNTS_PER_MOTOR_LIFT * DGR_LIFT) / (PulleyDiamIN * FastMath.PI));
+    public static final int SlideCPI = (int) ((COUNTS_PER_MOTOR_LIFT * DGR_LIFT) / (PulleyDiamIN * FastMath.PI));
 
     //------
     static final double countsRulerMotor = 145.6;
     static final double DGR_Ruler = 1;
     static final double RulerWheelDiam = 2;
-    static final int rulerCPI = (int) ((countsRulerMotor * DGR_Ruler) / (RulerWheelDiam * FastMath.PI));
+    public static final int rulerCPI = (int) ((countsRulerMotor * DGR_Ruler) / (RulerWheelDiam * FastMath.PI));
 
     //Motor  Declaration
     public DcMotor FL = null;
@@ -91,7 +91,7 @@ public class SimplifiedHardwareMap
     /**
      * Method to initialize standard Hardware interfaces
      **/
-    void init(HardwareMap ahwMap) {
+   public void init(HardwareMap ahwMap) {
         // Save reference to Hardware map
 
         //------------------------------------------------------------------------------------------
