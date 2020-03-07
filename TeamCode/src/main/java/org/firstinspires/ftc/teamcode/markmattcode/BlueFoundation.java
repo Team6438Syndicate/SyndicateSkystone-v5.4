@@ -76,7 +76,7 @@ public class BlueFoundation extends LinearOpMode
             grabFoundation();
 
             //Head forward a little to ensure full engagement
-            encoderFB(2, .25);
+            encoderFB(3, .25);
 
             //Strafe
             strafe(true, 12,.25);
