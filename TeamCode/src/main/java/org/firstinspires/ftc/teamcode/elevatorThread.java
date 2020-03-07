@@ -295,6 +295,7 @@ public class elevatorThread implements Runnable
 
                     halfSpeed = gamepad.b;
                     MovementDistance tempStorage = resolveUserControl();
+
                     move(tempStorage);
 
                     checkBounds();
@@ -321,7 +322,27 @@ public class elevatorThread implements Runnable
     {
 
     }
+    void move(MovementDistance movementDistance, double power)
+    {
+        if(movementDistance.getTicksForLift() == 0 && movementDistance.getTicksForTension() == 0)
+        {
+            return;
+        }
+        int liftHeight = movementDistance.getTicksForLift();
+        // int tensionRotation = movementDistance.getTicksForTension();
 
+        liftHeight = lift.getTargetPosition() + liftHeight;
+        //tensionRotation = tension.getCurrentPosition() + tensionRotation;
+
+
+        lift.setTargetPosition(liftHeight);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        if(!userControlable)
+        {
+            lift.setPower(power);
+        }
+    }
 
     void move(MovementDistance movementDistance)
     {
@@ -392,7 +413,7 @@ public class elevatorThread implements Runnable
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        move(resolveAutonMovement(2200, 0));
+        move(resolveAutonMovement(2200, 0), 0.2);
         while (lift.isBusy())
         {
 
