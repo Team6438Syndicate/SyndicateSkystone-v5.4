@@ -891,13 +891,14 @@ public class drivingThread implements Runnable {
                 {
                     e.printStackTrace();
                 }
+                lockDrive(distanceUnit.toMm(2),1);
 
                 elevatorThread.closeClamp();
 
 
                 try
                 {
-                    Thread.sleep(750);
+                    Thread.sleep(250);
                 }
 
                catch (InterruptedException e)
@@ -921,14 +922,14 @@ public class drivingThread implements Runnable {
             case 2:
                 {
                     turn(-PI/2.0,.7);   //correctedTurn(-PI/2.0,1,false);
-                    lockDrive(distanceUnit.toMm(53),1.0);  //correctedDrive(distanceUnit.toMm(55),1.0);
+                    lockDrive(distanceUnit.toMm(45),1.0);  //correctedDrive(distanceUnit.toMm(55),1.0);
                     elevatorThread.openClamp();
                     break;
                 }
 
             case 3:
                 {
-                    lockDrive(distanceUnit.toMm(-57),1.0); //correctedDrive(distanceUnit.toMm(-70),1.0);
+                    lockDrive(distanceUnit.toMm(-45),1.0); //correctedDrive(distanceUnit.toMm(-70),1.0);
                     turn(PI/2.0, 0.7);    //correctedTurn(PI/2.0,1,false);
                     break;
                 }
@@ -945,23 +946,20 @@ public class drivingThread implements Runnable {
                     default:
                     {
                         // TODO: 2/27/2020 5 inches
-                        distance = -5;
+                        distance = 0;
                         lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
 
                         break;
                     }
                     case Center:
+                    case Far:
                     {
-                        distance = -11.5;
+                        distance = -19.5;
                         lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
 
                         break;
                     }
-                    case Far:
-                    {
-                        turn(PI/6.0,1);
-                        break;
-                    }
+
 
 
                 }
@@ -1036,7 +1034,7 @@ public class drivingThread implements Runnable {
                     {
                         turn(-PI/2.0,.7); //correctedTurn(-PI/2.0,1,false);
                     }
-                lockDrive(distanceUnit.toMm(65),1.0);    //correctedDrive(distanceUnit.toMm(70),1.0);
+                lockDrive(distanceUnit.toMm(60),1.0);    //correctedDrive(distanceUnit.toMm(70),1.0);
                 elevatorThread.openClamp();
 
                 break;

@@ -553,10 +553,11 @@ public class elevatorThread implements Runnable
         lclamp.setPosition(0.25);
         rclamp.setPosition(0.75);
     }
-    synchronized void autonCloseClamp()
+
+    synchronized void gentleCloseClamp()
     {
         lclamp.setPosition(0.3);
-        rclamp.setPosition(0.6);
+        rclamp.setPosition(0.7);
     }
 
 

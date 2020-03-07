@@ -116,7 +116,6 @@ public class Team6438AutonomousBlue extends RobotMovements {
          * Creates and starts the drive, elevator, and telemetry threads
          */
         simpleDriveThread.stopScan();
-        notifyAll();
 
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
