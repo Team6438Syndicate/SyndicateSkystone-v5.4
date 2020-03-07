@@ -394,13 +394,13 @@ public class drivingThread implements Runnable {
                                 else
                                 {
                                     telemetry.print("In else");
-                                    if (detection.y < fieldElementDetector.getWidth()/3.0)
+                                    if (detection.y < fieldElementDetector.getWidth()*2/5.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Close;
                                         telemetry.print("Close");
 
                                     }
-                                    else if (detection.y > fieldElementDetector.getWidth()*2/3.0)
+                                    else if (detection.y > fieldElementDetector.getWidth()*4/5.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Far;
                                         telemetry.print("Far");
