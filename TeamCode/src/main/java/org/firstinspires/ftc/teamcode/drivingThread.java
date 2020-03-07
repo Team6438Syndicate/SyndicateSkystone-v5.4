@@ -156,7 +156,6 @@ public class drivingThread implements Runnable {
         this.telemetry = telemetry;
         this.abortAfterFoundation = abortAfterFoundation;
         this.doubleSample = doubleSample;
-        this.foundationMoveRequest = foundationMoveRequest;
 
         this.userControllable = false;
 
@@ -394,13 +393,13 @@ public class drivingThread implements Runnable {
                                 else
                                 {
                                     telemetry.print("In else");
-                                    if (detection.y < fieldElementDetector.getWidth()*2/5.0)
+                                    if (detection.y < fieldElementDetector.getWidth()*1/3.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Close;
                                         telemetry.print("Close");
 
                                     }
-                                    else if (detection.y > fieldElementDetector.getWidth()*4/5.0)
+                                    else if (detection.y > fieldElementDetector.getWidth()*1/2.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Far;
                                         telemetry.print("Far");
@@ -752,20 +751,14 @@ public class drivingThread implements Runnable {
                 else
                 {
                     //fileWriter.write("Auton Started");
-                    telemetry.append("firstLoop = " + firstLoop);
 
 
-                    telemetry.append( (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy()) + "");
 
 
-                    telemetry.update();
 
                     if (! motor1.isBusy() && ! motor2.isBusy() && ! motor3.isBusy() && ! motor4.isBusy())
                     {
-                        telemetry.append("In execute loop");
-                        telemetry.update();
 
-                        telemetry.append("" + counter);
 
 
                         //executeAction(counter);
@@ -780,7 +773,6 @@ public class drivingThread implements Runnable {
                     }
 
 
-                    telemetry.print("Action " + (counter - 1) + " complete");
                     //fileWriter.write("Action " + (counter - 1) + " complete");
                 }
             }
@@ -788,7 +780,6 @@ public class drivingThread implements Runnable {
         catch (Exception e)
         {
             //fileWriter.write("Error occured in DrivingThread:\n" + Arrays.toString(e.getStackTrace()));
-            telemetry.print(Arrays.toString(e.getStackTrace()));
         }
     }
 

@@ -115,6 +115,7 @@ public class Team6438AutonomousBlue extends RobotMovements {
         /**
          * Creates and starts the drive, elevator, and telemetry threads
          */
+        simpleDriveThread.stopScan();
 
         Thread b = new Thread(elevatorAutonThread);
         Thread c = new Thread(telemetry);
@@ -124,7 +125,6 @@ public class Team6438AutonomousBlue extends RobotMovements {
         c.start();
         //d.start();
 
-        simpleDriveThread.stopScan();
 
         while (!isStopRequested())
         {
