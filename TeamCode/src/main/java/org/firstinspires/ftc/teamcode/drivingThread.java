@@ -212,7 +212,7 @@ public class drivingThread implements Runnable {
         Pipeline.doStones = false;
         Pipeline.doFoundations = false;
 
-        this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
+        //this.robot.imu.startAccelerationIntegration(new Position(), new Velocity(), mills);
 
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -970,7 +970,7 @@ public class drivingThread implements Runnable {
                 elevatorThread.closeClamp();
                 try
                 {
-                    Thread.sleep(750);
+                    Thread.sleep(250);
                 }
 
                 catch (InterruptedException e)
@@ -986,6 +986,7 @@ public class drivingThread implements Runnable {
                 {
                     e.printStackTrace();
                 }
+                lockDrive(distanceUnit.toMm(2),1);
                 elevatorThread.closeClamp();
                 try
                 {
@@ -995,9 +996,9 @@ public class drivingThread implements Runnable {
                     e.printStackTrace();
                 }
 
-                lockDrive(distanceUnit.toMm(-10),1);    //correctedDrive(distanceUnit.toMm(-10),1);
+                lockDrive(distanceUnit.toMm(-12),1);    //correctedDrive(distanceUnit.toMm(-10),1);
 
-                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
+                elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0),.2);
                 try
                 {
                     Thread.sleep(750);
@@ -1052,7 +1053,7 @@ public class drivingThread implements Runnable {
             }
             case 999:
             {
-                //foundation movement
+                //foundation
                 correctedDrive(distanceUnit.toMm(- 6), 0.5);
                 elevatorThread.elevatorStart();
 
