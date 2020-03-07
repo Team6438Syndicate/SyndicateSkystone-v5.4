@@ -374,12 +374,12 @@ public class drivingThread implements Runnable {
 
                                 if (!isRed)
                                 {
-                                    if (detection.y < fieldElementDetector.getWidth()*2/5.0)
+                                    if (detection.y < fieldElementDetector.getWidth()*1/3.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Far;
                                         telemetry.print("Far");
                                     }
-                                    else if (detection.y > fieldElementDetector.getWidth()*4/5.0)
+                                    else if (detection.y > fieldElementDetector.getWidth()*1/2.0)
                                     {
                                         this.skystonePosition = RobotMovements.Locations.Close;
                                         telemetry.print("Close");
@@ -856,7 +856,7 @@ public class drivingThread implements Runnable {
                     case Close:
                     default:
                     {
-                        distance = 5;
+                        distance = 6.5;
                         break;
                     }
                     case Center:
@@ -874,12 +874,43 @@ public class drivingThread implements Runnable {
 
                 lockDrive(distanceUnit.toMm(10),1);
                 lockStrafe(distanceUnit.toMm(distance),1);  //correctedStrafe(distanceUnit.toMm(distance),1);
+
                 lockDrive(distanceUnit.toMm(20),1); //correctedDrive(distanceUnit.toMm(20),1);
+
+
+                    elevatorThread.closeClamp();
+                try
+                {
+                    Thread.sleep(250);
+                }
+
+                catch (InterruptedException e)
+
+                {
+                    e.printStackTrace();
+                }
+                elevatorThread.openClamp();
+                try
+                {
+                    Thread.sleep(250);
+                }
+
+                catch (InterruptedException e)
+
+                {
+                    e.printStackTrace();
+                }
+
                 elevatorThread.closeClamp();
+
+
                 try
                 {
                     Thread.sleep(750);
-                } catch (InterruptedException e)
+                }
+
+               catch (InterruptedException e)
+
                 {
                     e.printStackTrace();
                 }
@@ -923,7 +954,7 @@ public class drivingThread implements Runnable {
                     default:
                     {
                         // TODO: 2/27/2020 5 inches
-                        distance = 5;
+                        distance = -5;
                         lockStrafe(distanceUnit.toMm(distance),1);    //correctedStrafe(distanceUnit.toMm(distance),1);
 
                         break;
@@ -949,10 +980,30 @@ public class drivingThread implements Runnable {
                 try
                 {
                     Thread.sleep(750);
+                }
+
+                catch (InterruptedException e)
+
+                {
+                    e.printStackTrace();
+                }
+                elevatorThread.openClamp();
+                try
+                {
+                    Thread.sleep(250);
                 } catch (InterruptedException e)
                 {
                     e.printStackTrace();
                 }
+                elevatorThread.closeClamp();
+                try
+                {
+                    Thread.sleep(250);
+                } catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+
                 lockDrive(distanceUnit.toMm(-10),1);    //correctedDrive(distanceUnit.toMm(-10),1);
 
                 elevatorThread.move(elevatorThread.resolveAutonMovement(200, 0));
@@ -1003,7 +1054,7 @@ public class drivingThread implements Runnable {
             {
                 if (!foundationMoveRequest)
                 {
-                    lockDrive(distanceUnit.toMm(-6),1);
+                    lockDrive(distanceUnit.toMm(-10),1);
                     this.counter = 100000;
                 }
                 break;
