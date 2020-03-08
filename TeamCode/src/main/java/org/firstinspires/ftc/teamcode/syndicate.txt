@@ -9,3 +9,5 @@ Hello you have been hacked by crazy Russian Hacker
 
 
 This is the 5.4 Git, currently you are in the NoOPENCV Branch meaning tensorflow is the computer vision version.
+
+Sign off commit - 2019 - 2020 Season is over.
