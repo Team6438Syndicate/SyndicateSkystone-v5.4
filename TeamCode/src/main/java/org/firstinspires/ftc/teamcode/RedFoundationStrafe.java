@@ -252,7 +252,7 @@ public class RedFoundationStrafe extends LinearOpMode
 
     private void elevatorStart(double inches, double upPower, double downPower)
     {
-        robot.liftMotor.setTargetPosition((int)inches*robot.SlideCPI);
+        robot.liftMotor.setTargetPosition((int) ((int)inches*robot.CPILift));
         robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.liftMotor.setPower(upPower);
         while(Math.abs(robot.liftMotor.getCurrentPosition() - robot.liftMotor.getTargetPosition()) > 50)

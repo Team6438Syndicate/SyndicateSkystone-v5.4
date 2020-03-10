@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import static android.os.SystemClock.sleep;
 
-@Disabled
+//@Disabled
 @TeleOp(name = "Mark and Matt TeleOp", group = "test")
 public class MattMarkTeleOp extends OpMode
 {
@@ -26,6 +26,7 @@ public class MattMarkTeleOp extends OpMode
     int ticksPerBlock = 100;            // need tweaking
     int triggerStrafeFactor = 100;
     int maxPosSlide = (int) (12 * robot.CPILift);
+    double liftSpeed = .2;
 
     @Override
     public void init()
@@ -60,8 +61,8 @@ public class MattMarkTeleOp extends OpMode
         //Needed for encoder movement;
         int positionToMoveUpBy;
 
-        telemetry.addData("Current: Tower Height:", towerSize);
-        telemetry.update();
+        //telemetry.addData("Current: Tower Height:", towerSize);
+        //telemetry.update();
 
         if (gamepad2.a)
         {
@@ -75,6 +76,7 @@ public class MattMarkTeleOp extends OpMode
         }
 
 
+        /*
         if(gamepad2.dpad_up)
         {
             towerSize++;
@@ -90,6 +92,9 @@ public class MattMarkTeleOp extends OpMode
             telemetry.update();
             sleep(200);
         }
+        */
+
+        /*
         else if(gamepad2.b)
         {
             goToTowerSize(towerSize);
@@ -102,6 +107,7 @@ public class MattMarkTeleOp extends OpMode
         {
             robot.capstone.setPosition(.75);
         }
+        */
         if(gamepad2.left_bumper)
         {
             armMoveRelative(150);
@@ -110,7 +116,11 @@ public class MattMarkTeleOp extends OpMode
         {
             armMoveRelative(-150);
         }
-        else if (gamepad2.left_trigger > .05)
+        if (gamepad2.y)
+        {
+            killSwitch();
+        }
+        /*else if (gamepad2.left_trigger > .05)
         {
             positionToMoveUpBy = (int) gamepad1.left_trigger * scaleFactor;
             armMoveRelative(positionToMoveUpBy);
@@ -120,11 +130,12 @@ public class MattMarkTeleOp extends OpMode
             positionToMoveUpBy = (int) gamepad1.right_trigger * scaleFactor;
             armMoveRelative(-positionToMoveUpBy);
         }
+        */
         if ( robot.liftMotor.getCurrentPosition() > maxPosSlide)
         {
             robot.liftMotor.setTargetPosition(maxPosSlide);
             robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.liftMotor.setPower(1);
+            robot.liftMotor.setPower(liftSpeed);
         }
         
 
@@ -140,7 +151,7 @@ public class MattMarkTeleOp extends OpMode
     {
         int newPosition = robot.liftMotor.getCurrentPosition() + positionRelative;
 
-        robot.liftMotor.setPower(liftUpSpeed);
+        robot.liftMotor.setPower(liftSpeed);
 
         robot.liftMotor.setTargetPosition(newPosition);
 
@@ -264,6 +275,10 @@ public class MattMarkTeleOp extends OpMode
         robot.liftMotor.setPower(0);
     }
 
+    public void killSwitch()
+    {
+        stop();
+    }
     public void driveStrafe(double trigger)
     {
         //Power
