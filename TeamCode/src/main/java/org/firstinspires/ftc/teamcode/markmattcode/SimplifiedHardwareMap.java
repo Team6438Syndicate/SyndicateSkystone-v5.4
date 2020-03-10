@@ -43,6 +43,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
+
 public class SimplifiedHardwareMap
 {
     //Vuforia Variables
@@ -53,11 +55,17 @@ public class SimplifiedHardwareMap
     public final int        driveCPI        =         (int) ((COUNTS_PER_MOTOR_REV_DRIVE * DRIVE_GEAR_REDUCTION) /
                                                             (WHEEL_DIAMETER_INCHES * FastMath.PI));
     //-------------------------------
-
-    static final double COUNTS_PER_MOTOR_LIFT = 753.2;
-    static final double DGR_LIFT = 1.0;
-    static final double PulleyDiamIN = 1.258;
-    public static final int SlideCPI = (int) ((COUNTS_PER_MOTOR_LIFT * DGR_LIFT) / (PulleyDiamIN * FastMath.PI));
+    //Encoder Variables
+    private  final double elevatorMotorCPR = 753.2;   //This is set for the 223
+    //Drive Gear Reduction
+    private  final double DGRLift = 1;
+    //Wheel Diameter Mills
+    private  final double WDMMLift = 31.9532; // TODO: 12/22/2019 Pulley size
+    //Counts per Mills
+    private final double CPMMLift = (elevatorMotorCPR)
+            / (WDMMLift / DGRLift * FastMath.PI) ;
+    //Counts per in for slides
+    public  final double CPILift =   CPMMLift / mmPerInch;
 
     //------
     static final double countsRulerMotor = 145.6;

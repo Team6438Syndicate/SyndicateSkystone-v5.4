@@ -19,12 +19,13 @@ public class MattMarkTeleOp extends OpMode
     int scaleFactor = 50;
     double strafeDec = .2;
     double slowSpeed = .2;
-    double gamestickFactor = 2;
+    double gamestickFactor = 4;
     int towerSize = 0;
     double liftUpSpeed = 1;
     int zeroTowerPositionOfSlides = 100; // need tweaking
     int ticksPerBlock = 100;            // need tweaking
     int triggerStrafeFactor = 100;
+    int maxPosSlide = (int) (12 * robot.CPILift);
 
     @Override
     public void init()
@@ -119,11 +120,17 @@ public class MattMarkTeleOp extends OpMode
             positionToMoveUpBy = (int) gamepad1.right_trigger * scaleFactor;
             armMoveRelative(-positionToMoveUpBy);
         }
+        if ( robot.liftMotor.getCurrentPosition() > maxPosSlide)
+        {
+            robot.liftMotor.setTargetPosition(maxPosSlide);
+            robot.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.liftMotor.setPower(1);
+        }
         
 
         //This checks to see how we want the motors moved
         motorControl(gamepad1.left_stick_y,gamepad1.right_stick_x,gamepad1.left_trigger,gamepad1.right_trigger);
-        robot.rulerMotor.setPower(3*-gamepad2.left_stick_y/4);
+        robot.rulerMotor.setPower(-gamepad2.left_stick_y/4);
 
     }
     /*
